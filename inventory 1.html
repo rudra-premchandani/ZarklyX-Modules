@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZarklyX — Inventory & Asset Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:       #faf8f4;
+    --bg2:      #f3f0ea;
+    --bg3:      #ece8df;
+    --ink:      #1a1814;
+    --ink2:     #3d3a35;
+    --muted:    #7a756c;
+    --border:   #ddd9d0;
+    --border2:  #ccc8be;
+    --accent:   #2d6a4f;
+    --accent-l: #e8f4ee;
+    --accent2:  #b5451b;
+    --accent2-l:#fbeee9;
+    --gold:     #9a7c3f;
+    --gold-l:   #f5eed8;
+    --white:    #ffffff;
+    --shadow:   0 2px 16px rgba(26,24,20,0.07);
+    --shadow-lg:0 8px 40px rgba(26,24,20,0.10);
+
+    /* PBI Theme Colors */
+    --pbi-blue:   #118DFF;
+    --pbi-navy:   #12239E;
+    --pbi-orange: #E66C37;
+    --pbi-purple: #6B007B;
+    --pbi-pink:   #E044A7;
+    --pbi-violet: #744EC2;
+    --pbi-yellow: #D9B300;
+    --pbi-red:    #D64550;
+    --pbi-bg:     #F3F2F1;
+    --pbi-card:   #FFFFFF;
+    --pbi-border: #E0DFDD;
+    --pbi-text:   #252423;
+    --pbi-muted:  #605E5C;
+    --pbi-header: #243A5E;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: radial-gradient(circle, #c8c0b0 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.18;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 64px; height: 64px;
+    background: rgba(250,248,244,0.94);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:19px; color:var(--ink); letter-spacing:-0.3px; }
+  .logo span { color: var(--accent); }
+  .nav-pill { font-size:11px; font-weight:600; letter-spacing:1.8px; text-transform:uppercase; color:var(--muted); background:var(--bg3); border:1px solid var(--border); padding:6px 18px; border-radius:99px; }
+
+  .page { position: relative; z-index: 1; }
+
+  /* ═══════════════════════════════════════════
+     DASHBOARD SECTION
+  ═══════════════════════════════════════════ */
+  .dashboard-section {
+    background: var(--white);
+    border-bottom: 2px solid var(--border);
+    padding: 48px 0 56px;
+  }
+  .dash-header {
+    max-width: 1240px; margin: 0 auto 32px;
+    padding: 0 40px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+  }
+  .dash-header-left {}
+  .dash-eyebrow {
+    font-size:11px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--accent); margin-bottom:8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .dash-eyebrow span { display:block; width:22px; height:2px; background:var(--accent); }
+  .dash-header h2 {
+    font-family:'Cormorant Garamond',serif;
+    font-size:36px; font-weight:700; letter-spacing:-1px; color:var(--ink); line-height:1.1;
+  }
+  .dash-header h2 em { font-style:italic; color:var(--accent); }
+  .dash-tabs {
+    display:flex; gap:6px;
+  }
+  .dash-tab {
+    font-size:12px; font-weight:600; letter-spacing:0.3px;
+    padding:8px 20px; border-radius:6px; border:none; cursor:pointer;
+    transition: all 0.18s;
+    font-family:'Plus Jakarta Sans',sans-serif;
+  }
+  .dash-tab.active { background:var(--ink); color:#fff; }
+  .dash-tab:not(.active) { background:var(--bg2); color:var(--muted); border:1px solid var(--border); }
+  .dash-tab:not(.active):hover { background:var(--bg3); color:var(--ink); }
+
+  /* PBI CANVAS */
+  .pbi-wrap {
+    max-width: 1240px; margin: 0 auto;
+    padding: 0 40px;
+  }
+  .pbi-canvas {
+    background: var(--pbi-bg);
+    border-radius: 12px;
+    border: 1px solid var(--pbi-border);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+  }
+
+  /* PBI Page wrapper */
+  .pbi-page { display: none; padding: 14px 14px 14px; }
+  .pbi-page.active { display: block; }
+
+  /* PBI Header bar */
+  .pbi-topbar {
+    background: var(--pbi-header);
+    color: #fff;
+    padding: 10px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.2px;
+    border-radius: 8px 8px 0 0;
+    margin: -14px -14px 14px;
+  }
+  .pbi-topbar-left { display:flex; align-items:center; gap:10px; }
+  .pbi-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.35); }
+  .pbi-topbar-right { font-size:11px; font-weight:400; color:rgba(255,255,255,0.55); letter-spacing:0.5px; }
+
+  /* PBI SLICER */
+  .pbi-slicer {
+    background: var(--pbi-card);
+    border: 1px solid var(--pbi-border);
+    border-radius: 6px;
+    padding: 10px 16px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
+  }
+  .pbi-slicer-label { font-size:11px; font-weight:600; color:var(--pbi-muted); text-transform:uppercase; letter-spacing:1px; margin-right:4px; white-space:nowrap; }
+  .pbi-chip {
+    font-size:12px; font-weight:500; color:var(--pbi-text);
+    background:var(--pbi-bg); border:1px solid var(--pbi-border);
+    padding:4px 14px; border-radius:99px; cursor:pointer; transition:all 0.15s;
+    white-space:nowrap;
+  }
+  .pbi-chip.sel { background:var(--pbi-blue); color:#fff; border-color:var(--pbi-blue); }
+  .pbi-chip:hover:not(.sel) { border-color:#999; }
+
+  /* PBI KPI ROW */
+  .pbi-kpi-row {
+    display: grid; grid-template-columns: repeat(5,1fr); gap: 10px;
+    margin-bottom: 10px;
+  }
+  .pbi-kpi {
+    background: var(--pbi-card);
+    border: 1px solid var(--pbi-border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    position: relative; overflow: hidden;
+  }
+  .pbi-kpi::after {
+    content:''; position:absolute; bottom:0; left:0; right:0;
+    height:3px;
+  }
+  .pbi-kpi:nth-child(1)::after { background:var(--pbi-blue); }
+  .pbi-kpi:nth-child(2)::after { background:var(--pbi-orange); }
+  .pbi-kpi:nth-child(3)::after { background:var(--pbi-violet); }
+  .pbi-kpi:nth-child(4)::after { background:var(--pbi-yellow); }
+  .pbi-kpi:nth-child(5)::after { background:var(--pbi-pink); }
+  .pbi-kpi-label { font-size:10px; font-weight:600; color:var(--pbi-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; }
+  .pbi-kpi-value { font-family:'Plus Jakarta Sans',sans-serif; font-size:26px; font-weight:700; color:var(--pbi-text); line-height:1; }
+  .pbi-kpi-sub { font-size:10px; color:var(--pbi-muted); margin-top:4px; }
+
+  /* PBI CHART ROW */
+  .pbi-chart-row { display:grid; gap:10px; margin-bottom:10px; }
+  .pbi-chart-row.two   { grid-template-columns: 55% 1fr; }
+  .pbi-chart-row.two-b { grid-template-columns: 43% 1fr; }
+  .pbi-chart-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  .pbi-chart-box {
+    background: var(--pbi-card);
+    border: 1px solid var(--pbi-border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    position: relative;
+    min-width: 0; /* prevent grid blowout */
+  }
+  .pbi-chart-title {
+    font-size:11px; font-weight:700; color:var(--pbi-muted);
+    text-transform:uppercase; letter-spacing:0.8px;
+    margin-bottom:10px;
+  }
+
+  /* Every canvas lives inside a fixed-height wrapper */
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+  }
+  .chart-wrap.h160 { height: 160px; }
+  .chart-wrap.h180 { height: 180px; }
+  .chart-wrap.h195 { height: 195px; }
+
+  /* Treemap */
+  .treemap-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; height:160px; }
+  .tm-cell {
+    border-radius:3px; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; padding:6px; overflow:hidden;
+  }
+  .tm-cell span { font-size:10px; font-weight:700; color:#fff; text-align:center; line-height:1.3; }
+  .tm-cell small { font-size:9px; color:rgba(255,255,255,0.75); margin-top:2px; }
+
+  /* MultiRowCard */
+  .mrc-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .mrc-table thead th { background:var(--pbi-bg); font-size:10px; font-weight:700; color:var(--pbi-muted); text-transform:uppercase; letter-spacing:0.6px; padding:8px 10px; border-bottom:1px solid var(--pbi-border); text-align:left; }
+  .mrc-table tbody td { padding:8px 10px; border-bottom:1px solid var(--pbi-border); color:var(--pbi-text); font-size:12px; }
+  .mrc-table tbody tr:last-child td { border-bottom:none; }
+  .mrc-bar-bg { background:var(--pbi-bg); border-radius:99px; height:6px; margin-top:4px; }
+  .mrc-bar { height:6px; border-radius:99px; background:var(--pbi-blue); }
+
+  /* Page 2 layout */
+  .pbi-row-split { display:grid; grid-template-columns:1fr 240px; gap:10px; margin-bottom:10px; }
+  .pbi-bottom-three { display:grid; grid-template-columns:40% 24% 1fr; gap:10px; }
+
+
+  /* ─── HERO ─── */
+  .hero-wrap { background:var(--white); border-bottom:1px solid var(--border); }
+  .hero {
+    max-width:1160px; margin:0 auto;
+    padding:96px 64px 88px;
+    display:grid; grid-template-columns:1fr 400px; gap:80px; align-items:center;
+  }
+  .eyebrow { display:inline-flex; align-items:center; gap:10px; font-size:11px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin-bottom:28px; }
+  .eyebrow span { display:block; width:28px; height:2px; background:var(--accent); }
+  .hero h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(46px,6vw,78px); font-weight:700; line-height:1.05; letter-spacing:-2px; color:var(--ink); margin-bottom:26px; }
+  .hero h1 em { font-style:italic; color:var(--accent); }
+  .hero-desc { font-size:17px; color:var(--muted); line-height:1.85; max-width:500px; margin-bottom:40px; font-weight:400; }
+  .btn { display:inline-flex; align-items:center; gap:8px; background:var(--ink); color:var(--bg); font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:600; letter-spacing:0.3px; padding:14px 28px; border-radius:6px; text-decoration:none; transition:background .18s,transform .18s; }
+  .btn:hover { background:var(--accent); transform:translateY(-1px); }
+  .hero-panel { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:32px; display:flex; flex-direction:column; gap:14px; }
+  .h-stat { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:18px 22px; display:flex; align-items:center; gap:14px; }
+  .h-stat-icon { width:40px; height:40px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+  .h-stat-icon.g { background:var(--accent-l); }
+  .h-stat-icon.o { background:var(--accent2-l); }
+  .h-stat-icon.y { background:var(--gold-l); }
+  .h-stat-val { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--ink); line-height:1; margin-bottom:2px; }
+  .h-stat-lbl { font-size:12px; color:var(--muted); font-weight:400; }
+
+  /* ─── CHAPTERS ─── */
+  .chapter { max-width:1160px; margin:0 auto; padding:88px 64px; border-top:1px solid var(--border); display:grid; grid-template-columns:200px 1fr; gap:80px; align-items:start; }
+  .chapter-sidebar { position:sticky; top:84px; }
+  .ch-num { font-family:'Cormorant Garamond',serif; font-size:80px; font-weight:700; line-height:1; color:var(--border2); letter-spacing:-4px; margin-bottom:16px; }
+  .ch-tag { font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+  .ch-desc { font-size:13px; color:var(--muted); line-height:1.65; font-weight:400; }
+  .ch-body h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(30px,4vw,50px); font-weight:700; letter-spacing:-1.5px; line-height:1.1; color:var(--ink); margin-bottom:32px; }
+  .ch-body h2 em { font-style:italic; color:var(--accent); }
+  .ch-body p { font-size:16px; color:var(--ink2); line-height:1.9; margin-bottom:22px; font-weight:400; }
+  .ch-body p strong { color:var(--ink); font-weight:600; }
+  .ch-body p em { color:var(--accent); font-style:normal; }
+  .ch-body h3 { font-family:'Plus Jakarta Sans',sans-serif; font-size:17px; font-weight:700; color:var(--ink); margin-top:44px; margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+  .ch-body h3::before { content:''; display:block; width:18px; height:2px; background:var(--accent); flex-shrink:0; }
+  .rule { width:48px; height:2px; background:var(--accent); border-radius:2px; margin-bottom:28px; }
+
+  /* Pull quote */
+  .pq { margin:36px 0; padding:26px 34px; background:var(--gold-l); border-left:3px solid var(--gold); border-radius:0 10px 10px 0; }
+  .pq p { font-family:'Cormorant Garamond',serif !important; font-size:22px !important; font-style:italic; color:var(--ink) !important; line-height:1.6 !important; margin:0 !important; font-weight:600 !important; }
+
+  /* Step blocks */
+  .step-block { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:30px 34px; margin:20px 0; position:relative; overflow:hidden; box-shadow:var(--shadow); transition:box-shadow .2s; }
+  .step-block:hover { box-shadow:var(--shadow-lg); }
+  .step-block::after { content:attr(data-num); position:absolute; bottom:-14px; right:20px; font-family:'Cormorant Garamond',serif; font-size:96px; font-weight:700; color:var(--bg3); line-height:1; pointer-events:none; user-select:none; }
+  .step-tag { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+  .step-block h3 { font-family:'Cormorant Garamond',serif !important; font-size:24px !important; font-weight:700 !important; color:var(--ink) !important; margin-top:0 !important; margin-bottom:12px !important; letter-spacing:-0.5px; }
+  .step-block h3::before { display:none !important; }
+  .step-block p { font-size:15px !important; color:var(--muted) !important; line-height:1.8 !important; margin:0 !important; position:relative; z-index:1; }
+
+  /* Feature blocks */
+  .feat-block { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:26px 30px; margin:14px 0; box-shadow:var(--shadow); display:grid; grid-template-columns:44px 1fr; gap:18px; align-items:start; transition:box-shadow .2s,transform .2s; }
+  .feat-block:hover { box-shadow:var(--shadow-lg); transform:translateY(-2px); }
+  .feat-icon-wrap { width:44px; height:44px; border-radius:10px; background:var(--accent-l); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; margin-top:2px; }
+  .feat-block h3 { font-family:'Plus Jakarta Sans',sans-serif !important; font-size:16px !important; font-weight:700 !important; color:var(--ink) !important; margin-top:0 !important; margin-bottom:10px !important; }
+  .feat-block h3::before { display:none !important; }
+  .feat-block p { font-size:15px !important; color:var(--muted) !important; line-height:1.8 !important; margin:0 !important; }
+
+  /* PS blocks */
+  .ps-wrap { margin:26px 0; border-radius:12px; overflow:hidden; box-shadow:var(--shadow); }
+  .ps-prob { padding:22px 28px; background:var(--accent2-l); border:1px solid #f0cfc6; border-bottom:none; }
+  .ps-sol  { padding:22px 28px; background:var(--accent-l);  border:1px solid #c3ddd0; border-top:none; }
+  .ps-lbl  { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+  .ps-prob .ps-lbl { color:var(--accent2); }
+  .ps-sol  .ps-lbl { color:var(--accent);  }
+  .ps-wrap p { font-size:15px !important; line-height:1.8 !important; margin:0 !important; }
+  .ps-prob p { color:#7a4538 !important; }
+  .ps-sol  p { color:#2e5f47 !important; }
+
+  /* Comparison */
+  .comp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:30px 0; }
+  .comp-card { border-radius:12px; padding:26px 22px; border:1px solid var(--border); background:var(--white); box-shadow:var(--shadow); }
+  .comp-card.zarkly { background:var(--ink); border-color:var(--ink); }
+  .comp-card h4 { font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-bottom:14px; }
+  .comp-card.zarkly h4 { color:var(--accent-l); }
+  .comp-card:not(.zarkly) h4 { color:var(--muted); }
+  .comp-card p { font-size:14px !important; line-height:1.8 !important; margin:0 !important; }
+  .comp-card.zarkly p { color:#c8d6d0 !important; }
+  .comp-card:not(.zarkly) p { color:var(--muted) !important; }
+
+  /* Benefit items */
+  .ben-item { margin:0 0 38px; padding-left:22px; border-left:2px solid var(--border); transition:border-color .2s; }
+  .ben-item:hover { border-left-color:var(--accent); }
+  .ben-item h3 { font-family:'Plus Jakarta Sans',sans-serif !important; font-size:17px !important; font-weight:700 !important; color:var(--ink) !important; margin-top:0 !important; margin-bottom:12px !important; }
+  .ben-item h3::before { display:none !important; }
+
+  /* Summary */
+  .summary-outer { background:var(--ink); padding:0 64px; }
+  .summary-inner { max-width:1160px; margin:0 auto; padding:88px 0; display:grid; grid-template-columns:1fr 360px; gap:80px; align-items:start; }
+  .summary-inner .eyebrow { color:#8aaa97; }
+  .summary-inner .eyebrow span { background:#8aaa97; }
+  .summary-inner h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(34px,4.5vw,56px); font-weight:700; letter-spacing:-2px; line-height:1.08; color:#f0ede6; margin-bottom:28px; }
+  .summary-inner h2 em { font-style:italic; color:#8dbb9e; }
+  .summary-inner p { font-size:16px; color:#8a8680; line-height:1.9; margin-bottom:20px; }
+  .summary-inner p strong { color:#c8c3bb; font-weight:500; }
+  .summary-panel { background:#1e201a; border:1px solid #2e3028; border-radius:14px; padding:32px; display:flex; flex-direction:column; gap:12px; }
+  .s-tag { font-size:12px; font-weight:500; padding:10px 16px; border-radius:8px; background:#262820; border:1px solid #303228; color:#8a8a80; display:flex; align-items:center; gap:10px; }
+  .s-tag span { font-size:15px; }
+
+  footer { background:#121410; border-top:1px solid #1e201a; padding:26px 64px; display:flex; align-items:center; justify-content:space-between; }
+  footer .logo { color:#f0ede6; }
+  footer .logo span { color:#8dbb9e; }
+  footer p { font-size:13px; color:#4a4a44; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .hero > * { animation: fadeUp .65s ease both; }
+  .hero-left .eyebrow   { animation-delay:.05s }
+  .hero-left h1         { animation-delay:.15s }
+  .hero-left .hero-desc { animation-delay:.28s }
+  .hero-left .btn       { animation-delay:.4s  }
+  .hero-panel           { animation-delay:.2s  }
+
+  @media(max-width:960px){
+    nav,footer,.summary-outer{ padding-left:24px; padding-right:24px; }
+    .hero{ grid-template-columns:1fr; padding:56px 24px; gap:36px; }
+    .hero-panel,.summary-panel{ display:none; }
+    .chapter{ grid-template-columns:1fr; gap:20px; padding:52px 24px; }
+    .chapter-sidebar{ position:static; }
+    .ch-num{ font-size:52px; }
+    .comp-grid{ grid-template-columns:1fr; }
+    .pbi-kpi-row{ grid-template-columns:1fr 1fr; }
+    .pbi-chart-row.two,.pbi-chart-row.two-b,.pbi-row-split,.pbi-bottom-three{ grid-template-columns:1fr; }
+    .dash-header{ flex-direction:column; align-items:flex-start; gap:16px; }
+    .pbi-wrap,.dash-header{ padding:0 16px; }
+    .dashboard-section{ padding:32px 0 40px; }
+    .summary-inner{ grid-template-columns:1fr; padding:60px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Zarkly<span>X</span></div>
+  <span class="nav-pill">Inventory & Asset Management</span>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     DASHBOARD SECTION
+═══════════════════════════════════════ -->
+<div class="dashboard-section">
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <div class="dash-eyebrow"><span></span>Live Dashboard Preview</div>
+      <h2>Inventory <em>Intelligence</em> at a Glance</h2>
+    </div>
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="showPage(1,this)">Overview</button>
+      <button class="dash-tab" onclick="showPage(2,this)">Item Analysis</button>
+    </div>
+  </div>
+
+  <div class="pbi-wrap">
+    <div class="pbi-canvas">
+
+      <!-- ── PAGE 1 ── -->
+      <div class="pbi-page active" id="pbi-p1">
+        <div class="pbi-topbar">
+          <div class="pbi-topbar-left">
+            <div class="pbi-dot"></div>
+            <span>Inventory Dashboard — Overview</span>
+          </div>
+          <span class="pbi-topbar-right">ZarklyX · Inventory & Asset Management</span>
+        </div>
+
+        <!-- Slicer -->
+        <div class="pbi-slicer">
+          <span class="pbi-slicer-label">Warehouse:</span>
+          <span class="pbi-chip sel" onclick="selectChip(this)">All</span>
+          <span class="pbi-chip" onclick="selectChip(this)">Warehouse A</span>
+          <span class="pbi-chip" onclick="selectChip(this)">Warehouse B</span>
+          <span class="pbi-chip" onclick="selectChip(this)">Warehouse C</span>
+          <span class="pbi-chip" onclick="selectChip(this)">Warehouse D</span>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="pbi-kpi-row">
+          <div class="pbi-kpi" onclick="showKpiDetail(this)" style="cursor:pointer" title="Click to drill down">
+            <div class="pbi-kpi-label">Total Inward</div>
+            <div class="pbi-kpi-value">12,480</div>
+            <div class="pbi-kpi-sub">Units received</div>
+          </div>
+          <div class="pbi-kpi" onclick="showKpiDetail(this)" style="cursor:pointer" title="Click to drill down">
+            <div class="pbi-kpi-label">Total Outward</div>
+            <div class="pbi-kpi-value">9,312</div>
+            <div class="pbi-kpi-sub">Units dispatched</div>
+          </div>
+          <div class="pbi-kpi" onclick="showKpiDetail(this)" style="cursor:pointer" title="Click to drill down">
+            <div class="pbi-kpi-label">Net Stock Movement</div>
+            <div class="pbi-kpi-value">3,168</div>
+            <div class="pbi-kpi-sub">Running surplus</div>
+          </div>
+          <div class="pbi-kpi" onclick="showKpiDetail(this)" style="cursor:pointer" title="Click to drill down">
+            <div class="pbi-kpi-label">Current Stock</div>
+            <div class="pbi-kpi-value">8,754</div>
+            <div class="pbi-kpi-sub">Units on hand</div>
+          </div>
+          <div class="pbi-kpi" onclick="showKpiDetail(this)" style="cursor:pointer" title="Click to drill down">
+            <div class="pbi-kpi-label">Stock Value</div>
+            <div class="pbi-kpi-value">₹4.2M</div>
+            <div class="pbi-kpi-sub">Total valuation</div>
+          </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="pbi-chart-row two">
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Inward vs Outward Trend (Monthly)</div>
+            <div class="chart-wrap h160"><canvas id="lineChart1"></canvas></div>
+          </div>
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Stock by Warehouse</div>
+            <div class="chart-wrap h160"><canvas id="barChart1"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="pbi-chart-row two-b">
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Adjustment Reasons</div>
+            <div class="chart-wrap h160"><canvas id="pieChart1"></canvas></div>
+          </div>
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Top Vendors by Volume</div>
+            <div class="treemap-grid" id="treemap1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAGE 2 ── -->
+      <div class="pbi-page" id="pbi-p2">
+        <div class="pbi-topbar">
+          <div class="pbi-topbar-left">
+            <div class="pbi-dot"></div>
+            <span>Inventory Dashboard — Item Analysis</span>
+          </div>
+          <span class="pbi-topbar-right">ZarklyX · Inventory & Asset Management</span>
+        </div>
+
+        <!-- Slicer -->
+        <div class="pbi-slicer">
+          <span class="pbi-slicer-label">Warehouse:</span>
+          <span class="pbi-chip sel" onclick="selectChip(this)">All</span>
+          <span class="pbi-chip" onclick="selectChip(this)">Warehouse A</span>
+          <span class="pbi-chip" onclick="selectChip(this)">Warehouse B</span>
+          <span class="pbi-chip" onclick="selectChip(this)">Warehouse C</span>
+          <span class="pbi-chip" onclick="selectChip(this)">Warehouse D</span>
+        </div>
+
+        <!-- Top bar chart + table -->
+        <div class="pbi-row-split">
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Movement by Item</div>
+            <div class="chart-wrap h195"><canvas id="barChart2"></canvas></div>
+          </div>
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Warehouse Movement Volume</div>
+            <table class="mrc-table">
+              <thead><tr><th>Warehouse</th><th>Volume</th></tr></thead>
+              <tbody id="mrcBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bottom row -->
+        <div class="pbi-bottom-three">
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Adjustment Reasons</div>
+            <div class="chart-wrap h180"><canvas id="pieChart2"></canvas></div>
+          </div>
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Vendor Mix</div>
+            <div class="treemap-grid" id="treemap2" style="height:140px"></div>
+          </div>
+          <div class="pbi-chart-box">
+            <div class="pbi-chart-title">Low Stock Alerts by Item</div>
+            <div class="chart-wrap h180"><canvas id="donutChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end pbi-canvas -->
+  </div><!-- end pbi-wrap -->
+</div><!-- end dashboard-section -->
+
+
+<!-- ═══════════════════════════════════════
+     HERO
+═══════════════════════════════════════ -->
+<div class="hero-wrap">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="eyebrow"><span></span>Module Overview</div>
+      <h1>Know What You<br>Have. <em>Always.</em></h1>
+      <p class="hero-desc">ZarklyX Inventory & Asset Management gives your business complete, real-time control over every product, material, and company asset — from the warehouse shelf to the final destination. One platform. Total clarity.</p>
+      <a href="#what-is" class="btn">Read the Full Overview →</a>
+    </div>
+    <div class="hero-panel">
+      <div class="h-stat"><div class="h-stat-icon g">📦</div><div><div class="h-stat-val">100%</div><div class="h-stat-lbl">Inventory Accuracy</div></div></div>
+      <div class="h-stat"><div class="h-stat-icon o">⚡</div><div><div class="h-stat-val">Real-time</div><div class="h-stat-lbl">Stock Visibility</div></div></div>
+      <div class="h-stat"><div class="h-stat-icon y">🏭</div><div><div class="h-stat-val">Multi-WH</div><div class="h-stat-lbl">Warehouse Support</div></div></div>
+      <div class="h-stat"><div class="h-stat-icon g">📊</div><div><div class="h-stat-val">Zero</div><div class="h-stat-lbl">Spreadsheet Errors</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 01 -->
+<div class="chapter" id="what-is">
+  <div class="chapter-sidebar"><div class="ch-num">01</div><div class="ch-tag">Foundation</div><div class="ch-desc">What inventory and asset management actually means — and why it matters to your bottom line</div></div>
+  <div class="ch-body">
+    <h2>Understanding Inventory &<br><em>Asset Management</em></h2><div class="rule"></div>
+    <p>Every business that deals with physical goods faces the same fundamental challenge: keeping track of what it owns. Whether you run a manufacturing plant, a retail operation, a distribution company, or a services firm with equipment, the ability to know exactly what you have — where it is, how much of it exists, and what is happening to it — is not a luxury. It is the operational backbone of a functioning, profitable business.</p>
+    <h3>What Is Inventory Management?</h3>
+    <p><strong>Inventory management</strong> is the practice of systematically tracking all the physical goods that move through your business. This includes raw materials waiting to be used in production, finished products ready for sale, consumables used in day-to-day operations, and goods in transit between locations. Inventory is dynamic — it arrives from suppliers, gets consumed or sold, and must be replenished. Managing it well means knowing your stock levels at any moment, understanding how quickly goods move, and ensuring you never run out of something critical or tie up capital in stock that isn't moving.</p>
+    <h3>What Is Asset Management?</h3>
+    <p><strong>Asset management</strong> is different in nature. Assets are the physical items your company owns and uses to operate — computers, machinery, furniture, vehicles, tools, and equipment that has been purchased and put to work. Unlike inventory, assets are not sold to customers. They are used, maintained, and eventually replaced. Managing assets means tracking each item's location, who is responsible for it, what condition it is in, and when it may need servicing or replacement. Without this visibility, companies lose track of expensive equipment, over-purchase items they already own, or fail to maintain machinery that eventually breaks down at the worst possible time.</p>
+    <div class="pq"><p>"Inventory moves through your business. Assets power your business. ZarklyX tracks both — in one place, in real time."</p></div>
+    <h3>Why Every Business Must Track Both</h3>
+    <p>The consequences of poor inventory and asset management compound over time. When businesses lose visibility into their physical goods, the financial impact is real and measurable. Overstocking ties up working capital. Stockouts halt production, delay shipments, and disappoint customers. Untracked assets disappear, break without warning, or sit unused while the same item is being purchased again. During audits — whether internal, financial, or regulatory — businesses without organized records face costly reconciliation exercises, compliance risks, and the kind of operational chaos that erodes profits and trust.</p>
+    <p>Beyond the numbers, there is the matter of decision-making confidence. Executives, operations managers, and procurement teams need accurate information to make smart calls. <em>How much stock do we have? Do we need to reorder? Where is that piece of equipment being used?</em> These are simple questions — but without the right system, they take hours to answer and even then, the answers may be wrong.</p>
+  </div>
+</div>
+
+<!-- 02 -->
+<div class="chapter" id="how-it-works">
+  <div class="chapter-sidebar"><div class="ch-num">02</div><div class="ch-tag">The Workflow</div><div class="ch-desc">A step-by-step guide to how the ZarklyX inventory system works in real operations</div></div>
+  <div class="ch-body">
+    <h2>How the ZarklyX System<br><em>Works, Step by Step</em></h2><div class="rule"></div>
+    <p>ZarklyX is designed around the way real inventory operations actually flow — not the way software vendors imagine they should. Every step in the system mirrors a real-world action, making it intuitive for warehouse teams, operations managers, and business owners alike.</p>
+    <div class="step-block" data-num="01"><div class="step-tag">Step One</div><h3>Create Your Warehouses & Storage Locations</h3><p>The first thing you do is define where your stock lives. ZarklyX allows you to create multiple warehouses, stockrooms, branch locations, or storage zones — as many as your operation requires. Each location is named, configured, and mapped within the system so that every item can be tied to a specific place. Whether you have one small storeroom or a network of regional fulfillment centers, the system scales to match your physical footprint from day one.</p></div>
+    <div class="step-block" data-num="02"><div class="step-tag">Step Two</div><h3>Build Your Inventory Item & Asset Library</h3><p>With locations defined, you populate the system with your actual items. Each product, material, or asset is added with rich detail — name, category, unit of measurement, SKU, batch number, expiry date, supplier details, and any custom attributes your business requires. This item library becomes your master reference: the single, authoritative record of everything your business tracks.</p></div>
+    <div class="step-block" data-num="03"><div class="step-tag">Step Three</div><h3>Record Every Incoming Delivery — Stock Inward</h3><p>When goods arrive from a supplier or vendor, a stock inward entry is created in ZarklyX. You record the supplier, delivery reference, items received, quantities, and the warehouse where they are being stored. The system instantly updates stock levels and creates a permanent, timestamped record of the transaction. Every unit that arrives is fully accounted for from the first moment.</p></div>
+    <div class="step-block" data-num="04"><div class="step-tag">Step Four</div><h3>Track Internal Movement Between Locations</h3><p>Goods move from central warehouses to branch locations, from storage to the production floor, from one site to another as demand shifts. ZarklyX tracks every internal transfer with complete documentation — where the goods came from, where they are going, how many units are moving, and why. This keeps stock levels accurate across every location without requiring manual recounts.</p></div>
+    <div class="step-block" data-num="05"><div class="step-tag">Step Five</div><h3>Document Every Outgoing Transaction — Stock Outward</h3><p>When inventory leaves your business — whether shipped to a customer, transferred to a partner, issued for internal use, or dispatched for any other reason — a stock outward entry captures the full transaction. The system automatically reduces stock levels upon recording, and every outward entry becomes part of the permanent movement history. Nothing exits your warehouse undocumented.</p></div>
+    <div class="step-block" data-num="06"><div class="step-tag">Step Six</div><h3>Correct Discrepancies with Stock Adjustments</h3><p>Differences between what the system says and what is physically on the shelf are inevitable. Items get damaged, counting errors occur, returned goods need reintegration. ZarklyX stock adjustment tools let authorized users quickly correct these differences, log the reason for the change, and maintain a clear audit trail — so your records always reflect physical reality.</p></div>
+    <div class="step-block" data-num="07"><div class="step-tag">Step Seven</div><h3>Monitor Everything Through a Live Dashboard</h3><p>With all transactions flowing in and out, ZarklyX consolidates everything into a real-time operations dashboard. Stock levels across every warehouse, inward and outward trends, low-stock alerts, movement history, and inventory health indicators are all visible in one place. The information is live, accurate, and always one click away — exactly as shown in the dashboard above.</p></div>
+  </div>
+</div>
+
+<!-- 03 -->
+<div class="chapter" id="features">
+  <div class="chapter-sidebar"><div class="ch-num">03</div><div class="ch-tag">Core Features</div><div class="ch-desc">A detailed look at every capability the ZarklyX Inventory module delivers</div></div>
+  <div class="ch-body">
+    <h2>The Features That Make<br>It All <em>Possible</em></h2><div class="rule"></div>
+    <p>ZarklyX Inventory & Asset Management is built around a set of tightly integrated capabilities that work together as a unified system. Each feature is purposeful, each solves a real operational problem, and together they replace the patchwork of spreadsheets and disconnected tools that most businesses currently rely on.</p>
+    <div class="feat-block"><div class="feat-icon-wrap">🏭</div><div><h3>Warehouse Settings</h3><p>Create, configure, and manage multiple storage locations within a single platform. Each warehouse operates as a distinct entity with its own stock levels, movement history, and reporting. Businesses with one location or twenty use the same clean interface — and adding a new site takes minutes. Every item in the system knows which warehouse it belongs to, eliminating the "where is it stored?" question permanently.</p></div></div>
+    <div class="feat-block"><div class="feat-icon-wrap">📥</div><div><h3>Stock Inward</h3><p>The moment goods arrive at your facility, ZarklyX captures the complete delivery record. Supplier information, invoice references, item codes, quantities received, and destination warehouse are all logged in a single transaction. Stock levels update immediately, and the delivery is permanently archived. Whether you process three deliveries a month or three hundred a day, every one is documented with the same precision.</p></div></div>
+    <div class="feat-block"><div class="feat-icon-wrap">📤</div><div><h3>Stock Outward</h3><p>All outgoing inventory is captured with the same discipline applied to incoming stock. Sales dispatches, internal issues, transfers, and goods sent to partners are all recorded as outward transactions — automatically reducing the relevant warehouse's stock count and creating a permanent movement record with every reference attached.</p></div></div>
+    <div class="feat-block"><div class="feat-icon-wrap">⚖️</div><div><h3>Stock Adjustment</h3><p>Damaged goods, expired items, miscounted receipts, and returned products all create discrepancies. The stock adjustment module gives authorized users the ability to reconcile these differences quickly, attach a reason code to every adjustment, and maintain a full audit trail that shows not just what changed, but why. Finance teams, auditors, and operations managers can trust that all records are complete and traceable.</p></div></div>
+    <div class="feat-block"><div class="feat-icon-wrap">🗂️</div><div><h3>Centralized Inventory Tracking</h3><p>All products, materials, and assets across every warehouse exist within one unified view. There are no separate databases for different locations, no consolidation required at month-end, and no risk of one team working from a different version of data than another. The ZarklyX platform is the single source of truth for your entire physical operation, accessible to everyone with the right permissions, from anywhere.</p></div></div>
+    <div class="feat-block"><div class="feat-icon-wrap">⚡</div><div><h3>Real-Time Updates</h3><p>Every transaction — inward, outward, transfer, adjustment — reflects across the platform the moment it is recorded. There is no batching, no nightly sync, and no manual refresh required. When a team member in one warehouse ships stock out, the manager in another location sees the updated level immediately. Real-time data is not a feature in ZarklyX — it is the foundation on which everything else is built.</p></div></div>
+    <div class="feat-block"><div class="feat-icon-wrap">📋</div><div><h3>Movement History & Logs</h3><p>Every transaction ever recorded in ZarklyX is permanently stored and searchable. The movement log for any item shows its complete journey — every inward delivery, outward dispatch, transfer, and adjustment — with timestamps and user records attached. This complete history makes audit preparation fast, supplier reconciliation effortless, and internal investigations straightforward.</p></div></div>
+    <div class="feat-block"><div class="feat-icon-wrap">📊</div><div><h3>Smart Reporting</h3><p>Raw data becomes operational intelligence through ZarklyX's reporting engine. Generate inventory snapshots, movement summaries, stock aging reports, fast and slow-mover analysis, and warehouse utilization breakdowns. Reports serve procurement teams, operations managers, and finance departments — giving each stakeholder exactly the insight they need to do their job better and faster.</p></div></div>
+  </div>
+</div>
+
+<!-- 04 -->
+<div class="chapter" id="problems">
+  <div class="chapter-sidebar"><div class="ch-num">04</div><div class="ch-tag">Pain Points</div><div class="ch-desc">The real operational problems ZarklyX was specifically built to eliminate</div></div>
+  <div class="ch-body">
+    <h2>The Problems ZarklyX<br><em>Was Built to Solve</em></h2><div class="rule"></div>
+    <p>Inventory mismanagement is one of the most widespread and costly operational problems in business — and most companies don't realize the full scale of the damage until they switch to a system that actually works.</p>
+    <div class="ps-wrap"><div class="ps-prob"><div class="ps-lbl">The Problem — Lost & Misplaced Inventory</div><p>Items arrive at one warehouse, get moved informally to another, and disappear from the record. Stock sits forgotten in a back corner while the same item is reordered at full price. Teams spend hours physically searching for goods the system insists exist somewhere in the building.</p></div><div class="ps-sol"><div class="ps-lbl">The ZarklyX Solution</div><p><strong>Every item is tied to a specific warehouse location.</strong> Every movement is a documented transaction. Finding stock takes a search, not a physical walkthrough — and every unit is traceable through its entire journey from arrival to dispatch.</p></div></div>
+    <div class="ps-wrap"><div class="ps-prob"><div class="ps-lbl">The Problem — Spreadsheet Errors & Version Chaos</div><p>Inventory spreadsheets are broken by design. Multiple people edit the same file, formulas get overwritten, versions multiply, and no one knows which sheet is current. A single incorrect entry can cascade into financial reporting errors, procurement mistakes, and operational blind spots.</p></div><div class="ps-sol"><div class="ps-lbl">The ZarklyX Solution</div><p><strong>There is one system, one version, and one source of truth.</strong> All transactions are entered once, validated automatically, and reflected instantly across the platform. No formulas to break, no versions to reconcile, no outdated data.</p></div></div>
+    <div class="ps-wrap"><div class="ps-prob"><div class="ps-lbl">The Problem — No Real-Time Visibility</div><p>Purchasing decisions are made on yesterday's numbers. By the time a manager gets a stock report, the reality on the warehouse floor has already changed. Stockouts happen without warning and reactive purchasing costs more than proactive planning.</p></div><div class="ps-sol"><div class="ps-lbl">The ZarklyX Solution</div><p><strong>The live dashboard reflects current stock levels the moment any transaction is recorded.</strong> Procurement teams, warehouse managers, and executives all see the same real-time data simultaneously — enabling faster, more confident decisions at every level.</p></div></div>
+    <div class="ps-wrap"><div class="ps-prob"><div class="ps-lbl">The Problem — Siloed Warehouse Operations</div><p>Businesses with multiple storage locations struggle to coordinate. Each warehouse keeps its own records, operates in isolation, and transfers between sites are poorly documented. Centralized reporting becomes a manual assembly exercise.</p></div><div class="ps-sol"><div class="ps-lbl">The ZarklyX Solution</div><p><strong>All warehouse locations operate within one unified platform.</strong> Stock transfers are documented transactions, not informal handoffs. Centralized reporting is instant and requires zero manual consolidation.</p></div></div>
+    <div class="ps-wrap"><div class="ps-prob"><div class="ps-lbl">The Problem — Untracked Company Assets</div><p>Equipment gets borrowed, relocated, damaged, or lost without anyone updating a record. Expensive items are purchased because no one knew the company already owned one sitting unused in another department.</p></div><div class="ps-sol"><div class="ps-lbl">The ZarklyX Solution</div><p><strong>Every company asset is registered, assigned, and tracked within the same platform as inventory.</strong> Location records, assignment history, and condition notes are maintained systematically — ensuring what the company owns is always visible and accounted for.</p></div></div>
+    <div class="ps-wrap"><div class="ps-prob"><div class="ps-lbl">The Problem — Audit Mismatches & Compliance Risks</div><p>When physical counts are compared against system records, the numbers rarely align. The reconciliation process is lengthy, stressful, and financially disruptive. Companies without complete logs cannot explain discrepancies, creating compliance exposure.</p></div><div class="ps-sol"><div class="ps-lbl">The ZarklyX Solution</div><p><strong>Complete transaction logs, timestamped adjustment records, and full movement history make audit preparation a routine exercise.</strong> Every discrepancy is traceable to a user, a reason, and a date. Audit readiness is a natural byproduct of daily use.</p></div></div>
+  </div>
+</div>
+
+<!-- 05 -->
+<div class="chapter" id="difference">
+  <div class="chapter-sidebar"><div class="ch-num">05</div><div class="ch-tag">Differentiation</div><div class="ch-desc">How ZarklyX compares to legacy systems, standalone tools, and spreadsheets</div></div>
+  <div class="ch-body">
+    <h2>How ZarklyX Stands Apart<br>From <em>Legacy Systems</em></h2><div class="rule"></div>
+    <p>The inventory management software market is crowded with options — from aging desktop systems to generic cloud tools built for a different era. ZarklyX was built differently: for modern businesses, on modern infrastructure, with a philosophy centered on usability, real integration, and genuine scale.</p>
+    <div class="comp-grid">
+      <div class="comp-card zarkly"><h4>ZarklyX</h4><p>A cloud-based platform designed to manage inventory and assets in one centralized system. With ZarklyX, businesses can manually record and track stock movements across warehouses, maintain accurate inventory records, and monitor operations through a simple and intuitive interface. Built for growing teams, it provides clear visibility and organized management from day one.</p></div>
+      <div class="comp-card"><h4>Spreadsheets</h4><p>Familiar at small scale, but fundamentally unsuitable for operational inventory management. No audit trail, no real-time updates, no multi-user safety, and a near-certainty of error accumulation over time. A functional workaround that becomes a liability as the business grows.</p></div>
+      <div class="comp-card"><h4>Legacy Software</h4><p>Built for a different era. On-premise installations, complex interfaces requiring extensive training, poor integration with modern tools, and upgrade paths that are costly and disruptive. Many legacy systems create new problems through inflexibility and data silos.</p></div>
+    </div>
+    <p>What sets ZarklyX apart most fundamentally is its position as part of a unified business platform. Inventory data does not live in isolation — it connects with procurement, finance, operations, and reporting across the entire ZarklyX ecosystem. This is the operational connectivity that standalone tools simply cannot provide.</p>
+    <p>ZarklyX is also built with the growth trajectory of businesses in mind. A company adding its third warehouse, its tenth product category, or its hundredth daily transaction should not need to rebuild their inventory system. ZarklyX handles scale seamlessly — without expensive upgrades, data migrations, or consultant-led implementations every time the business evolves.</p>
+  </div>
+</div>
+
+<!-- 06 -->
+<div class="chapter" id="why-choose">
+  <div class="chapter-sidebar"><div class="ch-num">06</div><div class="ch-tag">Business Impact</div><div class="ch-desc">The real operational and financial benefits of choosing ZarklyX for your team</div></div>
+  <div class="ch-body">
+    <h2>Why Growing Businesses<br><em>Choose ZarklyX</em></h2><div class="rule"></div>
+    <p>Choosing an inventory management system is not just a technology decision — it is an operational one. The right system changes how your team works, the quality of information available to decision-makers, and the financial efficiency of your physical operations.</p>
+    <div class="ben-item"><h3>Better Operational Control</h3><p>When managers have accurate, real-time visibility into what is on the shelf, what is in transit, and what has been consumed or dispatched, they stop reacting and start managing proactively. ZarklyX gives operations teams the situational awareness they need to prevent stockouts before they happen, identify slow-moving inventory before it ties up capital unnecessarily, and coordinate warehouse activity with the confidence that comes from reliable data.</p></div>
+    <div class="ben-item"><h3>Improved Accuracy Across the Business</h3><p>Errors in inventory records do not stay in the warehouse — they travel. They affect purchase orders, financial statements, production schedules, and customer promises. ZarklyX reduces manual entry errors, eliminates version-conflict risks inherent in spreadsheet-based systems, and ensures that every figure reflects a real, recorded transaction. The downstream impact on financial accuracy and operational reliability is substantial.</p></div>
+    <div class="ben-item"><h3>Faster, More Confident Inventory Decisions</h3><p>The time between a question being asked and an accurate answer being available is a direct measure of operational agility. With ZarklyX, that time collapses. A purchasing manager deciding whether to reorder does not wait for a compiled report — they check the live dashboard. A warehouse supervisor coordinating a transfer does not make calls to confirm quantities — they look at the system.</p></div>
+    <div class="ben-item"><h3>Reduced Losses and Shrinkage</h3><p>When every unit is tracked from receipt to dispatch, the opportunities for stock to disappear unnoticed diminish dramatically. Discrepancies surface quickly because the system flags them against transaction records. Adjustments require documentation. The audit trail makes accountability real — and that reality, in itself, changes the way teams handle physical goods.</p></div>
+    <div class="ben-item"><h3>Scalable Infrastructure That Grows With You</h3><p>One of the most common failure points for growing businesses is outgrowing their systems. When the inventory tool that worked for a ten-person team buckles under the weight of a fifty-person operation, the business pays the cost of migration, retraining, and disruption. ZarklyX is architected to grow with you — new warehouses, new product lines, and new transaction volumes are absorbed naturally.</p></div>
+    <div class="ben-item"><h3>Seamless Collaboration Across Every Team</h3><p>Inventory management is not a solo activity. Warehouse staff, procurement officers, finance teams, sales managers, and operations leaders all need access to inventory data — and they need to be working from the same version of it. ZarklyX creates a shared operational reality for your entire organization: one platform, one record, one set of numbers that every team member can trust.</p></div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-outer">
+  <div class="summary-inner">
+    <div>
+      <div class="eyebrow"><span></span>Product Summary</div>
+      <h2>Your Inventory.<br><em>Completely Under Control.</em></h2>
+      <p>Take full, uncompromising control of your physical goods and company assets with a centralized tracking system built for the way modern businesses actually operate. From the moment a delivery arrives at your warehouse door to the second the last unit ships out, <strong>every movement, every quantity, and every location is captured in real time</strong> — giving your business the operational accuracy it has always needed but rarely had.</p>
+      <p>ZarklyX eliminates the guesswork that comes with spreadsheets, the blind spots of siloed systems, and the losses that come from not knowing what you own and where it is. It replaces a fragmented, error-prone approach to stock management with a unified, intelligent platform that your entire team can rely on — whether they are receiving goods at a warehouse, dispatching orders to customers, or making a purchasing decision from the other side of the country.</p>
+      <p>For businesses serious about operational efficiency, financial accuracy, and sustainable growth, ZarklyX does not just manage inventory — <strong>it transforms inventory into a competitive advantage.</strong> When you always know what you have, you can always deliver on what you promise.</p>
+    </div>
+    <div class="summary-panel">
+      <div class="s-tag"><span>📦</span> Multi-Warehouse Tracking</div>
+      <div class="s-tag"><span>⚡</span> Real-Time Stock Visibility</div>
+      <div class="s-tag"><span>📥</span> Stock Inward & Outward</div>
+      <div class="s-tag"><span>⚖️</span> Adjustment Logs</div>
+      <div class="s-tag"><span>📊</span> Smart Reporting Engine</div>
+      <div class="s-tag"><span>🏢</span> Asset Management</div>
+      <div class="s-tag"><span>🔒</span> Full Audit Trail</div>
+      <div class="s-tag"><span>☁️</span> Cloud-Based Platform</div>
+      <div class="s-tag"><span>📈</span> Built to Scale</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="logo">Zarkly<span>X</span></div>
+  <p>© 2025 ZarklyX · Inventory & Asset Management Module</p>
+  <div style="margin-top:12px; display:flex; gap:32px; justify-content:center; flex-wrap:wrap;">
+    <span style="font-size:13px; color:rgba(255,255,255,0.6);">🎨 <strong style="color:rgba(255,255,255,0.9);">Frontend</strong> by Mr. Prathan</span>
+    <span style="font-size:13px; color:rgba(255,255,255,0.6);">⚙️ <strong style="color:rgba(255,255,255,0.9);">Backend</strong> by Mr. Krupal</span>
+  </div>
+</footer>
+
+</div><!-- end .page -->
+
+<script>
+// ── INTERACTIVE HELPERS ──
+
+// Slicer chip selection
+function selectChip(el) {
+  const parent = el.closest('.pbi-slicer');
+  parent.querySelectorAll('.pbi-chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  const wh = el.textContent.trim();
+  filterDashboard(wh);
+}
+
+// Filter dashboard by warehouse
+function filterDashboard(wh) {
+  const DATA = {
+    'All':         { inward:12480, outward:9312, net:3168, stock:8754, value:'₹4.2M',
+                     whVals:[2840,1920,2380,1614], trend_in:[820,940,1100,890,1040,1200,760,980,1120,1050,890,690], trend_out:[610,720,830,660,790,920,570,740,860,800,680,530] },
+    'Warehouse A': { inward:3820, outward:2910, net:910,  stock:2840, value:'₹1.3M',
+                     whVals:[2840,0,0,0], trend_in:[240,280,320,260,310,360,220,290,330,310,260,200], trend_out:[180,210,240,190,230,270,165,215,250,235,200,155] },
+    'Warehouse B': { inward:2640, outward:1980, net:660,  stock:1920, value:'₹0.9M',
+                     whVals:[0,1920,0,0], trend_in:[160,190,220,175,210,245,150,197,224,210,176,135], trend_out:[120,143,167,133,160,187,115,150,170,160,134,103] },
+    'Warehouse C': { inward:3360, outward:2530, net:830,  stock:2380, value:'₹1.1M',
+                     whVals:[0,0,2380,0], trend_in:[200,230,270,215,255,295,180,238,270,253,212,162], trend_out:[149,177,207,165,200,231,141,185,211,197,166,127] },
+    'Warehouse D': { inward:2660, outward:1892, net:768,  stock:1614, value:'₹0.9M',
+                     whVals:[0,0,0,1614], trend_in:[220,240,290,240,265,300,210,255,296,277,242,193], trend_out:[161,190,216,172,200,232,149,190,229,208,180,145] }
+  };
+  const d = DATA[wh] || DATA['All'];
+
+  // Update KPI cards
+  const kpis = document.querySelectorAll('#pbi-p1 .pbi-kpi-value');
+  if (kpis.length >= 5) {
+    kpis[0].textContent = d.inward.toLocaleString();
+    kpis[1].textContent = d.outward.toLocaleString();
+    kpis[2].textContent = d.net.toLocaleString();
+    kpis[3].textContent = d.stock.toLocaleString();
+    kpis[4].textContent = d.value;
+  }
+
+  // Update line chart
+  if (window._lineChart1) {
+    window._lineChart1.data.datasets[0].data = d.trend_in;
+    window._lineChart1.data.datasets[1].data = d.trend_out;
+    window._lineChart1.update('active');
+  }
+
+  // Update bar chart
+  if (window._barChart1) {
+    window._barChart1.data.datasets[0].data = d.whVals;
+    window._barChart1.update('active');
+  }
+
+  // Animate KPI cards
+  document.querySelectorAll('#pbi-p1 .pbi-kpi').forEach(k => {
+    k.style.transform = 'scale(0.97)';
+    setTimeout(() => k.style.transform = '', 180);
+  });
+}
+
+// KPI drill-down modal
+function showKpiDetail(card) {
+  const label = card.querySelector('.pbi-kpi-label').textContent;
+  const value = card.querySelector('.pbi-kpi-value').textContent;
+  const sub   = card.querySelector('.pbi-kpi-sub').textContent;
+
+  const details = {
+    'Total Inward':       { rows:[['Steel Rods','3,200'],['Cement Bags','2,640'],['PVC Pipes','2,200'],['Copper Wire','1,900'],['Others','2,540']], note:'Cumulative 12-month inward movements' },
+    'Total Outward':      { rows:[['Steel Rods','2,400'],['Cement Bags','1,980'],['PVC Pipes','1,650'],['Copper Wire','1,428'],['Others','1,854']], note:'Cumulative 12-month outward dispatch' },
+    'Net Stock Movement': { rows:[['Steel Rods','800'],['Cement Bags','660'],['PVC Pipes','550'],['Copper Wire','472'],['Others','686']], note:'Inward minus outward per item' },
+    'Current Stock':      { rows:[['Warehouse A','2,840'],['Warehouse B','1,920'],['Warehouse C','2,380'],['Warehouse D','1,614']], note:'Live on-hand stock per warehouse' },
+    'Stock Value':        { rows:[['Warehouse A','₹1.30M'],['Warehouse B','₹0.90M'],['Warehouse C','₹1.10M'],['Warehouse D','₹0.90M']], note:'Valuation based on last purchase price' },
+  };
+
+  const d = details[label] || { rows:[], note:'' };
+  const rows = d.rows.map(r => `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:13px;color:#252423">${r[0]}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:13px;font-weight:700;color:#118DFF;text-align:right">${r[1]}</td></tr>`).join('');
+
+  document.getElementById('modalTitle').textContent  = label;
+  document.getElementById('modalValue').textContent  = value;
+  document.getElementById('modalSub').textContent    = sub;
+  document.getElementById('modalNote').textContent   = d.note;
+  document.getElementById('modalTable').innerHTML    = rows;
+  document.getElementById('kpiModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('kpiModal').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// ── DATA ──
+const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+const inward  = [820,940,1100,890,1040,1200,760,980,1120,1050,890,690];
+const outward = [610,720,830,660,790,920,570,740,860,800,680,530];
+const warehouses = ['Warehouse A','Warehouse B','Warehouse C','Warehouse D'];
+const whStock    = [2840,1920,2380,1614];
+const items      = ['Steel Rods','Cement Bags','PVC Pipes','Copper Wire','Safety Gear','Lubricants','Fasteners','Cables'];
+const itemVol    = [1840,1520,1280,1100,940,820,710,590];
+const reasons    = ['Damage','Expiry','Counting Error','Return','Other'];
+const reasonVals = [38,22,17,14,9];
+const vendors    = ['VendorX','SupplyCo','FastParts','MetalHub','PackPro','LogiSupply'];
+const vendorVols = [3200,2600,1900,1500,1100,780];
+const vendorColors = ['#118DFF','#12239E','#E66C37','#744EC2','#D9B300','#D64550'];
+const lowStock   = [12,8,6,5,4,3,2,2];
+
+const PBI_COLORS = ['#118DFF','#12239E','#E66C37','#6B007B','#E044A7','#744EC2','#D9B300','#D64550'];
+
+const CHART_DEFAULTS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {}
+};
+
+function baseScales(gridColor='#E8E7E5') {
+  return {
+    x: { grid: { color: gridColor, drawBorder:false }, ticks: { color:'#605E5C', font:{size:10,family:'Plus Jakarta Sans'} } },
+    y: { grid: { color: gridColor, drawBorder:false }, ticks: { color:'#605E5C', font:{size:10,family:'Plus Jakarta Sans'} } }
+  };
+}
+
+// ── Page 1 Charts ──
+window.addEventListener('load', () => {
+
+  // Line Chart
+  window._lineChart1 = new Chart(document.getElementById('lineChart1'), {
+    type:'line',
+    data:{
+      labels: months,
+      datasets:[
+        { label:'Inward', data:inward, borderColor:'#118DFF', backgroundColor:'rgba(17,141,255,0.08)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#118DFF', tension:0.4, fill:true },
+        { label:'Outward', data:outward, borderColor:'#E66C37', backgroundColor:'rgba(230,108,55,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#E66C37', tension:0.4, fill:true }
+      ]
+    },
+    options:{ ...CHART_DEFAULTS, plugins:{ legend:{ display:true, position:'top', labels:{ font:{size:11,family:'Plus Jakarta Sans'}, usePointStyle:true, padding:16, color:'#605E5C' } } }, scales: baseScales() }
+  });
+
+  // Bar Chart (Warehouse Stock)
+  window._barChart1 = new Chart(document.getElementById('barChart1'), {
+    type:'bar',
+    data:{
+      labels: warehouses,
+      datasets:[{ data:whStock, backgroundColor:PBI_COLORS.slice(0,4), borderRadius:4, borderSkipped:false }]
+    },
+    options:{
+      ...CHART_DEFAULTS,
+      indexAxis:'y',
+      scales:{
+        x:{ grid:{ color:'#E8E7E5', drawBorder:false }, ticks:{ color:'#605E5C', font:{size:10,family:'Plus Jakarta Sans'} } },
+        y:{ grid:{ display:false }, ticks:{ color:'#605E5C', font:{size:10,family:'Plus Jakarta Sans'} } }
+      }
+    }
+  });
+
+  // Pie Chart (Reasons)
+  new Chart(document.getElementById('pieChart1'), {
+    type:'pie',
+    data:{
+      labels: reasons,
+      datasets:[{ data:reasonVals, backgroundColor:PBI_COLORS, borderWidth:2, borderColor:'#fff' }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:true, position:'right', labels:{ font:{size:10,family:'Plus Jakarta Sans'}, usePointStyle:true, padding:10, color:'#605E5C' } } }
+    }
+  });
+
+  // Treemap 1
+  buildTreemap('treemap1', vendors, vendorVols, vendorColors, '160px');
+
+  // ── Page 2 Charts ──
+  // Bar Chart (Items)
+  new Chart(document.getElementById('barChart2'), {
+    type:'bar',
+    data:{
+      labels: items,
+      datasets:[{ data:itemVol, backgroundColor:PBI_COLORS, borderRadius:4, borderSkipped:false }]
+    },
+    options:{
+      ...CHART_DEFAULTS,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{ color:'#E8E7E5', drawBorder:false }, ticks:{ color:'#605E5C', font:{size:9,family:'Plus Jakarta Sans'}, maxRotation:30 } },
+        y:{ grid:{ color:'#E8E7E5', drawBorder:false }, ticks:{ color:'#605E5C', font:{size:9,family:'Plus Jakarta Sans'} } }
+      }
+    }
+  });
+
+  // Pie Chart 2 (Reasons)
+  new Chart(document.getElementById('pieChart2'), {
+    type:'pie',
+    data:{
+      labels: reasons,
+      datasets:[{ data:reasonVals, backgroundColor:PBI_COLORS, borderWidth:2, borderColor:'#fff' }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ font:{size:9,family:'Plus Jakarta Sans'}, usePointStyle:true, padding:8, color:'#605E5C' } } }
+    }
+  });
+
+  // Treemap 2
+  buildTreemap('treemap2', vendors, vendorVols, vendorColors, '140px');
+
+  // Donut
+  new Chart(document.getElementById('donutChart'), {
+    type:'doughnut',
+    data:{
+      labels: items,
+      datasets:[{ data:lowStock, backgroundColor:PBI_COLORS, borderWidth:2, borderColor:'#fff' }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ font:{size:9,family:'Plus Jakarta Sans'}, usePointStyle:true, padding:8, color:'#605E5C', boxWidth:10 } } }
+    }
+  });
+
+  // Multi-row card
+  const mrcData = [
+    { wh:'Warehouse A', vol:4120, max:5000 },
+    { wh:'Warehouse B', vol:3280, max:5000 },
+    { wh:'Warehouse C', vol:2940, max:5000 },
+    { wh:'Warehouse D', vol:1972, max:5000 },
+  ];
+  const tbody = document.getElementById('mrcBody');
+  mrcData.forEach(r => {
+    const pct = Math.round(r.vol/r.max*100);
+    tbody.innerHTML += `<tr><td>${r.wh}</td><td><strong>${r.vol.toLocaleString()}</strong><div class="mrc-bar-bg"><div class="mrc-bar" style="width:${pct}%"></div></div></td></tr>`;
+  });
+
+});
+
+function buildTreemap(id, labels, vals, colors, h) {
+  const total = vals.reduce((a,b)=>a+b,0);
+  const el = document.getElementById(id);
+  if (h) el.style.height = h;
+  el.innerHTML = '';
+  labels.forEach((lbl, i) => {
+    const pct = (vals[i]/total*100).toFixed(1);
+    const cell = document.createElement('div');
+    cell.className = 'tm-cell';
+    cell.style.background = colors[i];
+    cell.style.gridColumn = i < 2 ? 'span 1' : 'span 1';
+    if (i === 0) cell.style.gridColumn = 'span 2';
+    cell.innerHTML = `<span>${lbl}</span><small>${pct}%</small>`;
+    el.appendChild(cell);
+  });
+}
+
+function showPage(n, btn) {
+  document.querySelectorAll('.pbi-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('pbi-p'+n).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Slicer chip interaction
+document.querySelectorAll('.pbi-chip').forEach(chip => {
+  chip.addEventListener('click', function() {
+    const group = this.closest('.pbi-slicer');
+    group.querySelectorAll('.pbi-chip').forEach(c => c.classList.remove('sel'));
+    this.classList.add('sel');
+  });
+});
+</script>
+
+<!-- KPI DRILL-DOWN MODAL -->
+<div id="kpiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:28px 32px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;animation:modalIn .2s ease">
+    <button onclick="closeModal()" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1">✕</button>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#118DFF;margin-bottom:6px">DRILL DOWN</div>
+    <div style="font-size:22px;font-weight:800;color:#252423;margin-bottom:2px" id="modalTitle"></div>
+    <div style="font-size:36px;font-weight:900;color:#118DFF;line-height:1.1;margin-bottom:4px" id="modalValue"></div>
+    <div style="font-size:12px;color:#605E5C;margin-bottom:16px" id="modalSub"></div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:12px" id="modalTable"></table>
+    <div style="font-size:11px;color:#888;font-style:italic;border-top:1px solid #eee;padding-top:10px" id="modalNote"></div>
+  </div>
+</div>
+<style>
+  #kpiModal { display:none; }
+  #kpiModal.open { display:flex; }
+  @keyframes modalIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+  .pbi-kpi { transition: transform 0.18s, box-shadow 0.18s; }
+  .pbi-kpi:hover { box-shadow: 0 4px 20px rgba(17,141,255,0.15); transform: translateY(-2px); }
+</style>
+
+</body>
+</html>

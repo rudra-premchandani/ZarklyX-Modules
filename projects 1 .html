@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Project Dashboard — Enterprise Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+:root {
+  --bg:        #f4f5f9;
+  --surf:      #ffffff;
+  --surf2:     #f8f9fc;
+  --surf3:     #eef0f6;
+  --border:    rgba(15,17,35,0.07);
+  --border-md: rgba(15,17,35,0.13);
+  --ink:       #0f1117;
+  --ink2:      #3b3f5a;
+  --ink3:      #8b90a9;
+  --ink4:      #c2c6d8;
+
+  --accent:    #2453E8;
+  --accent-lt: #eef2ff;
+  --accent2:   #6d28d9;
+  --green:     #059669;
+  --green-lt:  #ecfdf5;
+  --yellow:    #b45309;
+  --yellow-lt: #fffbeb;
+  --red:       #dc2626;
+  --red-lt:    #fef2f2;
+  --orange:    #ea580c;
+  --teal:      #0891b2;
+  --teal-lt:   #ecfeff;
+
+  --r6:4px; --r8:8px; --r10:10px; --r12:12px; --r16:16px; --r20:20px;
+  --sh1: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --sh2: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+  --sh3: 0 8px 32px rgba(0,0,0,0.10), 0 3px 10px rgba(0,0,0,0.05);
+
+  --sidebar-w: 224px;
+  --topbar-h:  56px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ink4); border-radius: 99px; }
+.mono { font-family: 'DM Mono', monospace; }
+
+/* ══════════════════════════════════════
+   LAYOUT SHELL
+══════════════════════════════════════ */
+.shell { display: flex; min-height: 100vh; }
+
+/* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surf);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  z-index: 200;
+}
+.sb-logo {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sb-logo-mark {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #2453E8 0%, #6d28d9 100%);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sb-logo-mark svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; }
+.sb-brand { font-size: 14px; font-weight: 800; color: var(--ink); letter-spacing: -.3px; }
+.sb-suite { font-size: 9px; color: var(--ink3); text-transform: uppercase; letter-spacing: 1.2px; font-family: 'DM Mono', monospace; }
+
+.sb-section-lbl {
+  padding: 16px 16px 5px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink4);
+  font-family: 'DM Mono', monospace;
+}
+.sb-nav { padding: 2px 8px; }
+.sb-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--r8);
+  cursor: pointer; color: var(--ink3); font-size: 12px; font-weight: 500;
+  transition: all .14s; margin-bottom: 1px; user-select: none;
+}
+.sb-item:hover { background: var(--surf2); color: var(--ink2); }
+.sb-item.active { background: var(--accent-lt); color: var(--accent); font-weight: 600; }
+.sb-item svg { width: 14px; height: 14px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.sb-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 9px; font-family: 'DM Mono', monospace; padding: 1px 5px; border-radius: 99px; }
+.sb-divider { height: 1px; background: var(--border); margin: 6px 14px; }
+.sb-bottom { margin-top: auto; padding: 12px 8px; border-top: 1px solid var(--border); }
+.sb-user { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--r8); cursor: pointer; transition: background .14s; }
+.sb-user:hover { background: var(--surf2); }
+.sb-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #2453E8, #6d28d9); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.sb-uname { font-size: 12px; font-weight: 600; color: var(--ink); }
+.sb-urole { font-size: 10px; color: var(--ink3); }
+.sb-chevron { margin-left: auto; color: var(--ink4); }
+.sb-chevron svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ══════════════════════════════════════
+   MAIN AREA
+══════════════════════════════════════ */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* ── Topbar ── */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 22px; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+.tb-back { width: 28px; height: 28px; border-radius: var(--r6); border: 1px solid var(--border); background: var(--surf); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink3); }
+.tb-back svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+.tb-crumb { display: flex; align-items: center; gap: 5px; }
+.tb-crumb-part { font-size: 12px; color: var(--ink3); cursor: pointer; }
+.tb-crumb-part:hover { color: var(--ink); }
+.tb-crumb-sep { color: var(--ink4); font-size: 12px; }
+.tb-page { font-size: 14px; font-weight: 800; color: var(--ink); letter-spacing: -.3px; }
+
+.topbar-search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surf2); border: 1px solid var(--border);
+  border-radius: var(--r8); padding: 6px 11px; width: 210px; cursor: text;
+  transition: all .2s;
+}
+.topbar-search:focus-within { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(36,83,232,0.1); }
+.topbar-search svg { width: 13px; height: 13px; color: var(--ink3); flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; }
+.topbar-search input { border: none; background: transparent; font-size: 12px; color: var(--ink); font-family: 'DM Sans', sans-serif; flex: 1; outline: none; }
+.topbar-search input::placeholder { color: var(--ink4); }
+.topbar-actions { display: flex; align-items: center; gap: 6px; }
+.tb-icon-btn {
+  width: 32px; height: 32px; border-radius: var(--r8);
+  border: 1px solid var(--border); background: var(--surf);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink3); transition: all .14s; position: relative; flex-shrink: 0;
+}
+.tb-icon-btn:hover { background: var(--surf2); color: var(--ink2); }
+.tb-icon-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.notif-dot { position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: #ef4444; border: 1.5px solid #fff; }
+.tb-btn {
+  padding: 6px 14px; border-radius: var(--r8);
+  border: 1px solid var(--border-md); background: var(--surf);
+  font-size: 12px; font-weight: 600; color: var(--ink2);
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all .14s; white-space: nowrap; display: flex; align-items: center; gap: 5px;
+}
+.tb-btn:hover { background: var(--surf2); }
+.tb-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+.tb-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tb-btn.primary:hover { background: #1d40c9; }
+.tb-btn.primary svg { stroke: #fff; }
+.tb-divider { width: 1px; height: 20px; background: var(--border-md); }
+
+/* ══════════════════════════════════════
+   CONTENT
+══════════════════════════════════════ */
+.content { padding: 20px 22px; flex: 1; overflow-y: auto; }
+
+/* ══════════════════════════════════════
+   SECTION LABELS
+══════════════════════════════════════ */
+.section-lbl {
+  font-size: 9px; letter-spacing: 1.6px; text-transform: uppercase;
+  color: var(--ink4); font-family: 'DM Mono', monospace;
+  margin-bottom: 10px; margin-top: 22px;
+}
+.section-lbl:first-child { margin-top: 0; }
+
+/* ══════════════════════════════════════
+   PILLS / STATUS BADGES
+══════════════════════════════════════ */
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: 99px;
+  font-size: 10px; font-weight: 700; font-family: 'DM Mono', monospace; white-space: nowrap;
+}
+.pill-green  { background: var(--green-lt);  color: var(--green); }
+.pill-yellow { background: var(--yellow-lt); color: var(--yellow); }
+.pill-red    { background: var(--red-lt);    color: var(--red); }
+.pill-blue   { background: var(--accent-lt); color: var(--accent); }
+.pill-gray   { background: var(--surf3);     color: var(--ink3); }
+.pill-purple { background: #f5f3ff;          color: var(--accent2); }
+.pill-teal   { background: var(--teal-lt);   color: var(--teal); }
+
+/* ══════════════════════════════════════
+   CARD BASE
+══════════════════════════════════════ */
+.card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r16);
+  box-shadow: var(--sh1);
+  padding: 18px 20px;
+}
+.card-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.card-title { font-size: 13px; font-weight: 800; color: var(--ink); letter-spacing: -.2px; }
+.card-sub { font-size: 11px; color: var(--ink3); margin-top: 1px; }
+.card-actions { display: flex; align-items: center; gap: 5px; }
+.icon-btn {
+  width: 28px; height: 28px; border-radius: var(--r6);
+  border: 1px solid var(--border); background: var(--surf);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink3); transition: all .14s;
+}
+.icon-btn:hover { background: var(--surf2); color: var(--ink2); }
+.icon-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ══════════════════════════════════════
+   ① TOP SUMMARY STRIP — 4 KPI cards
+══════════════════════════════════════ */
+.kpi-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 4px; }
+
+.kpi-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r12);
+  padding: 15px 17px;
+  box-shadow: var(--sh1);
+  cursor: pointer;
+  transition: all .18s;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--r12) var(--r12) 0 0;
+  background: var(--kpi-accent, var(--accent));
+  opacity: 0;
+  transition: opacity .18s;
+}
+.kpi-card:hover { box-shadow: var(--sh2); transform: translateY(-1px); }
+.kpi-card:hover::before { opacity: 1; }
+.kpi-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.kpi-icon { width: 30px; height: 30px; border-radius: var(--r8); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.kpi-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.kpi-val { font-size: 24px; font-weight: 800; color: var(--ink); letter-spacing: -1px; line-height: 1; margin-bottom: 3px; }
+.kpi-val sup { font-size: 13px; font-weight: 600; letter-spacing: 0; }
+.kpi-label { font-size: 11px; font-weight: 600; color: var(--ink3); }
+.kpi-prog { height: 4px; background: var(--surf3); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.kpi-prog-fill { height: 100%; border-radius: 99px; background: var(--kpi-accent, var(--accent)); transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+.kpi-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 7px; }
+.kpi-meta { font-size: 10px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+.kpi-trend { font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 2px; }
+.kpi-trend.up { color: var(--green); }
+.kpi-trend.warn { color: var(--yellow); }
+.kpi-trend.dn { color: var(--red); }
+
+/* ══════════════════════════════════════
+   ② RISK ALERT BANNER
+══════════════════════════════════════ */
+.risk-banner {
+  background: #fff8f0;
+  border: 1px solid #fed7aa;
+  border-left: 3px solid var(--orange);
+  border-radius: var(--r10);
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background .14s;
+}
+.risk-banner:hover { background: #fff1e6; }
+.risk-icon { width: 26px; height: 26px; border-radius: var(--r6); background: #fed7aa; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.risk-icon svg { width: 13px; height: 13px; stroke: var(--orange); fill: none; stroke-width: 2; }
+.risk-text { flex: 1; }
+.risk-title { font-size: 12px; font-weight: 700; color: var(--ink); }
+.risk-desc { font-size: 11px; color: var(--ink2); }
+.risk-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.risk-dismiss { color: var(--ink4); cursor: pointer; padding: 4px; border-radius: 4px; }
+.risk-dismiss:hover { color: var(--ink2); background: rgba(0,0,0,0.05); }
+.risk-dismiss svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ══════════════════════════════════════
+   ③ MAIN GRID — Task Architecture + Intelligence
+══════════════════════════════════════ */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 368px;
+  gap: 14px;
+  margin-bottom: 4px;
+  align-items: start;
+}
+
+/* ── Task Architecture Panel ── */
+.phase-list { display: flex; flex-direction: column; gap: 6px; }
+
+.phase-row {
+  border: 1px solid var(--border);
+  border-radius: var(--r12);
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.phase-row:hover { border-color: var(--border-md); }
+.phase-row.has-risk { border-left: 3px solid var(--red); }
+.phase-row.has-warn { border-left: 3px solid var(--yellow); }
+
+.phase-hd {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  background: var(--surf2);
+  user-select: none;
+  transition: background .14s;
+}
+.phase-hd:hover { background: #eef0f6; }
+
+.ph-toggle {
+  width: 18px; height: 18px; border-radius: 5px;
+  border: 1px solid var(--border-md); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: transform .2s;
+}
+.ph-toggle svg { width: 9px; height: 9px; stroke: var(--ink3); fill: none; stroke-width: 2.5; }
+.ph-toggle.open { transform: rotate(90deg); }
+
+.ph-num { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--ink4); min-width: 18px; }
+.ph-name { font-size: 12px; font-weight: 700; color: var(--ink); flex: 1; }
+.ph-prog-wrap { display: flex; align-items: center; gap: 7px; }
+.ph-prog-bar { width: 64px; height: 5px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+.ph-prog-fill { height: 100%; border-radius: 99px; }
+.ph-count { font-size: 10px; color: var(--ink3); font-family: 'DM Mono', monospace; white-space: nowrap; }
+
+/* Task rows inside phase */
+.phase-tasks { display: none; flex-direction: column; border-top: 1px solid var(--border); }
+.phase-tasks.open { display: flex; }
+
+.task-cols-hd {
+  display: grid;
+  grid-template-columns: 1fr 100px 105px 85px 95px 22px;
+  padding: 5px 14px;
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+}
+.th { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--ink4); font-family: 'DM Mono', monospace; padding: 4px 0; }
+
+.task-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 105px 85px 95px 22px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .12s;
+  background: var(--surf);
+}
+.task-row:hover { background: var(--surf2); }
+.task-row:last-child { border-bottom: none; }
+.task-row.is-subtask { background: var(--surf2); }
+.task-row.is-subtask:hover { background: #eef0f6; }
+
+.tc { display: flex; align-items: center; padding: 8px 0; }
+.task-id-lbl { font-size: 9px; color: var(--ink4); font-family: 'DM Mono', monospace; margin-bottom: 1px; }
+.task-name-lbl { font-size: 12px; font-weight: 600; color: var(--ink); }
+.task-name-lbl.sub1 { padding-left: 14px; font-weight: 500; }
+.task-name-lbl.sub2 { padding-left: 28px; font-weight: 400; }
+.overdue-flag { font-size: 9px; color: var(--red); font-family: 'DM Mono', monospace; margin-top: 1px; font-weight: 700; }
+.block-flag { font-size: 9px; color: var(--red); font-family: 'DM Mono', monospace; margin-top: 1px; }
+
+.av { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.av-name { font-size: 11px; color: var(--ink2); margin-left: 5px; }
+
+.task-date { font-size: 11px; color: var(--ink2); font-family: 'DM Mono', monospace; }
+.task-date.late { color: var(--red); font-weight: 700; }
+
+.mini-prog { display: flex; flex-direction: column; gap: 2px; }
+.mini-bar { height: 4px; background: var(--bg); border-radius: 99px; overflow: hidden; width: 70px; }
+.mini-fill { height: 100%; border-radius: 99px; }
+.mini-pct { font-size: 9px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+
+.row-arrow { color: var(--ink4); font-size: 14px; }
+.row-arrow:hover { color: var(--accent); }
+
+/* ══════════════════════════════════════
+   ④ RIGHT INTELLIGENCE PANEL
+══════════════════════════════════════ */
+.intel-panel { display: flex; flex-direction: column; gap: 12px; }
+
+/* Timeline card */
+.ms-list { display: flex; flex-direction: column; gap: 0; }
+.ms-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .12s; border-radius: var(--r6);
+  padding-left: 4px; padding-right: 4px;
+}
+.ms-row:last-child { border-bottom: none; }
+.ms-row:hover { background: var(--surf2); }
+.ms-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ms-body { flex: 1; }
+.ms-name { font-size: 11px; font-weight: 600; color: var(--ink); }
+.ms-phase { font-size: 10px; color: var(--ink3); }
+.ms-date { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--ink3); white-space: nowrap; }
+
+/* Financials card */
+.budget-overview { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.budget-ring { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+.budget-ring svg { transform: rotate(-90deg); }
+.budget-ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.brl-pct { font-size: 14px; font-weight: 800; color: var(--ink); line-height: 1; }
+.brl-sub { font-size: 8px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+.budget-stats { flex: 1; }
+.budget-stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.bs-label { font-size: 11px; color: var(--ink3); }
+.bs-val { font-size: 11px; font-weight: 700; color: var(--ink); font-family: 'DM Mono', monospace; }
+.bs-val.warn { color: var(--yellow); }
+.bs-val.ok { color: var(--green); }
+
+.dept-list { display: flex; flex-direction: column; gap: 6px; }
+.dept-row { display: flex; align-items: center; gap: 8px; }
+.dept-name { font-size: 10px; color: var(--ink2); width: 72px; flex-shrink: 0; }
+.dept-bar { flex: 1; height: 5px; background: var(--surf3); border-radius: 99px; overflow: hidden; }
+.dept-fill { height: 100%; border-radius: 99px; }
+.dept-pct { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--ink3); width: 28px; text-align: right; }
+
+/* Team card */
+.team-grid { display: flex; flex-direction: column; gap: 8px; }
+.team-member-row { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--r8); cursor: pointer; transition: background .13s; }
+.team-member-row:hover { background: var(--surf2); }
+.team-av { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.team-info { flex: 1; }
+.team-name-lbl { font-size: 12px; font-weight: 600; color: var(--ink); }
+.team-role-lbl { font-size: 10px; color: var(--ink3); }
+.team-load-wrap { }
+.team-load-bar { width: 70px; height: 5px; background: var(--surf3); border-radius: 99px; overflow: hidden; margin-top: 4px; }
+.team-load-fill { height: 100%; border-radius: 99px; }
+.team-load-pct { font-size: 11px; font-weight: 700; font-family: 'DM Mono', monospace; min-width: 32px; text-align: right; }
+
+/* ══════════════════════════════════════
+   ⑤ SUPPORTING SECTION
+══════════════════════════════════════ */
+.support-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* Strategy docs */
+.doc-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 10px; border-radius: var(--r8);
+  cursor: pointer; transition: background .13s; border: 1px solid transparent;
+}
+.doc-item:hover { background: var(--surf2); border-color: var(--border); }
+.doc-icon { width: 28px; height: 28px; border-radius: var(--r6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.doc-icon svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.doc-body { flex: 1; }
+.doc-name { font-size: 12px; font-weight: 600; color: var(--ink); }
+.doc-meta { font-size: 10px; color: var(--ink3); }
+.doc-arrow { color: var(--ink4); font-size: 14px; }
+
+/* Scalability card */
+.scale-list { display: flex; flex-direction: column; gap: 6px; }
+.scale-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--r8); background: var(--surf2); border: 1px solid var(--border); }
+.scale-check { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.scale-check svg { width: 10px; height: 10px; stroke: #fff; fill: none; stroke-width: 2.5; }
+.scale-text { font-size: 11px; color: var(--ink2); flex: 1; }
+.scale-badge { font-size: 9px; font-family: 'DM Mono', monospace; padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+
+/* Health Metrics inside supporting */
+.health-strip { display: flex; gap: 0; border-radius: var(--r10); overflow: hidden; margin-bottom: 14px; }
+.health-seg { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 8px; background: var(--surf2); border-right: 1px solid var(--border); cursor: pointer; transition: background .13s; }
+.health-seg:last-child { border-right: none; }
+.health-seg:hover { background: #eef0f6; }
+.hs-val { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+.hs-lbl { font-size: 9px; color: var(--ink3); text-align: center; margin-top: 2px; line-height: 1.2; }
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+#toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: #1e293b; color: #e2e8f0;
+  font-size: 12px; font-family: 'DM Mono', monospace;
+  padding: 10px 15px; border-radius: var(--r8);
+  box-shadow: var(--sh3); animation: slideUp .25s ease;
+  min-width: 220px;
+}
+.toast-success { border-left: 3px solid #10b981; }
+.toast-warn    { border-left: 3px solid #f59e0b; }
+.toast-info    { border-left: 3px solid #2453E8; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+#modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(15,17,35,0.45); backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+}
+.modal-box {
+  background: var(--surf); border-radius: var(--r20);
+  box-shadow: var(--sh3); width: 480px; max-width: 94vw;
+  max-height: 85vh; overflow-y: auto;
+  animation: modalIn .2s ease;
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px 12px; border-bottom: 1px solid var(--border); }
+.modal-title { font-size: 14px; font-weight: 800; color: var(--ink); }
+.modal-close { width: 28px; height: 28px; border-radius: var(--r6); border: none; background: var(--surf2); cursor: pointer; color: var(--ink3); font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all .13s; }
+.modal-close:hover { background: var(--surf3); color: var(--ink); }
+.modal-body { padding: 18px 22px 22px; }
+
+/* ══════════════════════════════════════
+   FADE IN ANIMATION
+══════════════════════════════════════ */
+.fu { animation: fadeUp .35s ease both; }
+.fu-1 { animation-delay: .04s; }
+.fu-2 { animation-delay: .10s; }
+.fu-3 { animation-delay: .16s; }
+.fu-4 { animation-delay: .22s; }
+.fu-5 { animation-delay: .28s; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+
+<body>
+<div id="toast-container"></div>
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <div class="modal-title" id="modal-title">Details</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ════════ SIDEBAR ════════ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="sb-brand">ZarklyX</div>
+        <div class="sb-suite">Enterprise</div>
+      </div>
+    </div>
+
+    <div class="sb-section-lbl">Workspace</div>
+    <div class="sb-nav">
+      <div class="sb-item active" onclick="navClick(this,'Overview')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </div>
+      <div class="sb-item" onclick="navClick(this,'Tasks')">
+        <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Task Board
+      </div>
+      <div class="sb-item" onclick="navClick(this,'Timeline')">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Timeline
+      </div>
+      <div class="sb-item" onclick="navClick(this,'Budget')">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        Financials
+      </div>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-lbl">Projects</div>
+    <div class="sb-nav">
+      <div class="sb-item active" onclick="navClick(this,'Alpha')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 012-2h6a2 2 0 012 2v1.662"/></svg>
+        Project Alpha
+        <span class="sb-badge">2</span>
+      </div>
+      <div class="sb-item" onclick="navClick(this,'Beta')">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Project Beta
+      </div>
+      <div class="sb-item" onclick="navClick(this,'Gamma')">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Project Gamma
+      </div>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-lbl">Tools</div>
+    <div class="sb-nav">
+      <div class="sb-item" onclick="navClick(this,'Reports')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Reports
+      </div>
+      <div class="sb-item" onclick="navClick(this,'Settings')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+    </div>
+
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="sb-avatar">AR</div>
+        <div>
+          <div class="sb-uname">Alex R.</div>
+          <div class="sb-urole">Project Lead</div>
+        </div>
+        <div class="sb-chevron"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════════ MAIN AREA ════════ -->
+  <div class="main">
+
+    <!-- ── Topbar ── -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="tb-back" onclick="showToast('↩ Going back…','info')">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </div>
+        <div class="tb-crumb">
+          <span class="tb-crumb-part" onclick="showToast('🏠 Workspace','info')">Workspace</span>
+          <span class="tb-crumb-sep">›</span>
+          <span class="tb-crumb-part" onclick="showToast('📂 Projects','info')">Projects</span>
+          <span class="tb-crumb-sep">›</span>
+          <span class="tb-page">Project Alpha</span>
+        </div>
+      </div>
+
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search tasks, phases, docs…" oninput="handleSearch(this.value)"/>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="tb-btn" onclick="exportDashboard()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+        <div class="tb-divider"></div>
+        <div class="tb-icon-btn" onclick="showToast('🔔 No new notifications','info')">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="tb-icon-btn" onclick="showToast('⚙ Settings…','info')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </div>
+        <button class="tb-btn primary" onclick="openNewTaskModal()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Task
+        </button>
+      </div>
+    </header>
+
+    <!-- ════════ CONTENT ════════ -->
+    <div class="content">
+
+      <!-- ════ ① KPI SUMMARY STRIP ════ -->
+      <div class="section-lbl">Project Overview</div>
+      <div class="kpi-strip fu fu-1">
+
+        <!-- Timeline -->
+        <div class="kpi-card" style="--kpi-accent:#2453E8" onclick="openTimelineModal()">
+          <div class="kpi-card-top">
+            <div class="kpi-icon" style="background:#eef2ff"><svg viewBox="0 0 24 24" style="color:#2453E8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <span class="pill pill-blue">On Track</span>
+          </div>
+          <div class="kpi-val">127<sup>d</sup></div>
+          <div class="kpi-label">Days Remaining</div>
+          <div class="kpi-prog"><div class="kpi-prog-fill" style="width:38%"></div></div>
+          <div class="kpi-footer">
+            <span class="kpi-meta">Ends Dec 15, 2024</span>
+            <span class="kpi-trend up">▲ 38% elapsed</span>
+          </div>
+        </div>
+
+        <!-- Budget -->
+        <div class="kpi-card" style="--kpi-accent:#b45309" onclick="openBudgetModal()">
+          <div class="kpi-card-top">
+            <div class="kpi-icon" style="background:#fffbeb"><svg viewBox="0 0 24 24" style="color:#b45309"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+            <span class="pill pill-yellow">Monitor</span>
+          </div>
+          <div class="kpi-val">$145<sup>k</sup></div>
+          <div class="kpi-label">Budget Spent</div>
+          <div class="kpi-prog"><div class="kpi-prog-fill" style="width:65%"></div></div>
+          <div class="kpi-footer">
+            <span class="kpi-meta">of $225k total</span>
+            <span class="kpi-trend warn">65% used</span>
+          </div>
+        </div>
+
+        <!-- Health Score -->
+        <div class="kpi-card" style="--kpi-accent:#059669" onclick="openHealthModal()">
+          <div class="kpi-card-top">
+            <div class="kpi-icon" style="background:#ecfdf5"><svg viewBox="0 0 24 24" style="color:#059669"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+            <span class="pill pill-green">Healthy</span>
+          </div>
+          <div class="kpi-val">67</div>
+          <div class="kpi-label">Health Score</div>
+          <div class="kpi-prog"><div class="kpi-prog-fill" style="width:67%"></div></div>
+          <div class="kpi-footer">
+            <span class="kpi-meta">out of 100</span>
+            <span class="kpi-trend up">▲ +3 this week</span>
+          </div>
+        </div>
+
+        <!-- Task Completion -->
+        <div class="kpi-card" style="--kpi-accent:#6d28d9" onclick="openTasksModal()">
+          <div class="kpi-card-top">
+            <div class="kpi-icon" style="background:#f5f3ff"><svg viewBox="0 0 24 24" style="color:#6d28d9"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+            <span class="pill pill-purple">68%</span>
+          </div>
+          <div class="kpi-val">145<sup>/213</sup></div>
+          <div class="kpi-label">Tasks Completed</div>
+          <div class="kpi-prog"><div class="kpi-prog-fill" style="width:68%"></div></div>
+          <div class="kpi-footer">
+            <span class="kpi-meta">38 in progress · 1 blocked</span>
+            <span class="kpi-trend up">▲ 12 this week</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ ② RISK ALERT ════ -->
+      <div class="risk-banner fu fu-1" style="margin-top:12px" onclick="showToast('🚧 Viewing blocked tasks…','warn')">
+        <div class="risk-icon">
+          <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="risk-text">
+          <div class="risk-title">2 Active Risks Require Attention</div>
+          <div class="risk-desc">Auth & Permissions blocked · Prototyping overdue by 4 days</div>
+        </div>
+        <div class="risk-tags">
+          <span class="pill pill-red">1 Blocked</span>
+          <span class="pill pill-yellow">2 Overdue</span>
+        </div>
+        <div class="risk-dismiss" onclick="event.stopPropagation();this.closest('.risk-banner').style.display='none';showToast('✓ Dismissed','info')">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+
+      <!-- ════ ③ MAIN GRID ════ -->
+      <div class="section-lbl" style="margin-top:22px">Work Breakdown</div>
+      <div class="main-grid fu fu-2">
+
+        <!-- ── LEFT: Task Architecture ── -->
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:15px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div class="card-title">Hierarchical Task Architecture</div>
+              <div class="card-sub" style="margin-top:2px">5 Phases · 213 Tasks · Milestones tracked</div>
+            </div>
+            <div class="card-actions">
+              <button class="icon-btn" onclick="expandAll()" title="Expand All"><svg viewBox="0 0 24 24"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg></button>
+              <button class="icon-btn" onclick="collapseAll()" title="Collapse All"><svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg></button>
+              <button class="icon-btn" onclick="openNewPhaseModal()" title="Add Phase"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+          </div>
+
+          <div class="phase-list">
+
+            <!-- ─── PHASE 1: Research & Discovery ─── -->
+            <div class="phase-row" id="ph-1">
+              <div class="phase-hd" onclick="togglePhase('ph-1')">
+                <div class="ph-toggle open" id="toggle-ph-1"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="ph-num">01</div>
+                <div class="ph-name">Research & Discovery</div>
+                <span class="pill pill-green">Completed</span>
+                <div style="flex:1"></div>
+                <div class="ph-prog-wrap">
+                  <div class="ph-prog-bar"><div class="ph-prog-fill" style="width:100%;background:#059669"></div></div>
+                  <div class="ph-count">100% · 4 Tasks</div>
+                </div>
+              </div>
+              <div class="phase-tasks open" id="tasks-ph-1">
+                <div class="task-cols-hd">
+                  <div class="th">Task / Milestone</div>
+                  <div class="th">Status</div>
+                  <div class="th">Assignee</div>
+                  <div class="th">Due</div>
+                  <div class="th">Progress</div>
+                  <div class="th"></div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Market Analysis','Research','Completed','Alex R.','Aug 10',100,'#059669')">
+                  <div class="tc"><div><div class="task-id-lbl">Milestone 1.1</div><div class="task-name-lbl">Market Analysis</div></div></div>
+                  <div class="tc"><span class="pill pill-green">Completed</span></div>
+                  <div class="tc"><div class="av" style="background:#2453E8">AR</div><span class="av-name">Alex R.</span></div>
+                  <div class="tc"><span class="task-date">Aug 10</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:100%;background:#059669"></div></div><div class="mini-pct">100%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row is-subtask" onclick="openTaskModal('Competitor Research','Research','Completed','Sara P.','Aug 5',100,'#059669')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 1.1.1</div><div class="task-name-lbl sub1">Competitor Research</div></div></div>
+                  <div class="tc"><span class="pill pill-green">Completed</span></div>
+                  <div class="tc"><div class="av" style="background:#6d28d9">SP</div><span class="av-name">Sara P.</span></div>
+                  <div class="tc"><span class="task-date">Aug 5</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:100%;background:#059669"></div></div><div class="mini-pct">100%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('User Interviews','Research','Completed','Marco R.','Aug 15',100,'#059669')">
+                  <div class="tc"><div><div class="task-id-lbl">Milestone 1.2</div><div class="task-name-lbl">User Interviews</div></div></div>
+                  <div class="tc"><span class="pill pill-green">Completed</span></div>
+                  <div class="tc"><div class="av" style="background:#059669">MR</div><span class="av-name">Marco R.</span></div>
+                  <div class="tc"><span class="task-date">Aug 15</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:100%;background:#059669"></div></div><div class="mini-pct">100%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Requirements Spec','Research','Completed','Alex R.','Aug 20',100,'#059669')">
+                  <div class="tc"><div><div class="task-id-lbl">Milestone 1.4</div><div class="task-name-lbl">Requirements Specification</div></div></div>
+                  <div class="tc"><span class="pill pill-green">Completed</span></div>
+                  <div class="tc"><div class="av" style="background:#2453E8">AR</div><span class="av-name">Alex R.</span></div>
+                  <div class="tc"><span class="task-date">Aug 20</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:100%;background:#059669"></div></div><div class="mini-pct">100%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── PHASE 2: Product Design ─── -->
+            <div class="phase-row has-warn" id="ph-2">
+              <div class="phase-hd" onclick="togglePhase('ph-2')">
+                <div class="ph-toggle open" id="toggle-ph-2"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="ph-num">02</div>
+                <div class="ph-name">Product Design</div>
+                <span class="pill pill-yellow">In Progress</span>
+                <div style="flex:1"></div>
+                <div class="ph-prog-wrap">
+                  <div class="ph-prog-bar"><div class="ph-prog-fill" style="width:65%;background:#d97706"></div></div>
+                  <div class="ph-count">65% · 5 Tasks</div>
+                </div>
+              </div>
+              <div class="phase-tasks open" id="tasks-ph-2">
+                <div class="task-cols-hd">
+                  <div class="th">Task / Milestone</div>
+                  <div class="th">Status</div>
+                  <div class="th">Assignee</div>
+                  <div class="th">Due</div>
+                  <div class="th">Progress</div>
+                  <div class="th"></div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('UI Mockups','Design','In Progress','Alex R.','Sep 1',65,'#d97706')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 2.1</div><div class="task-name-lbl">UI Mockups</div></div></div>
+                  <div class="tc"><span class="pill pill-yellow">In Progress</span></div>
+                  <div class="tc"><div class="av" style="background:#2453E8">AR</div><span class="av-name">Alex R.</span></div>
+                  <div class="tc"><span class="task-date">Sep 1</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:65%;background:#d97706"></div></div><div class="mini-pct">65%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row is-subtask" onclick="openTaskModal('Wireframes','Design','Completed','Alex C.','Aug 5',100,'#059669')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 2.1.1</div><div class="task-name-lbl sub1">Wireframes</div></div></div>
+                  <div class="tc"><span class="pill pill-green">Completed</span></div>
+                  <div class="tc"><div class="av" style="background:#0891b2">AC</div><span class="av-name">Alex C.</span></div>
+                  <div class="tc"><span class="task-date">Aug 5</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:100%;background:#059669"></div></div><div class="mini-pct">100%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row is-subtask" onclick="openTaskModal('Prototyping','Design','In Progress','Alex R.','Sep 5',70,'#dc2626')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 2.1.2</div><div class="task-name-lbl sub1">Prototyping</div><div class="overdue-flag">⚠ Overdue · Sep 5</div></div></div>
+                  <div class="tc"><span class="pill pill-yellow">In Progress</span></div>
+                  <div class="tc"><div class="av" style="background:#2453E8">AR</div><span class="av-name">Alex R.</span></div>
+                  <div class="tc"><span class="task-date late">Sep 5 !</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:70%;background:#dc2626"></div></div><div class="mini-pct" style="color:var(--red)">70%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Design Review','Design','Review','Sara P.','Sep 10',80,'#6d28d9')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 2.2</div><div class="task-name-lbl">Design Review</div></div></div>
+                  <div class="tc"><span class="pill pill-purple">In Review</span></div>
+                  <div class="tc"><div class="av" style="background:#6d28d9">SP</div><span class="av-name">Sara P.</span></div>
+                  <div class="tc"><span class="task-date">Sep 10</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:80%;background:#6d28d9"></div></div><div class="mini-pct">80%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── PHASE 3: Development ─── -->
+            <div class="phase-row has-risk" id="ph-3">
+              <div class="phase-hd" onclick="togglePhase('ph-3')">
+                <div class="ph-toggle open" id="toggle-ph-3"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="ph-num">03</div>
+                <div class="ph-name">Development</div>
+                <span class="pill pill-yellow">In Progress</span>
+                <span class="pill pill-red" style="margin-left:4px">1 Blocked</span>
+                <div style="flex:1"></div>
+                <div class="ph-prog-wrap">
+                  <div class="ph-prog-bar"><div class="ph-prog-fill" style="width:40%;background:#2453E8"></div></div>
+                  <div class="ph-count">40% · 8 Tasks</div>
+                </div>
+              </div>
+              <div class="phase-tasks open" id="tasks-ph-3">
+                <div class="task-cols-hd">
+                  <div class="th">Task / Milestone</div>
+                  <div class="th">Status</div>
+                  <div class="th">Assignee</div>
+                  <div class="th">Due</div>
+                  <div class="th">Progress</div>
+                  <div class="th"></div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Backend API','Development','In Progress','Marco R.','Oct 1',55,'#2453E8')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 3.1</div><div class="task-name-lbl">Backend API Development</div></div></div>
+                  <div class="tc"><span class="pill pill-blue">In Progress</span></div>
+                  <div class="tc"><div class="av" style="background:#059669">MR</div><span class="av-name">Marco R.</span></div>
+                  <div class="tc"><span class="task-date">Oct 1</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:55%;background:#2453E8"></div></div><div class="mini-pct">55%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Database Schema','Development','Completed','Sara P.','Sep 20',100,'#059669')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 3.2</div><div class="task-name-lbl">Database Schema Design</div></div></div>
+                  <div class="tc"><span class="pill pill-green">Completed</span></div>
+                  <div class="tc"><div class="av" style="background:#6d28d9">SP</div><span class="av-name">Sara P.</span></div>
+                  <div class="tc"><span class="task-date">Sep 20</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:100%;background:#059669"></div></div><div class="mini-pct">100%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row" style="background:#fef2f2" onclick="openTaskModal('Auth System','Development','Blocked','Tina L.','Oct 5',20,'#dc2626')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 3.3</div><div class="task-name-lbl">Auth & Permissions System</div><div class="block-flag">🚧 Blocked — Awaiting 3rd-party API</div></div></div>
+                  <div class="tc"><span class="pill pill-red">Blocked</span></div>
+                  <div class="tc"><div class="av" style="background:#dc2626">TL</div><span class="av-name">Tina L.</span></div>
+                  <div class="tc"><span class="task-date late">Oct 5 !</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:20%;background:#dc2626"></div></div><div class="mini-pct" style="color:var(--red)">20%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Frontend Shell','Development','In Progress','Yuki C.','Oct 15',30,'#2453E8')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 3.4</div><div class="task-name-lbl">Frontend Shell & Routing</div></div></div>
+                  <div class="tc"><span class="pill pill-blue">In Progress</span></div>
+                  <div class="tc"><div class="av" style="background:#d97706">YC</div><span class="av-name">Yuki C.</span></div>
+                  <div class="tc"><span class="task-date">Oct 15</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:30%;background:#2453E8"></div></div><div class="mini-pct">30%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── PHASE 4: QA & Testing ─── -->
+            <div class="phase-row" id="ph-4">
+              <div class="phase-hd" onclick="togglePhase('ph-4')">
+                <div class="ph-toggle" id="toggle-ph-4"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="ph-num">04</div>
+                <div class="ph-name">QA & Testing</div>
+                <span class="pill pill-gray">Not Started</span>
+                <div style="flex:1"></div>
+                <div class="ph-prog-wrap">
+                  <div class="ph-prog-bar"><div class="ph-prog-fill" style="width:0%;background:#94a3b8"></div></div>
+                  <div class="ph-count">0% · 6 Tasks</div>
+                </div>
+              </div>
+              <div class="phase-tasks" id="tasks-ph-4">
+                <div class="task-cols-hd">
+                  <div class="th">Task / Milestone</div><div class="th">Status</div><div class="th">Assignee</div><div class="th">Due</div><div class="th">Progress</div><div class="th"></div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Integration Tests','QA','Not Started','James P.','Nov 1',0,'#94a3b8')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 4.1</div><div class="task-name-lbl">Integration Test Suite</div></div></div>
+                  <div class="tc"><span class="pill pill-gray">Not Started</span></div>
+                  <div class="tc"><div class="av" style="background:#ea580c">JP</div><span class="av-name">James P.</span></div>
+                  <div class="tc"><span class="task-date">Nov 1</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:0%;background:#94a3b8"></div></div><div class="mini-pct">0%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Performance Testing','QA','Not Started','James P.','Nov 10',0,'#94a3b8')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 4.2</div><div class="task-name-lbl">Performance Testing</div></div></div>
+                  <div class="tc"><span class="pill pill-gray">Not Started</span></div>
+                  <div class="tc"><div class="av" style="background:#ea580c">JP</div><span class="av-name">James P.</span></div>
+                  <div class="tc"><span class="task-date">Nov 10</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:0%"></div></div><div class="mini-pct">0%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── PHASE 5: Deployment ─── -->
+            <div class="phase-row" id="ph-5">
+              <div class="phase-hd" onclick="togglePhase('ph-5')">
+                <div class="ph-toggle" id="toggle-ph-5"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="ph-num">05</div>
+                <div class="ph-name">Deployment & Launch</div>
+                <span class="pill pill-gray">Not Started</span>
+                <div style="flex:1"></div>
+                <div class="ph-prog-wrap">
+                  <div class="ph-prog-bar"><div class="ph-prog-fill" style="width:0%;background:#94a3b8"></div></div>
+                  <div class="ph-count">0% · 4 Tasks</div>
+                </div>
+              </div>
+              <div class="phase-tasks" id="tasks-ph-5">
+                <div class="task-cols-hd">
+                  <div class="th">Task / Milestone</div><div class="th">Status</div><div class="th">Assignee</div><div class="th">Due</div><div class="th">Progress</div><div class="th"></div>
+                </div>
+                <div class="task-row" onclick="openTaskModal('Staging Deploy','Deployment','Not Started','Marco R.','Nov 20',0,'#94a3b8')">
+                  <div class="tc"><div><div class="task-id-lbl">Task 5.1</div><div class="task-name-lbl">Staging Environment Deploy</div></div></div>
+                  <div class="tc"><span class="pill pill-gray">Not Started</span></div>
+                  <div class="tc"><div class="av" style="background:#059669">MR</div><span class="av-name">Marco R.</span></div>
+                  <div class="tc"><span class="task-date">Nov 20</span></div>
+                  <div class="tc"><div class="mini-prog"><div class="mini-bar"><div class="mini-fill" style="width:0%"></div></div><div class="mini-pct">0%</div></div></div>
+                  <div class="tc row-arrow">›</div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /phase-list -->
+        </div><!-- /task-arch card -->
+
+        <!-- ── RIGHT: Project Intelligence ── -->
+        <div class="intel-panel fu fu-3">
+
+          <!-- Timeline Card -->
+          <div class="card" style="padding:16px 18px">
+            <div class="card-hd" style="margin-bottom:10px">
+              <div>
+                <div class="card-title">Timeline</div>
+                <div class="card-sub">Start: Jun 3 · End: Dec 15, 2024</div>
+              </div>
+              <div class="card-actions">
+                <button class="icon-btn" onclick="openTimelineModal()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+              </div>
+            </div>
+            <!-- Timeline bar -->
+            <div style="position:relative;height:10px;background:var(--surf3);border-radius:99px;overflow:hidden;margin-bottom:8px">
+              <div style="position:absolute;left:0;top:0;width:38%;height:100%;background:linear-gradient(90deg,#2453E8,#6d28d9);border-radius:99px"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:12px">
+              <span>Jun 3</span><span>Today ▲</span><span>Dec 15</span>
+            </div>
+            <div class="card-title" style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Upcoming Milestones</div>
+            <div class="ms-list">
+              <div class="ms-row" onclick="showToast('📅 Milestone 2.1 details','info')">
+                <div class="ms-dot" style="background:#22c55e"></div>
+                <div class="ms-body"><div class="ms-name">UI Mockups (M2.1)</div><div class="ms-phase">Phase 2 · Design</div></div>
+                <div class="ms-date">Sep 1</div>
+              </div>
+              <div class="ms-row" onclick="showToast('📅 Milestone 3.1 details','info')">
+                <div class="ms-dot" style="background:#f59e0b"></div>
+                <div class="ms-body"><div class="ms-name">MVP Launch (M3.1)</div><div class="ms-phase">Phase 3 · Dev</div></div>
+                <div class="ms-date">Oct 15</div>
+              </div>
+              <div class="ms-row" onclick="showToast('📅 Milestone 4.1 details','info')">
+                <div class="ms-dot" style="background:#e2e8f0"></div>
+                <div class="ms-body"><div class="ms-name">Beta Release (M4.1)</div><div class="ms-phase">Phase 4 · QA</div></div>
+                <div class="ms-date">Nov 10</div>
+              </div>
+              <div class="ms-row" onclick="showToast('📅 Milestone 5.1 details','info')">
+                <div class="ms-dot" style="background:#e2e8f0"></div>
+                <div class="ms-body"><div class="ms-name">Production Go-Live</div><div class="ms-phase">Phase 5 · Deploy</div></div>
+                <div class="ms-date">Dec 15</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financials Card -->
+          <div class="card" style="padding:16px 18px">
+            <div class="card-hd" style="margin-bottom:10px">
+              <div>
+                <div class="card-title">Financials</div>
+                <div class="card-sub">Budget Allocation & Burn Rate</div>
+              </div>
+              <button class="icon-btn" onclick="openBudgetModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
+            </div>
+            <div class="budget-overview">
+              <div class="budget-ring">
+                <svg viewBox="0 0 72 72" width="72" height="72">
+                  <circle cx="36" cy="36" r="28" fill="none" stroke="#f1f5f9" stroke-width="9"/>
+                  <circle cx="36" cy="36" r="28" fill="none" stroke="#b45309" stroke-width="9"
+                    stroke-dasharray="176" stroke-dashoffset="61.6" stroke-linecap="round"/>
+                </svg>
+                <div class="budget-ring-label">
+                  <div class="brl-pct">65%</div>
+                  <div class="brl-sub">used</div>
+                </div>
+              </div>
+              <div class="budget-stats">
+                <div class="budget-stat-row"><span class="bs-label">Total Budget</span><span class="bs-val">$225k</span></div>
+                <div class="budget-stat-row"><span class="bs-label">Spent</span><span class="bs-val warn">$145.5k</span></div>
+                <div class="budget-stat-row"><span class="bs-label">Remaining</span><span class="bs-val ok">$79.5k</span></div>
+                <div class="budget-stat-row"><span class="bs-label">Forecast</span><span class="bs-val warn">$218k</span></div>
+              </div>
+            </div>
+            <div class="card-title" style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">By Department</div>
+            <div class="dept-list">
+              <div class="dept-row">
+                <div class="dept-name">Engineering</div>
+                <div class="dept-bar"><div class="dept-fill" style="width:69%;background:#2453E8"></div></div>
+                <div class="dept-pct">$62k</div>
+              </div>
+              <div class="dept-row">
+                <div class="dept-name">Design</div>
+                <div class="dept-bar"><div class="dept-fill" style="width:62%;background:#6d28d9"></div></div>
+                <div class="dept-pct">$28k</div>
+              </div>
+              <div class="dept-row">
+                <div class="dept-name">QA</div>
+                <div class="dept-bar"><div class="dept-fill" style="width:51%;background:#059669"></div></div>
+                <div class="dept-pct">$18k</div>
+              </div>
+              <div class="dept-row">
+                <div class="dept-name">Infra</div>
+                <div class="dept-bar"><div class="dept-fill" style="width:67%;background:#d97706"></div></div>
+                <div class="dept-pct">$20k</div>
+              </div>
+              <div class="dept-row">
+                <div class="dept-name">Contingency</div>
+                <div class="dept-bar"><div class="dept-fill" style="width:70%;background:#ea580c"></div></div>
+                <div class="dept-pct">$17.5k</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Management Card -->
+          <div class="card" style="padding:16px 18px">
+            <div class="card-hd" style="margin-bottom:10px">
+              <div>
+                <div class="card-title">Team & Resource Allocation</div>
+                <div class="card-sub">5 Members · 1 at capacity</div>
+              </div>
+              <button class="icon-btn" onclick="openTeamModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <div class="team-grid">
+              <div class="team-member-row" onclick="openTeamModal()">
+                <div class="team-av" style="background:#2453E8">AR</div>
+                <div class="team-info">
+                  <div class="team-name-lbl">Alex R.</div>
+                  <div class="team-role-lbl">Lead Developer</div>
+                  <div class="team-load-bar"><div class="team-load-fill" style="width:85%;background:#2453E8"></div></div>
+                </div>
+                <div class="team-load-pct" style="color:#dc2626">85%</div>
+              </div>
+              <div class="team-member-row" onclick="openTeamModal()">
+                <div class="team-av" style="background:#6d28d9">SP</div>
+                <div class="team-info">
+                  <div class="team-name-lbl">Sara P.</div>
+                  <div class="team-role-lbl">UX Designer</div>
+                  <div class="team-load-bar"><div class="team-load-fill" style="width:70%;background:#6d28d9"></div></div>
+                </div>
+                <div class="team-load-pct" style="color:#b45309">70%</div>
+              </div>
+              <div class="team-member-row" onclick="openTeamModal()">
+                <div class="team-av" style="background:#059669">MR</div>
+                <div class="team-info">
+                  <div class="team-name-lbl">Marco R.</div>
+                  <div class="team-role-lbl">Backend Engineer</div>
+                  <div class="team-load-bar"><div class="team-load-fill" style="width:60%;background:#059669"></div></div>
+                </div>
+                <div class="team-load-pct" style="color:#059669">60%</div>
+              </div>
+              <div class="team-member-row" onclick="openTeamModal()">
+                <div class="team-av" style="background:#dc2626">TL</div>
+                <div class="team-info">
+                  <div class="team-name-lbl">Tina L.</div>
+                  <div class="team-role-lbl">Security Engineer</div>
+                  <div class="team-load-bar"><div class="team-load-fill" style="width:20%;background:#dc2626"></div></div>
+                </div>
+                <div class="team-load-pct" style="color:#059669">20%</div>
+              </div>
+              <div class="team-member-row" onclick="openTeamModal()">
+                <div class="team-av" style="background:#ea580c">JP</div>
+                <div class="team-info">
+                  <div class="team-name-lbl">James P.</div>
+                  <div class="team-role-lbl">QA Engineer</div>
+                  <div class="team-load-bar"><div class="team-load-fill" style="width:40%;background:#ea580c"></div></div>
+                </div>
+                <div class="team-load-pct" style="color:#059669">40%</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /intel-panel -->
+      </div><!-- /main-grid -->
+
+      <!-- ════ ④ SUPPORTING SECTION ════ -->
+      <div class="section-lbl">Strategy, Docs & Scalability</div>
+      <div class="support-grid fu fu-4">
+
+        <!-- Strategy & Documents -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-title">Strategy & Documents</div>
+              <div class="card-sub">Project intelligence & planning docs</div>
+            </div>
+            <span class="pill pill-teal">3 Docs</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div class="doc-item" onclick="showToast('📄 Opening Project Plan v2…','info')">
+              <div class="doc-icon" style="background:#eef2ff"><svg viewBox="0 0 24 24" style="color:#2453E8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+              <div class="doc-body">
+                <div class="doc-name">Project Plan v2</div>
+                <div class="doc-meta">Updated Sep 12 · Owner: Alex R.</div>
+              </div>
+              <div class="doc-arrow">›</div>
+            </div>
+            <div class="doc-item" onclick="showToast('📊 Opening Marketing Strategy…','info')">
+              <div class="doc-icon" style="background:#ecfdf5"><svg viewBox="0 0 24 24" style="color:#059669"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div>
+              <div class="doc-body">
+                <div class="doc-name">Marketing & Go-to-Market Strategy</div>
+                <div class="doc-meta">Updated Aug 30 · Owner: Sara P.</div>
+              </div>
+              <div class="doc-arrow">›</div>
+            </div>
+            <div class="doc-item" onclick="showToast('🗺 Opening Resource Roadmap…','info')">
+              <div class="doc-icon" style="background:#fffbeb"><svg viewBox="0 0 24 24" style="color:#b45309"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg></div>
+              <div class="doc-body">
+                <div class="doc-name">Resource Roadmap Q4</div>
+                <div class="doc-meta">Updated Sep 1 · Owner: Marco R.</div>
+              </div>
+              <div class="doc-arrow">›</div>
+            </div>
+            <div class="doc-item" onclick="showToast('📋 Opening Intended Use Document…','info')">
+              <div class="doc-icon" style="background:#f5f3ff"><svg viewBox="0 0 24 24" style="color:#6d28d9"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+              <div class="doc-body">
+                <div class="doc-name">Intended Use & Product Scope</div>
+                <div class="doc-meta">Updated Sep 5 · Owner: Alex R.</div>
+              </div>
+              <div class="doc-arrow">›</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Health Detail -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-title">Project Health</div>
+              <div class="card-sub">Composite score across 4 dimensions</div>
+            </div>
+            <span class="pill pill-green">67 / 100</span>
+          </div>
+          <!-- Health dimension strips -->
+          <div class="health-strip">
+            <div class="health-seg" onclick="showToast('✅ Timeline is on track','info')">
+              <div class="hs-val" style="color:#059669">✓</div>
+              <div class="hs-lbl">Timeline</div>
+            </div>
+            <div class="health-seg" onclick="showToast('⚠ Budget at 65%, monitor closely','warn')">
+              <div class="hs-val" style="color:#b45309">~</div>
+              <div class="hs-lbl">Budget</div>
+            </div>
+            <div class="health-seg" onclick="showToast('✅ Team allocation healthy','info')">
+              <div class="hs-val" style="color:#059669">✓</div>
+              <div class="hs-lbl">Team</div>
+            </div>
+            <div class="health-seg" onclick="showToast('🚧 1 blocked task, 2 overdue','warn')">
+              <div class="hs-val" style="color:#dc2626">!</div>
+              <div class="hs-lbl">Blockers</div>
+            </div>
+          </div>
+          <!-- Health stats -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div style="background:var(--red-lt);border:1px solid #fecaca;border-radius:var(--r8);padding:10px;cursor:pointer" onclick="showToast('⚠ 2 tasks overdue','warn')">
+              <div style="font-size:20px;font-weight:800;color:var(--red)">2</div>
+              <div style="font-size:10px;color:var(--ink3)">Overdue Tasks</div>
+            </div>
+            <div style="background:var(--green-lt);border:1px solid #d1fae5;border-radius:var(--r8);padding:10px;cursor:pointer" onclick="showToast('🎯 12 tasks closed this week','info')">
+              <div style="font-size:20px;font-weight:800;color:var(--green)">12</div>
+              <div style="font-size:10px;color:var(--ink3)">Closed / Week</div>
+            </div>
+            <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r8);padding:10px;cursor:pointer" onclick="showToast('🚧 1 task blocked on Auth module','warn')">
+              <div style="font-size:20px;font-weight:800;color:var(--orange)">1</div>
+              <div style="font-size:10px;color:var(--ink3)">Blocked Tasks</div>
+            </div>
+            <div style="background:var(--accent-lt);border:1px solid #c7d7fd;border-radius:var(--r8);padding:10px;cursor:pointer" onclick="showToast('📌 3 upcoming milestones','info')">
+              <div style="font-size:20px;font-weight:800;color:var(--accent)">3</div>
+              <div style="font-size:10px;color:var(--ink3)">Milestones Due</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scalability & Industrial Versatility -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-title">Industrial Versatility</div>
+              <div class="card-sub">Scalability & deployment readiness</div>
+            </div>
+            <span class="pill pill-teal">Production-Ready</span>
+          </div>
+          <div class="scale-list">
+            <div class="scale-item">
+              <div class="scale-check" style="background:#059669"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="scale-text">Horizontal scaling architecture designed</div>
+              <span class="scale-badge" style="background:#ecfdf5;color:#059669">Ready</span>
+            </div>
+            <div class="scale-item">
+              <div class="scale-check" style="background:#059669"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="scale-text">Multi-industry data model abstraction</div>
+              <span class="scale-badge" style="background:#ecfdf5;color:#059669">Ready</span>
+            </div>
+            <div class="scale-item">
+              <div class="scale-check" style="background:#d97706"><svg viewBox="0 0 24 24"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+              <div class="scale-text">Compliance & regulatory framework (EU/US)</div>
+              <span class="scale-badge" style="background:#fffbeb;color:#b45309">In Progress</span>
+            </div>
+            <div class="scale-item">
+              <div class="scale-check" style="background:#059669"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="scale-text">API-first architecture for third-party integration</div>
+              <span class="scale-badge" style="background:#ecfdf5;color:#059669">Ready</span>
+            </div>
+            <div class="scale-item">
+              <div class="scale-check" style="background:#94a3b8"><svg viewBox="0 0 24 24"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+              <div class="scale-text">White-label & multi-tenant support</div>
+              <span class="scale-badge" style="background:var(--surf3);color:var(--ink3)">Planned</span>
+            </div>
+            <div class="scale-item">
+              <div class="scale-check" style="background:#94a3b8"><svg viewBox="0 0 24 24"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+              <div class="scale-text">Edge deployment & CDN strategy</div>
+              <span class="scale-badge" style="background:var(--surf3);color:var(--ink3)">Planned</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /support-grid -->
+
+      <div style="height:24px"></div>
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+/* ── Phase toggle ── */
+function togglePhase(id) {
+  const tasks = document.getElementById('tasks-' + id);
+  const toggle = document.getElementById('toggle-' + id);
+  if (!tasks) return;
+  const isOpen = tasks.classList.contains('open');
+  tasks.classList.toggle('open', !isOpen);
+  toggle.classList.toggle('open', !isOpen);
+}
+function expandAll() {
+  ['ph-1','ph-2','ph-3','ph-4','ph-5'].forEach(id => {
+    document.getElementById('tasks-' + id)?.classList.add('open');
+    document.getElementById('toggle-' + id)?.classList.add('open');
+  });
+  showToast('↕ All phases expanded', 'info');
+}
+function collapseAll() {
+  ['ph-1','ph-2','ph-3','ph-4','ph-5'].forEach(id => {
+    document.getElementById('tasks-' + id)?.classList.remove('open');
+    document.getElementById('toggle-' + id)?.classList.remove('open');
+  });
+  showToast('↕ All phases collapsed', 'info');
+}
+
+/* ── Nav ── */
+function navClick(el, name) {
+  document.querySelectorAll('.sb-nav .sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  showToast('📂 ' + name, 'info');
+}
+
+/* ── Toast ── */
+function showToast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+/* ── Modal ── */
+function openModal(title, html) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+/* ── Task Modal ── */
+function openTaskModal(name, phase, status, assignee, due, pct, color) {
+  const sc = {Completed:'pill-green','In Progress':'pill-yellow','In Review':'pill-purple',Review:'pill-purple',Blocked:'pill-red','Not Started':'pill-gray'}[status] || 'pill-gray';
+  openModal('Task Details', `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font-size:15px;font-weight:800;color:var(--ink)">${name}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${[['Phase',phase],['Status',`<span class="pill ${sc}">${status}</span>`],['Assignee',assignee],['Due Date',`<span style="font-family:'DM Mono',monospace">${due}</span>`]].map(([l,v])=>`
+          <div style="background:var(--surf2);border-radius:var(--r8);padding:10px">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:4px">${l}</div>
+            <div style="font-size:12px;font-weight:600;color:var(--ink)">${v}</div>
+          </div>`).join('')}
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;color:var(--ink2)"><span>Progress</span><span style="font-family:'DM Mono',monospace;font-weight:600">${pct}%</span></div>
+        <div style="height:8px;background:var(--surf3);border-radius:99px;overflow:hidden"><div style="width:${pct}%;height:100%;border-radius:99px;background:${color};transition:width 1s ease"></div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button onclick="showToast('✅ Task marked complete!','success');closeModal()" style="flex:1;padding:9px;border-radius:var(--r8);border:none;background:var(--green-lt);color:var(--green);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:700">✓ Mark Complete</button>
+        <button onclick="showToast('✏️ Opening editor…','info');closeModal()" style="flex:1;padding:9px;border-radius:var(--r8);border:1px solid var(--border-md);background:var(--surf);color:var(--ink2);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:600">✎ Edit Task</button>
+        <button onclick="showToast('👤 Reassigning…','info');closeModal()" style="padding:9px 14px;border-radius:var(--r8);border:1px solid var(--border-md);background:var(--surf);color:var(--ink2);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer">↩ Reassign</button>
+      </div>
+    </div>`);
+}
+
+/* ── Timeline Modal ── */
+function openTimelineModal() {
+  openModal('Project Timeline', `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        ${[['Start Date','Jun 3, 2024','#eef2ff','#2453E8'],['End Date','Dec 15, 2024','#fef2f2','#dc2626'],['Duration','195 Days','#ecfdf5','#059669']].map(([l,v,bg,c])=>`
+          <div style="background:${bg};border-radius:var(--r8);padding:10px;text-align:center">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:${c};font-weight:700;margin-bottom:4px">${l}</div>
+            <div style="font-size:12px;font-weight:800;color:var(--ink);font-family:'DM Mono',monospace">${v}</div>
+          </div>`).join('')}
+      </div>
+      <div style="background:var(--surf3);border-radius:var(--r8);padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:8px">Phase Timeline</div>
+        ${[['Research & Discovery','Jun 3','Aug 20',100,'#059669'],['Product Design','Aug 21','Sep 30',65,'#d97706'],['Development','Oct 1','Nov 15',40,'#2453E8'],['QA & Testing','Nov 16','Dec 1',0,'#94a3b8'],['Deployment','Dec 2','Dec 15',0,'#94a3b8']].map(([n,s,e,p,c])=>`
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
+              <span style="font-weight:600;color:var(--ink)">${n}</span>
+              <span style="color:var(--ink3);font-family:'DM Mono',monospace">${s} → ${e}</span>
+            </div>
+            <div style="height:6px;background:rgba(0,0,0,0.07);border-radius:99px;overflow:hidden">
+              <div style="width:${p}%;height:100%;border-radius:99px;background:${c}"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`);
+}
+
+/* ── Budget Modal ── */
+function openBudgetModal() {
+  openModal('Budget Breakdown', `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        ${[['Total','$225k','#eef2ff','#2453E8'],['Spent','$145.5k','#fffbeb','#b45309'],['Remaining','$79.5k','#ecfdf5','#059669']].map(([l,v,bg,c])=>`
+          <div style="background:${bg};border-radius:var(--r8);padding:10px;text-align:center">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:${c};font-weight:700;margin-bottom:4px">${l}</div>
+            <div style="font-size:14px;font-weight:800;color:var(--ink);font-family:'DM Mono',monospace">${v}</div>
+          </div>`).join('')}
+      </div>
+      ${[['Engineering','$62k / $90k',69,'#2453E8'],['Design','$28k / $45k',62,'#6d28d9'],['QA & Testing','$18k / $35k',51,'#059669'],['Infrastructure','$20k / $30k',67,'#d97706'],['Contingency','$17.5k / $25k',70,'#ea580c']].map(([d,v,p,c])=>`
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span style="font-weight:600;color:var(--ink)">${d}</span>
+            <span style="color:var(--ink3);font-family:'DM Mono',monospace">${v}</span>
+          </div>
+          <div style="height:7px;background:var(--surf3);border-radius:99px;overflow:hidden">
+            <div style="width:${p}%;height:100%;border-radius:99px;background:${c}"></div>
+          </div>
+        </div>`).join('')}
+    </div>`);
+}
+
+/* ── Health Modal ── */
+function openHealthModal() {
+  openModal('Project Health Score', `
+    <div style="text-align:center;padding:8px 0 14px">
+      <div style="font-size:48px;font-weight:800;color:var(--ink)">67</div>
+      <div style="font-size:12px;color:var(--ink3)">Overall Health Score out of 100</div>
+      <span class="pill pill-green" style="margin-top:6px;display:inline-flex">Healthy</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      ${[['Timeline','On Track','#059669','✓'],['Budget','Monitor','#b45309','~'],['Team Load','Healthy','#059669','✓'],['Blockers','1 Issue','#dc2626','!']].map(([l,v,c,i])=>`
+        <div style="background:var(--surf2);border-radius:var(--r8);padding:12px;text-align:center">
+          <div style="font-size:20px;color:${c};font-weight:800">${i}</div>
+          <div style="font-size:11px;font-weight:600;color:var(--ink)">${l}</div>
+          <div style="font-size:10px;color:${c}">${v}</div>
+        </div>`).join('')}
+    </div>`);
+}
+
+/* ── Tasks Overview Modal ── */
+function openTasksModal() {
+  openModal('Task Status Overview', `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${[['Completed','145',68,'#059669','pill-green'],['In Progress','38',18,'#d97706','pill-yellow'],['Not Started','29',14,'#94a3b8','pill-gray'],['Blocked','1',0,'#dc2626','pill-red']].map(([l,n,p,c,pill])=>`
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="pill ${pill}" style="width:90px;justify-content:center">${l}</span>
+          <div style="flex:1;height:8px;background:var(--surf3);border-radius:99px;overflow:hidden">
+            <div style="width:${p}%;height:100%;border-radius:99px;background:${c}"></div>
+          </div>
+          <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--ink);min-width:28px">${n}</span>
+        </div>`).join('')}
+      <div style="background:var(--surf2);border-radius:var(--r8);padding:10px;display:flex;justify-content:space-between;margin-top:4px">
+        <span style="font-size:12px;color:var(--ink2)">Total Tasks</span>
+        <span style="font-size:12px;font-weight:800;font-family:'DM Mono',monospace;color:var(--ink)">213</span>
+      </div>
+    </div>`);
+}
+
+/* ── Team Modal ── */
+function openTeamModal() {
+  openModal('Team Management', `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${[['AR','Alex R.','Lead Developer','85','#2453E8',true],['SP','Sara P.','UX Designer','70','#6d28d9',false],['MR','Marco R.','Backend Engineer','60','#059669',false],['TL','Tina L.','Security Engineer','20','#dc2626',false],['JP','James P.','QA Engineer','40','#ea580c',false],['YC','Yuki C.','Frontend Engineer','30','#d97706',false]].map(([i,n,r,l,c,warn])=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r8);background:${warn?'#fef2f2':'var(--surf2)'}">
+          <div style="width:32px;height:32px;border-radius:50%;background:${c};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${i}</div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:700;color:var(--ink)">${n}</div>
+            <div style="font-size:10px;color:var(--ink3)">${r}</div>
+            <div style="height:5px;background:rgba(0,0,0,0.07);border-radius:99px;overflow:hidden;margin-top:4px">
+              <div style="width:${l}%;height:100%;border-radius:99px;background:${c}"></div>
+            </div>
+          </div>
+          <div style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:${parseInt(l)>80?'#dc2626':parseInt(l)>60?'#b45309':'#059669'}">${l}%</div>
+        </div>`).join('')}
+    </div>`);
+}
+
+/* ── New Task Modal ── */
+function openNewTaskModal() {
+  openModal('Create New Task', `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">Task Title *</div>
+        <input id="nt-title" placeholder="e.g. Implement OAuth 2.0 Integration" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r8);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">Phase</div>
+          <select style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none">
+            <option>Phase 2: Design</option><option>Phase 3: Development</option><option>Phase 4: QA</option><option>Phase 5: Deploy</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">Assignee</div>
+          <select style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none">
+            <option>Alex R.</option><option>Sara P.</option><option>Marco R.</option><option>Tina L.</option><option>James P.</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">Priority</div>
+          <select style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none">
+            <option>High</option><option>Medium</option><option>Low</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">Due Date</div>
+          <input type="date" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none"/>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">Description</div>
+        <textarea rows="3" placeholder="Describe the task goal and acceptance criteria…" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none;resize:vertical"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+        <button onclick="closeModal()" style="padding:9px 16px;border-radius:var(--r8);border:1px solid var(--border-md);background:var(--surf);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--ink2);font-weight:600">Cancel</button>
+        <button onclick="const t=document.getElementById('nt-title')?.value?.trim();if(!t){showToast('⚠ Please enter a task title','warn');return;}closeModal();showToast('✅ Task created successfully!','success')" style="padding:9px 22px;border-radius:var(--r8);border:none;background:var(--accent);color:#fff;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:700">Create Task</button>
+      </div>
+    </div>`);
+}
+
+/* ── New Phase Modal ── */
+function openNewPhaseModal() {
+  openModal('Add New Phase', `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">Phase Name *</div>
+        <input id="phase-name" placeholder="e.g. Phase 6: Post-Launch" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r8);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">Start Date</div><input type="date" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none"/></div>
+        <div><div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-weight:600">End Date</div><input type="date" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surf);color:var(--ink);outline:none"/></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="closeModal()" style="padding:9px 16px;border-radius:var(--r8);border:1px solid var(--border-md);background:var(--surf);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--ink2);font-weight:600">Cancel</button>
+        <button onclick="const n=document.getElementById('phase-name')?.value?.trim();if(!n){showToast('⚠ Enter phase name','warn');return;}closeModal();showToast('✅ Phase created!','success')" style="padding:9px 22px;border-radius:var(--r8);border:none;background:var(--accent);color:#fff;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:700">Create Phase</button>
+      </div>
+    </div>`);
+}
+
+function exportDashboard() {
+  showToast('📥 Preparing export…', 'info');
+  setTimeout(() => showToast('✅ Dashboard exported successfully!', 'success'), 2000);
+}
+function handleSearch(val) {
+  if (val.length > 2) showToast('🔍 Searching for "' + val + '"…', 'info');
+}
+</script>
+</body>
+</html>

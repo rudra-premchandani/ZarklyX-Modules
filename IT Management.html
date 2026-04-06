@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZarklyX – IT Support & Asset Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --blue: #2563eb;
+  --blue-light: #3b82f6;
+  --blue-pale: #dbeafe;
+  --blue-dark: #1d4ed8;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --white: #ffffff;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --violet: #7c3aed;
+  --emerald: #10b981;
+  --orange: #f97316;
+  --glass: rgba(255,255,255,0.7);
+  --glass-border: rgba(255,255,255,0.9);
+  --shadow-card: 0 4px 24px rgba(29,78,216,0.08), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-hover: 0 12px 40px rgba(29,78,216,0.15), 0 4px 12px rgba(0,0,0,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--slate-50); color: var(--slate-800); overflow-x: hidden; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(37,99,235,0.1);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--blue-dark); letter-spacing: -0.5px; }
+.nav-logo span { color: var(--slate-800); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--slate-500); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--blue); }
+.nav-cta { display: flex; gap: 0.75rem; }
+.btn-outline { padding: 0.5rem 1.25rem; border-radius: 8px; border: 1.5px solid var(--blue); color: var(--blue); font-size: 0.875rem; font-weight: 600; cursor: pointer; background: transparent; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.btn-outline:hover { background: var(--blue-pale); }
+.btn-primary { padding: 0.5rem 1.25rem; border-radius: 8px; border: none; background: var(--blue); color: white; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.3); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #2563eb 100%);
+  padding: 5rem 2rem 3rem; text-align: center; position: relative; overflow: hidden;
+}
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,0.25) 0%, transparent 70%); }
+.hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(37,99,235,0.2); border: 1px solid rgba(59,130,246,0.4); color: var(--blue-light); font-size: 0.78rem; font-weight: 600; padding: 0.35rem 1rem; border-radius: 100px; margin-bottom: 1.5rem; letter-spacing: 0.05em; text-transform: uppercase; position: relative; z-index: 1; }
+.hero-badge::before { content: '●'; font-size: 0.5rem; }
+.hero h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.1; color: white; margin-bottom: 1.25rem; position: relative; z-index: 1; letter-spacing: -1.5px; }
+.hero h1 em { color: var(--blue-light); font-style: normal; }
+.hero-desc { font-size: 1.1rem; color: rgba(255,255,255,0.72); max-width: 640px; margin: 0 auto 2.5rem; line-height: 1.7; position: relative; z-index: 1; }
+.hero-cta { display: flex; gap: 1rem; justify-content: center; margin-bottom: 3.5rem; position: relative; z-index: 1; }
+.hero-btn-primary { padding: 0.85rem 2rem; border-radius: 10px; background: var(--blue); color: white; font-weight: 700; font-size: 0.95rem; border: none; cursor: pointer; transition: all 0.25s; font-family: 'DM Sans', sans-serif; box-shadow: 0 8px 24px rgba(37,99,235,0.4); }
+.hero-btn-primary:hover { background: var(--blue-dark); transform: translateY(-2px); }
+.hero-btn-ghost { padding: 0.85rem 2rem; border-radius: 10px; background: rgba(255,255,255,0.1); color: white; font-weight: 600; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.25s; font-family: 'DM Sans', sans-serif; backdrop-filter: blur(8px); }
+.hero-btn-ghost:hover { background: rgba(255,255,255,0.18); }
+.hero-stats { display: flex; justify-content: center; gap: 3rem; position: relative; z-index: 1; }
+.hero-stat { text-align: center; }
+.hero-stat strong { display: block; font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; color: white; }
+.hero-stat span { font-size: 0.8rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* DASHBOARD SECTION */
+.dashboard-section { padding: 0 1.5rem 1rem; margin-top: -1px; background: linear-gradient(180deg, #1e3a5f 0%, var(--slate-50) 280px); }
+.dashboard-wrapper { max-width: 1280px; margin: 0 auto; background: var(--white); border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(37,99,235,0.1); overflow: hidden; }
+
+/* DB HEADER */
+.db-header { background: var(--slate-900); padding: 0.9rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+.db-header-left { display: flex; align-items: center; gap: 1rem; }
+.db-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; color: var(--blue-light); }
+.db-nav { display: flex; gap: 0.25rem; }
+.db-nav-item { padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.2s; }
+.db-nav-item:hover, .db-nav-item.active { background: rgba(37,99,235,0.2); color: var(--blue-light); }
+.db-header-right { display: flex; align-items: center; gap: 0.75rem; }
+.db-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--blue-dark)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; }
+.db-month-badge { padding: 0.3rem 0.8rem; border-radius: 6px; background: rgba(37,99,235,0.15); border: 1px solid rgba(59,130,246,0.3); color: var(--blue-light); font-size: 0.75rem; font-weight: 600; }
+.db-body { display: flex; height: calc(100vh - 160px); max-height: 760px; min-height: 600px; }
+
+/* SIDEBAR */
+.db-sidebar { width: 210px; min-width: 210px; background: var(--slate-800); padding: 1rem 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.db-side-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1.25rem; font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+.db-side-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.db-side-item.active { background: rgba(37,99,235,0.15); color: var(--blue-light); border-left-color: var(--blue-light); }
+.db-side-icon { font-size: 1rem; width: 18px; text-align: center; }
+.db-side-section { padding: 1rem 1.25rem 0.35rem; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.5rem; }
+
+/* MAIN AREA */
+.db-main { flex: 1; overflow-y: auto; padding: 1.25rem; background: #f0f4ff; display: flex; flex-direction: column; gap: 1.25rem; }
+.db-main::-webkit-scrollbar { width: 4px; }
+.db-main::-webkit-scrollbar-track { background: transparent; }
+.db-main::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
+.db-page-title { display: flex; align-items: center; justify-content: space-between; }
+.db-page-title h2 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--slate-800); }
+.db-page-title p { font-size: 0.75rem; color: var(--slate-500); margin-top: 2px; }
+.db-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.db-action-btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; border: none; }
+.db-action-btn.primary { background: var(--blue); color: white; }
+.db-action-btn.primary:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+.db-action-btn.secondary { background: white; color: var(--slate-700); border: 1px solid var(--slate-300); }
+.db-action-btn.secondary:hover { border-color: var(--blue); color: var(--blue); }
+.db-action-btn.amber-btn { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.db-action-btn.amber-btn:hover { background: #fde68a; }
+
+/* KPI CARDS */
+.kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; }
+.kpi-card { background: var(--white); border-radius: 14px; padding: 0.9rem; box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8); transition: all 0.25s; cursor: pointer; position: relative; overflow: hidden; }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0; }
+.kpi-card.blue::before    { background: linear-gradient(90deg, var(--blue), var(--blue-light)); }
+.kpi-card.amber::before   { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.kpi-card.emerald::before { background: linear-gradient(90deg, var(--emerald), #34d399); }
+.kpi-card.rose::before    { background: linear-gradient(90deg, var(--rose), #fb7185); }
+.kpi-card.violet::before  { background: linear-gradient(90deg, var(--violet), #a78bfa); }
+.kpi-card.orange::before  { background: linear-gradient(90deg, var(--orange), #fb923c); }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.kpi-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+.kpi-icon.blue    { background: #dbeafe; }
+.kpi-icon.amber   { background: #fef3c7; }
+.kpi-icon.emerald { background: #d1fae5; }
+.kpi-icon.rose    { background: #ffe4e6; }
+.kpi-icon.violet  { background: #ede9fe; }
+.kpi-icon.orange  { background: #ffedd5; }
+.kpi-change { font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.4rem; border-radius: 5px; }
+.kpi-change.up   { background: #d1fae5; color: #065f46; }
+.kpi-change.down { background: #ffe4e6; color: #9f1239; }
+.kpi-value { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--slate-800); line-height: 1; }
+.kpi-label { font-size: 0.65rem; color: var(--slate-500); font-weight: 500; margin-top: 0.25rem; }
+
+@keyframes countUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.kpi-value { animation: countUp 0.5s ease backwards; }
+.kpi-card:nth-child(1) .kpi-value { animation-delay: 0.1s; }
+.kpi-card:nth-child(2) .kpi-value { animation-delay: 0.15s; }
+.kpi-card:nth-child(3) .kpi-value { animation-delay: 0.2s; }
+.kpi-card:nth-child(4) .kpi-value { animation-delay: 0.25s; }
+.kpi-card:nth-child(5) .kpi-value { animation-delay: 0.3s; }
+.kpi-card:nth-child(6) .kpi-value { animation-delay: 0.35s; }
+
+/* CHARTS */
+.charts-row { display: grid; grid-template-columns: 1.8fr 0.9fr 0.9fr; gap: 1rem; }
+.chart-card { background: var(--white); border-radius: 14px; padding: 1.1rem; box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8); }
+.chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.chart-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--slate-800); }
+.chart-subtitle { font-size: 0.7rem; color: var(--slate-500); margin-top: 2px; }
+.chart-filter { display: flex; gap: 0.3rem; }
+.chart-filter-btn { padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.68rem; font-weight: 600; border: 1px solid var(--slate-300); background: transparent; cursor: pointer; color: var(--slate-500); transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.chart-filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+.chart-canvas-wrap { height: 150px; position: relative; }
+.donut-legend { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.65rem; }
+.legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.68rem; }
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; margin-right: 0.4rem; }
+.legend-label { display: flex; align-items: center; color: var(--slate-600); }
+.legend-val { color: var(--slate-800); font-weight: 600; }
+
+/* TABLES ROW */
+.tables-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.table-card { background: var(--white); border-radius: 14px; padding: 1.1rem; box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8); }
+.table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+.table-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--slate-800); }
+.view-all { font-size: 0.72rem; color: var(--blue); font-weight: 600; cursor: pointer; }
+.view-all:hover { text-decoration: underline; }
+.emp-table { width: 100%; border-collapse: collapse; }
+.emp-table th { font-size: 0.62rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 0.5rem 0.5rem; text-align: left; border-bottom: 1px solid var(--slate-100); }
+.emp-table td { font-size: 0.73rem; color: var(--slate-700); padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--slate-100); }
+.emp-table tr:last-child td { border-bottom: none; }
+.emp-table tr:hover td { background: #eff6ff; cursor: pointer; }
+.status-badge { display: inline-flex; padding: 0.15rem 0.5rem; border-radius: 100px; font-size: 0.62rem; font-weight: 600; }
+.status-open      { background: #dbeafe; color: #1e40af; }
+.status-progress  { background: #fef3c7; color: #92400e; }
+.status-completed { background: #d1fae5; color: #065f46; }
+.status-high      { background: #ffe4e6; color: #9f1239; }
+.status-medium    { background: #fef3c7; color: #92400e; }
+.status-low       { background: #dcfce7; color: #166534; }
+.status-active    { background: #d1fae5; color: #065f46; }
+.status-expiring  { background: #ffedd5; color: #9a3412; }
+
+/* QUICK ACTIONS */
+.qa-btn { padding: 0.65rem 0.5rem; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent; background: var(--white); box-shadow: var(--shadow-card); }
+.qa-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--blue-pale); }
+.qa-icon { font-size: 1.2rem; margin-bottom: 0.25rem; }
+.qa-label { font-size: 0.65rem; font-weight: 600; color: var(--slate-700); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.55); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 20px; width: 90%; max-width: 560px; box-shadow: 0 40px 100px rgba(0,0,0,0.25); overflow: hidden; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modal { animation: slideUp 0.25s ease; }
+.modal-head { padding: 1.5rem 1.5rem 0; display: flex; align-items: flex-start; justify-content: space-between; }
+.modal-head h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--slate-800); }
+.modal-head p { font-size: 0.8rem; color: var(--slate-500); margin-top: 4px; }
+.modal-close { width: 30px; height: 30px; border-radius: 8px; border: none; background: var(--slate-100); cursor: pointer; font-size: 1rem; color: var(--slate-500); transition: all 0.2s; }
+.modal-close:hover { background: var(--slate-200); }
+.modal-body { padding: 1.25rem 1.5rem 1.5rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem; }
+.form-group label { font-size: 0.75rem; font-weight: 600; color: var(--slate-700); }
+.form-input { padding: 0.6rem 0.85rem; border-radius: 8px; border: 1.5px solid var(--slate-300); font-size: 0.82rem; color: var(--slate-800); font-family: 'DM Sans', sans-serif; transition: border-color 0.2s; outline: none; background: var(--slate-50); }
+.form-input:focus { border-color: var(--blue); background: white; }
+.form-select { padding: 0.6rem 0.85rem; border-radius: 8px; border: 1.5px solid var(--slate-300); font-size: 0.82rem; color: var(--slate-800); font-family: 'DM Sans', sans-serif; outline: none; background: var(--slate-50); cursor: pointer; transition: border-color 0.2s; width: 100%; }
+.form-select:focus { border-color: var(--blue); background: white; }
+.modal-footer { padding: 1rem 1.5rem 1.5rem; display: flex; gap: 0.75rem; justify-content: flex-end; }
+.modal-info-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--slate-100); font-size: 0.8rem; }
+.modal-info-row:last-child { border-bottom: none; }
+.modal-info-label { color: var(--slate-500); font-weight: 500; }
+.modal-info-value { color: var(--slate-800); font-weight: 600; }
+.modal-steps { display: flex; flex-direction: column; gap: 0.75rem; }
+.modal-step { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.85rem; background: var(--slate-50); border-radius: 10px; border: 1px solid var(--slate-200); }
+.modal-step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue); color: white; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.modal-step-text h5 { font-size: 0.8rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.2rem; }
+.modal-step-text p { font-size: 0.72rem; color: var(--slate-500); line-height: 1.5; }
+.alert-success { background: #dbeafe; border: 1px solid #93c5fd; border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.8rem; color: #1e40af; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+
+/* LANDING CONTENT */
+.section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+.section-label { display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue); background: var(--blue-pale); padding: 0.35rem 1rem; border-radius: 100px; margin-bottom: 1rem; }
+.section-title { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800; color: var(--slate-900); line-height: 1.15; letter-spacing: -0.75px; margin-bottom: 1.25rem; }
+.section-title em { color: var(--blue); font-style: normal; }
+.section-intro { font-size: 1.05rem; color: var(--slate-500); line-height: 1.8; max-width: 720px; }
+
+/* WHAT IS */
+.what-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; margin-top: 3.5rem; }
+.what-content p { font-size: 1rem; color: var(--slate-600); line-height: 1.8; margin-bottom: 1.25rem; }
+.what-cards { display: flex; flex-direction: column; gap: 0.85rem; }
+.what-card { background: var(--white); border-radius: 14px; padding: 1.1rem 1.25rem; border-left: 4px solid var(--blue); box-shadow: var(--shadow-card); transition: transform 0.2s; }
+.what-card:hover { transform: translateX(4px); }
+.what-card h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.4rem; }
+.what-card p { font-size: 0.82rem; color: var(--slate-500); line-height: 1.6; }
+
+/* STEPS */
+.steps-section { background: var(--slate-900); padding: 6rem 2rem; }
+.steps-inner { max-width: 1100px; margin: 0 auto; }
+.steps-section .section-label { background: rgba(37,99,235,0.2); color: var(--blue-light); }
+.steps-section .section-title { color: white; }
+.steps-section .section-intro { color: rgba(255,255,255,0.6); }
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 3.5rem; position: relative; }
+.steps-grid::before { content: ''; position: absolute; top: 36px; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, var(--blue), var(--blue-light)); z-index: 0; }
+.step-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.5rem 1.1rem; text-align: center; position: relative; z-index: 1; transition: all 0.25s; backdrop-filter: blur(10px); }
+.step-card:hover { background: rgba(37,99,235,0.15); border-color: rgba(59,130,246,0.4); transform: translateY(-4px); }
+.step-num { width: 48px; height: 48px; border-radius: 50%; background: var(--blue); color: white; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: 0 8px 20px rgba(37,99,235,0.4); }
+.step-card h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: white; margin-bottom: 0.6rem; }
+.step-card p { font-size: 0.78rem; color: rgba(255,255,255,0.6); line-height: 1.65; }
+
+/* FEATURES */
+.features-section { padding: 6rem 2rem; background: white; }
+.features-inner { max-width: 1100px; margin: 0 auto; }
+
+/* ASSET MANAGER SECTION */
+.control-section { padding: 6rem 2rem; background: var(--slate-50); }
+.control-inner { max-width: 1100px; margin: 0 auto; }
+.control-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+.control-card { background: white; border-radius: 16px; padding: 1.75rem; box-shadow: var(--shadow-card); border: 1px solid rgba(0,0,0,0.04); transition: all 0.25s; }
+.control-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+.control-icon-wrap { width: 48px; height: 48px; border-radius: 12px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1rem; }
+.control-card h4 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.55rem; }
+.control-card p { font-size: 0.82rem; color: var(--slate-500); line-height: 1.7; }
+
+/* WHY SECTION */
+.why-section { padding: 6rem 2rem; background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); }
+.why-inner { max-width: 1100px; margin: 0 auto; }
+.why-section .section-label { background: rgba(37,99,235,0.25); color: var(--blue-light); }
+.why-section .section-title { color: white; }
+.why-section .section-intro { color: rgba(255,255,255,0.6); }
+.why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 3.5rem; }
+.why-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.5rem; transition: all 0.25s; backdrop-filter: blur(10px); }
+.why-card:hover { background: rgba(37,99,235,0.15); border-color: rgba(59,130,246,0.35); }
+.why-check { width: 36px; height: 36px; border-radius: 10px; background: rgba(37,99,235,0.3); display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-bottom: 0.85rem; }
+.why-card h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: white; margin-bottom: 0.5rem; }
+.why-card p { font-size: 0.8rem; color: rgba(255,255,255,0.6); line-height: 1.65; }
+
+/* CTA */
+.cta-section { padding: 5rem 2rem; text-align: center; background: white; }
+.cta-inner { max-width: 640px; margin: 0 auto; }
+.cta-inner h2 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--slate-900); margin-bottom: 1rem; letter-spacing: -0.75px; }
+.cta-inner p { color: var(--slate-500); font-size: 1rem; line-height: 1.7; margin-bottom: 2rem; }
+.cta-btns { display: flex; gap: 1rem; justify-content: center; }
+
+/* FOOTER */
+footer { background: var(--slate-900); padding: 2.5rem 2rem; }
+.footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.footer-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--blue-light); }
+.footer-credits { display: flex; gap: 2rem; }
+.footer-credit { text-align: center; }
+.footer-credit-role { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.35); margin-bottom: 0.2rem; }
+.footer-credit-name { font-size: 0.82rem; font-weight: 600; color: var(--blue-light); }
+.footer-copy { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
+
+@media(max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  .tables-row { grid-template-columns: 1fr; }
+  .what-grid, .control-grid, .why-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
+  .steps-grid::before { display: none; }
+  .footer-inner { flex-direction: column; text-align: center; }
+  .footer-credits { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Zarkly<span>X</span></div>
+  <ul class="nav-links">
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#what">Overview</a></li>
+    <li><a href="#steps">How It Works</a></li>
+    <li><a href="#features">IT Tickets</a></li>
+    <li><a href="#assets">Asset Manager</a></li>
+    <li><a href="#why">Why ZarklyX</a></li>
+  </ul>
+  <div class="nav-cta">
+    <button class="btn-outline">Sign In</button>
+    <button class="btn-primary">Start Free Trial</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">IT Support & Asset Management Module</div>
+  <h1>Empower your team with<br><em>seamless IT support.</em></h1>
+  <p class="hero-desc">A seamless technical support system and a high-performance asset tracker — built for teams that cannot afford downtime. Every ticket, every asset, every renewal, all in one place.</p>
+  <div class="hero-cta">
+    <button class="hero-btn-primary">Start Free Trial →</button>
+    <button class="hero-btn-ghost" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">View Live Dashboard</button>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>24+</strong><span>Tickets Resolved</span></div>
+    <div class="hero-stat"><strong>31</strong><span>Assets Tracked</span></div>
+    <div class="hero-stat"><strong>Zero</strong><span>Missed Renewals</span></div>
+    <div class="hero-stat"><strong>3 sec</strong><span>Ticket Submission</span></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<div class="dashboard-section" id="dashboard">
+  <div class="dashboard-wrapper">
+
+    <!-- DB Header -->
+    <div class="db-header">
+      <div class="db-header-left">
+        <div class="db-logo">ZarklyX</div>
+        <div class="db-nav">
+          <div class="db-nav-item active">IT Support</div>
+          <div class="db-nav-item">Tickets</div>
+          <div class="db-nav-item">Assets</div>
+          <div class="db-nav-item">Reports</div>
+        </div>
+      </div>
+      <div class="db-header-right">
+        <div class="db-month-badge">📅 March 2026</div>
+        <div class="db-avatar">IT</div>
+      </div>
+    </div>
+
+    <div class="db-body">
+      <!-- Sidebar -->
+      <div class="db-sidebar">
+        <div class="db-side-section">Overview</div>
+        <div class="db-side-item active"><span class="db-side-icon">📊</span>Dashboard</div>
+        <div class="db-side-section">Ticketing</div>
+        <div class="db-side-item" onclick="openModal('ticket')"><span class="db-side-icon">🎟️</span>Raise a Ticket</div>
+        <div class="db-side-item" onclick="openModal('schedule')"><span class="db-side-icon">📅</span>Schedule Support</div>
+        <div class="db-side-item"><span class="db-side-icon">🔄</span>Track to Completion</div>
+        <div class="db-side-section">Assets</div>
+        <div class="db-side-item" onclick="openModal('hardware')"><span class="db-side-icon">🖥️</span>Hardware Assets</div>
+        <div class="db-side-item" onclick="openModal('service')"><span class="db-side-icon">☁️</span>Services & Software</div>
+        <div class="db-side-section">Reports</div>
+        <div class="db-side-item"><span class="db-side-icon">📈</span>Analytics</div>
+        <div class="db-side-item"><span class="db-side-icon">🔔</span>Renewal Reminders</div>
+      </div>
+
+      <!-- Main -->
+      <div class="db-main">
+
+        <!-- Title Row -->
+        <div class="db-page-title">
+          <div>
+            <h2>IT Support & Asset Management</h2>
+            <p>March 2026 · All departments · Real-time IT operations overview</p>
+          </div>
+          <div class="db-actions">
+            <button class="db-action-btn secondary" onclick="openModal('schedule')">📅 Schedule Support</button>
+            <button class="db-action-btn secondary" onclick="openModal('hardware')">🖥️ Add Asset</button>
+            <button class="db-action-btn amber-btn" onclick="openModal('service')">☁️ Add Service</button>
+            <button class="db-action-btn primary" onclick="openModal('ticket')">🎟️ Raise Ticket</button>
+          </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card blue" onclick="openModal('ticket')">
+            <div class="kpi-top"><div class="kpi-icon blue">🎟️</div><div class="kpi-change up">↑ 4</div></div>
+            <div class="kpi-value">24</div>
+            <div class="kpi-label">Total Tickets</div>
+          </div>
+          <div class="kpi-card amber" onclick="openModal('ticket')">
+            <div class="kpi-top"><div class="kpi-icon amber">🔵</div><div class="kpi-change down">+2 today</div></div>
+            <div class="kpi-value">6</div>
+            <div class="kpi-label">Open Tickets</div>
+          </div>
+          <div class="kpi-card violet" onclick="openModal('ticket')">
+            <div class="kpi-top"><div class="kpi-icon violet">⚙️</div><div class="kpi-change up">Active</div></div>
+            <div class="kpi-value">9</div>
+            <div class="kpi-label">In Progress</div>
+          </div>
+          <div class="kpi-card emerald">
+            <div class="kpi-top"><div class="kpi-icon emerald">✅</div><div class="kpi-change up">↑ 87%</div></div>
+            <div class="kpi-value">9</div>
+            <div class="kpi-label">Completed</div>
+          </div>
+          <div class="kpi-card rose">
+            <div class="kpi-top"><div class="kpi-icon rose">🚨</div><div class="kpi-change down">Critical</div></div>
+            <div class="kpi-value">4</div>
+            <div class="kpi-label">High Priority</div>
+          </div>
+          <div class="kpi-card orange" onclick="openModal('hardware')">
+            <div class="kpi-top"><div class="kpi-icon orange">📅</div><div class="kpi-change down">⚠ Urgent</div></div>
+            <div class="kpi-value">3</div>
+            <div class="kpi-label">Upcoming Renewals</div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Ticket Resolution Timeline</div>
+                <div class="chart-subtitle">Weekly raised vs resolved performance</div>
+              </div>
+              <div class="chart-filter">
+                <button class="chart-filter-btn active">8W</button>
+                <button class="chart-filter-btn">3M</button>
+                <button class="chart-filter-btn">All</button>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Tickets by Priority</div>
+                <div class="chart-subtitle">High / Medium / Low split</div>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height:110px"><canvas id="barChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Asset Distribution</div>
+                <div class="chart-subtitle">Hardware vs Services</div>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height:110px"><canvas id="donutChart"></canvas></div>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#2563eb"></div>Hardware</div><div class="legend-val">18 items</div></div>
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#f59e0b"></div>Services</div><div class="legend-val">13 items</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tables Row 1 -->
+        <div class="tables-row">
+          <!-- Recent Tickets -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Recent IT Tickets</div>
+              <span class="view-all" onclick="openModal('ticket')">+ Raise Ticket →</span>
+            </div>
+            <table class="emp-table">
+              <thead><tr><th>Ticket ID</th><th>Employee</th><th>Priority</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr onclick="openModal('ticket')">
+                  <td style="font-weight:700;color:#2563eb">TKT-001</td>
+                  <td>Riya Patel</td>
+                  <td><span class="status-badge status-high">High</span></td>
+                  <td><span class="status-badge status-open">Open</span></td>
+                </tr>
+                <tr onclick="openModal('ticket')">
+                  <td style="font-weight:700;color:#2563eb">TKT-002</td>
+                  <td>Arjun Mehta</td>
+                  <td><span class="status-badge status-high">High</span></td>
+                  <td><span class="status-badge status-progress">In Progress</span></td>
+                </tr>
+                <tr onclick="openModal('ticket')">
+                  <td style="font-weight:700;color:#2563eb">TKT-003</td>
+                  <td>Sneha Iyer</td>
+                  <td><span class="status-badge status-medium">Medium</span></td>
+                  <td><span class="status-badge status-completed">Completed</span></td>
+                </tr>
+                <tr onclick="openModal('ticket')">
+                  <td style="font-weight:700;color:#2563eb">TKT-004</td>
+                  <td>Dev Sharma</td>
+                  <td><span class="status-badge status-low">Low</span></td>
+                  <td><span class="status-badge status-open">Open</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Hardware Assets -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Hardware Assets</div>
+              <span class="view-all" onclick="openModal('hardware')">+ Add Asset →</span>
+            </div>
+            <table class="emp-table">
+              <thead><tr><th>Asset Name</th><th>Owner</th><th>Price</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr onclick="openModal('hardware')">
+                  <td style="font-weight:700;color:#7c3aed">Dell Latitude 5540</td>
+                  <td>Riya Patel</td>
+                  <td style="font-weight:700">₹72,000</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                </tr>
+                <tr onclick="openModal('hardware')">
+                  <td style="font-weight:700;color:#7c3aed">HP ProDesk 600</td>
+                  <td>Dev Sharma</td>
+                  <td style="font-weight:700">₹54,000</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                </tr>
+                <tr onclick="openModal('hardware')">
+                  <td style="font-weight:700;color:#7c3aed">Cisco 2960 Switch</td>
+                  <td>IT Dept</td>
+                  <td style="font-weight:700">₹38,000</td>
+                  <td><span class="status-badge status-expiring">Expiring</span></td>
+                </tr>
+                <tr onclick="openModal('hardware')">
+                  <td style="font-weight:700;color:#7c3aed">Canon imageRUNNER</td>
+                  <td>Office Mgr</td>
+                  <td style="font-weight:700">₹42,000</td>
+                  <td><span class="status-badge status-expiring">Expiring</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tables Row 2 -->
+        <div class="tables-row">
+          <!-- Services Table -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Services & Subscriptions</div>
+              <span class="view-all" onclick="openModal('service')">+ Add Service →</span>
+            </div>
+            <table class="emp-table">
+              <thead><tr><th>Service</th><th>Owner</th><th>End Date</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr onclick="openModal('service')">
+                  <td style="font-weight:700;color:#f59e0b">Microsoft 365</td>
+                  <td>IT Dept</td>
+                  <td>Mar 31, 2026</td>
+                  <td><span class="status-badge status-expiring">Expiring</span></td>
+                </tr>
+                <tr onclick="openModal('service')">
+                  <td style="font-weight:700;color:#f59e0b">Google Workspace</td>
+                  <td>Admin</td>
+                  <td>Jun 1, 2026</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                </tr>
+                <tr onclick="openModal('service')">
+                  <td style="font-weight:700;color:#f59e0b">AWS EC2</td>
+                  <td>Dev Team</td>
+                  <td>Ongoing</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                </tr>
+                <tr onclick="openModal('service')">
+                  <td style="font-weight:700;color:#f59e0b">Zoom Business</td>
+                  <td>HR Dept</td>
+                  <td>Apr 1, 2026</td>
+                  <td><span class="status-badge status-expiring">Expiring</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Quick Actions</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;">
+              <div class="qa-btn" onclick="openModal('ticket')"><div class="qa-icon">🎟️</div><div class="qa-label">Raise a Ticket</div></div>
+              <div class="qa-btn" onclick="openModal('schedule')"><div class="qa-icon">📅</div><div class="qa-label">Schedule Support</div></div>
+              <div class="qa-btn"><div class="qa-icon">🔄</div><div class="qa-label">Track to Completion</div></div>
+              <div class="qa-btn" onclick="openModal('hardware')"><div class="qa-icon">🖥️</div><div class="qa-label">Add Hardware Asset</div></div>
+              <div class="qa-btn" onclick="openModal('service')"><div class="qa-icon">☁️</div><div class="qa-label">Add Service</div></div>
+              <div class="qa-btn"><div class="qa-icon">🔔</div><div class="qa-label">Renewal Reminders</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /db-main -->
+    </div><!-- /db-body -->
+  </div><!-- /wrapper -->
+</div>
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+
+<!-- Raise Ticket Modal -->
+<div class="modal-overlay" id="modal-ticket" onclick="if(event.target===this)closeModal('ticket')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>🎟️ Raise a Ticket</h3><p>Report a technical issue and set your support priority</p></div>
+      <button class="modal-close" onclick="closeModal('ticket')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Employee Name</label><input class="form-input" placeholder="e.g. Riya Patel" /></div>
+        <div class="form-group"><label>Priority Level</label><select class="form-select"><option>High</option><option>Medium</option><option>Low</option></select></div>
+      </div>
+      <div class="form-group"><label>Issue Description</label><textarea class="form-input" rows="3" placeholder="Describe the technical problem in detail..." style="resize:vertical"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Scheduled Date</label><input class="form-input" type="date" /></div>
+        <div class="form-group"><label>Attachment</label><input class="form-input" type="file" style="padding:0.45rem 0.85rem" /></div>
+      </div>
+      <div style="background:#eff6ff;border-radius:10px;padding:0.85rem;border:1px solid #bfdbfe;font-size:0.78rem;color:#1e40af;">
+        💡 Employees can add a screenshot or file attachment for better clarity. Select a preferred date for the fix to ensure support doesn't interrupt your scheduled meetings.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('ticket')">Cancel</button>
+      <button class="btn-primary" onclick="closeModal('ticket')">Submit Ticket →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Support Modal -->
+<div class="modal-overlay" id="modal-schedule" onclick="if(event.target===this)closeModal('schedule')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>📅 Schedule Support</h3><p>Select a preferred date so the fix doesn't interrupt your meetings</p></div>
+      <button class="modal-close" onclick="closeModal('schedule')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert-success">✓ Ticket TKT-002 — IT team notified and ready to schedule</div>
+      <div class="modal-steps">
+        <div class="modal-step"><div class="modal-step-num">1</div><div class="modal-step-text"><h5>Select Preferred Date</h5><p>Choose a date and time that works best for you. The IT team will confirm availability.</p></div></div>
+        <div class="modal-step"><div class="modal-step-num">2</div><div class="modal-step-text"><h5>IT Team Assigned</h5><p>Your ticket is assigned to the IT expert who will handle resolution on the scheduled date.</p></div></div>
+        <div class="modal-step"><div class="modal-step-num">3</div><div class="modal-step-text"><h5>Track to Completion</h5><p>Watch the ticket move from Open → In Progress → Completed on your dashboard in real time.</p></div></div>
+      </div>
+      <div class="form-row" style="margin-top:1rem">
+        <div class="form-group"><label>Preferred Date</label><input class="form-input" type="date" /></div>
+        <div class="form-group"><label>Preferred Time</label><select class="form-select"><option>Morning (9–12)</option><option>Afternoon (12–3)</option><option>Evening (3–6)</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('schedule')">Cancel</button>
+      <button class="btn-primary" onclick="closeModal('schedule')">📅 Confirm Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Hardware Asset Modal -->
+<div class="modal-overlay" id="modal-hardware" onclick="if(event.target===this)closeModal('hardware')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>🖥️ Add Hardware Asset</h3><p>Track laptops, servers, networking gear, and more</p></div>
+      <button class="modal-close" onclick="closeModal('hardware')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Asset Name</label><input class="form-input" placeholder="e.g. Dell Latitude 5540" /></div>
+        <div class="form-group"><label>Asset Owner</label><input class="form-input" placeholder="e.g. Riya Patel" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Category</label><select class="form-select"><option>Laptop</option><option>Desktop</option><option>Server</option><option>Networking</option><option>Display</option><option>Printer</option><option>Storage</option></select></div>
+        <div class="form-group"><label>Quantity</label><input class="form-input" type="number" placeholder="1" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Price (₹)</label><input class="form-input" type="number" placeholder="0.00" /></div>
+        <div class="form-group"><label>Renewal Reminder Date</label><input class="form-input" type="date" /></div>
+      </div>
+      <div style="background:#eff6ff;border-radius:10px;padding:0.85rem;border:1px solid #bfdbfe;">
+        <div class="modal-info-row"><span class="modal-info-label">Total Amount</span><span class="modal-info-value">₹0.00</span></div>
+        <div class="modal-info-row"><span class="modal-info-label">Renewal Reminder</span><span class="modal-info-value" style="color:#2563eb">Set automatically</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('hardware')">Cancel</button>
+      <button class="btn-primary" onclick="closeModal('hardware')">Add Asset →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Service Modal -->
+<div class="modal-overlay" id="modal-service" onclick="if(event.target===this)closeModal('service')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>☁️ Add Service / Subscription</h3><p>Track software licenses, SaaS tools, and digital subscriptions</p></div>
+      <button class="modal-close" onclick="closeModal('service')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Service Name</label><input class="form-input" placeholder="e.g. Microsoft 365 Business" /></div>
+        <div class="form-group"><label>Service Owner</label><input class="form-input" placeholder="e.g. IT Dept" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Start Date</label><input class="form-input" type="date" /></div>
+        <div class="form-group"><label>End Date</label><input class="form-input" type="date" /></div>
+      </div>
+      <div class="form-group"><label>Purchase History / Annual Cost (₹)</label><input class="form-input" placeholder="e.g. ₹42,000 / yr" /></div>
+      <div style="background:#fffbeb;border-radius:10px;padding:0.85rem;border:1px solid #fde68a;font-size:0.78rem;color:#92400e;">
+        🔔 ZarklyX will automatically set a renewal reminder based on the End Date you provide, so you never miss a software renewal window.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('service')">Cancel</button>
+      <button class="btn-primary" onclick="closeModal('service')">Save Service →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LANDING CONTENT ═══════════════ -->
+
+<!-- WHAT IS IT SUPPORT & ASSET MANAGEMENT -->
+<section id="what">
+  <div class="section">
+    <span class="section-label">Understanding IT Support & Asset Management</span>
+    <h2 class="section-title">What is <em>IT Support & Asset Management</em><br>and why does it matter?</h2>
+    <p class="section-intro">Before diving into features, let us understand the foundation — what a complete IT support and asset management system is, and why giving your team the right tools can make all the difference.</p>
+    <div class="what-grid">
+      <div class="what-content">
+        <p>ZarklyX IT Support & Asset Management is a unified system built to empower your team with a seamless technical support experience and a high-performance asset tracker. When a technical glitch happens, your employees should not have to wait — the platform is designed to get your IT team working on a resolution in seconds.</p>
+        <p>The system is built around two core pillars: a quick-response ticketing engine that handles every tech issue from the moment it is reported to the moment it is resolved, and a comprehensive asset and service manager that gives you total oversight of every laptop, license, and tool in your organisation.</p>
+        <p>What makes ZarklyX different is that the entire workflow is designed to keep your team productive. Tickets are raised in seconds, assets are tracked with full ownership details, and renewal reminders ensure you are always ahead of expiry dates — whether you are managing assets for your own company or specifically for your clients.</p>
+      </div>
+      <div class="what-cards">
+        <div class="what-card">
+          <h4>🎟️ Quick-Response IT Tickets</h4>
+          <p>Tech issues solved before they slow you down. Employees report problems in seconds — with description, priority level, and an optional screenshot attachment.</p>
+        </div>
+        <div class="what-card">
+          <h4>📅 Schedule Support</h4>
+          <p>Employees select a preferred date for the fix to ensure IT support does not interrupt important meetings or business operations.</p>
+        </div>
+        <div class="what-card">
+          <h4>📦 IT Asset & Service Manager</h4>
+          <p>Total oversight of every laptop, license, and tool. Track hardware ownership, service renewal dates, purchase history, and cost — all in one place.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW THE SYSTEM WORKS -->
+<section class="steps-section" id="steps">
+  <div class="steps-inner">
+    <span class="section-label">Step-by-Step Process</span>
+    <h2 class="section-title">How the System <em style="color:var(--blue-light)">Works</em></h2>
+    <p class="section-intro">From raising a ticket to completing the resolution and tracking every asset renewal, the entire IT support lifecycle flows through ZarklyX in one connected system.</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>Raise a Ticket</h4>
+        <p>Employees provide their name, a description of the problem, set the priority level, and add an attachment such as a screenshot for better clarity — all in seconds.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>Schedule Support</h4>
+        <p>Select a preferred date for the fix to ensure IT support is scheduled at a time that does not interrupt meetings or critical business operations.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>IT Team Responds</h4>
+        <p>The ticket appears on the IT team's dashboard immediately. The status moves from Open to In Progress as the expert gets to work on resolving the issue.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h4>Track to Completion</h4>
+        <p>Watch the ticket move to Completed status once the problem is resolved. Full lifecycle visibility is maintained for both employees and IT teams throughout.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CORE CAPABILITIES — IT TICKETS -->
+<section class="features-section" id="features">
+  <div class="features-inner">
+    <span class="section-label">Quick-Response IT Tickets</span>
+    <h2 class="section-title">Tech issues solved <em>before they<br>slow you down.</em></h2>
+    <p class="section-intro">ZarklyX IT Support is not just a ticketing system — it is a connected workflow that takes an issue from report to resolution with complete visibility at every step for both the employee and the IT team.</p>
+    <div style="margin-top:3.5rem;max-width:820px;display:flex;flex-direction:column;gap:2rem;">
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Raise a Ticket</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">When a technical glitch happens, your employees should not have to wait. Our simplified ticketing system allows your team to report issues in seconds so the IT experts can get to work. Employees can easily provide their name, a description of the problem, set the priority level, and even add an attachment — like a screenshot — for better clarity. The entire submission process is designed to be fast and effortless, removing any barrier between the employee experiencing the issue and the IT team who can fix it.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Schedule Support</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">Not every issue needs to be fixed at this exact moment. ZarklyX allows employees to select a preferred date for the fix to ensure IT support does not interrupt important meetings or scheduled business activities. This scheduling capability gives both employees and the IT team the flexibility to plan resolutions efficiently, without forcing disruptions to the working day.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Track to Completion</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">Once a ticket is raised and the IT team begins working on it, both parties have full visibility of the progress at every stage. Watch the ticket move from the IT team's dashboard to Completed status once the problem is resolved. This end-to-end tracking ensures that no issue falls through the cracks, every resolution is recorded, and employees always know where their ticket stands in the support queue.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- IT ASSET & SERVICE MANAGER -->
+<section class="control-section" id="assets">
+  <div class="control-inner">
+    <span class="section-label">IT Asset & Service Manager</span>
+    <h2 class="section-title">Total oversight of every <em>laptop,<br>license, and tool.</em></h2>
+    <p class="section-intro">Whether it is physical hardware for your office or a digital service for a client, ZarklyX keeps your assets organised and your renewals on time. Every asset is tracked with complete ownership, cost, and renewal details in one place.</p>
+    <div class="control-grid">
+      <div class="control-card">
+        <div class="control-icon-wrap">🖥️</div>
+        <h4>For Products — Hardware</h4>
+        <p>Track everything from laptops to servers. ZarklyX lets you know exactly who the asset owner is, the category, price, and quantity for every piece of hardware in your organisation. Stay ahead with a total amount overview and set a renewal reminder date so you never miss a warranty or maintenance window. Every hardware asset is visible, accounted for, and monitored from the moment it is added to your system.</p>
+      </div>
+      <div class="control-card">
+        <div class="control-icon-wrap">☁️</div>
+        <h4>For Services — Software & Subscriptions</h4>
+        <p>Manage your digital toolkit with ease. Track your service start and end dates, purchase history, and ownership details all in one organised view. Our system ensures you know exactly what you are paying for and when the next renewal is due. Whether it is a SaaS platform, a software licence, or a cloud subscription, ZarklyX gives you complete visibility over your digital spend so nothing expires unexpectedly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY ZARKLYX IT MANAGEMENT -->
+<section class="why-section" id="why">
+  <div class="why-inner">
+    <span class="section-label">Why ZarklyX</span>
+    <h2 class="section-title">IT clarity,<br><em style="color:var(--blue-light)">built for growth.</em></h2>
+    <p class="section-intro">ZarklyX is designed for businesses that want complete IT control and asset visibility without the complexity of traditional enterprise tools.</p>
+    <div style="margin-top:3.5rem;max-width:820px;display:flex;flex-direction:column;gap:2rem;">
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.65rem;">Zero Downtime</h3>
+        <p style="font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.85;">Faster ticketing means your employees stay productive. When a technical issue arises, ZarklyX ensures it reaches the right IT expert immediately — with all the context needed to resolve it quickly. There is no back-and-forth, no waiting in a queue, and no productivity lost to slow or unclear communication between employees and IT teams.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.65rem;">Budget Control</h3>
+        <p style="font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.85;">Track total asset costs and purchase history in one place. Whether it is physical hardware for your office or a digital service for a client, ZarklyX keeps your assets organised and your renewals on time. You always have a clear picture of what your IT infrastructure costs and how that spend is distributed across hardware, software, and services.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.65rem;">Never Miss a Renewal</h3>
+        <p style="font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.85;">Automated reminders keep your software and warranties active. Our system ensures you know exactly what you are paying for and when the next renewal is due — so licences never lapse, warranties never expire unnoticed, and your team is never left without the tools they depend on. Every renewal date is visible on your dashboard well in advance.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.65rem;">Client Ready</h3>
+        <p style="font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.85;">Manage assets for your own company or specifically for your clients. ZarklyX is built to serve both internal IT teams managing company infrastructure and managed service providers who track assets and support tickets on behalf of multiple clients. The platform adapts to your organisational structure, giving every team the oversight they need.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to take control<br>of your IT operations?</h2>
+    <p>Join thousands of businesses that use ZarklyX to keep their teams productive, their assets tracked, and their renewals never missed — all from a single, powerful platform.</p>
+    <div class="cta-btns">
+      <button class="btn-primary" style="padding:0.9rem 2.5rem;font-size:1rem;">Start Free Trial →</button>
+      <button class="btn-outline" style="padding:0.9rem 2rem;font-size:1rem;">Book a Demo</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">Zarkly<span style="color:white">X</span></div>
+    <div class="footer-credits">
+      <div class="footer-credit">
+        <div class="footer-credit-role">Frontend</div>
+        <div class="footer-credit-name">Mr. Prathan</div>
+      </div>
+      <div class="footer-credit" style="border-left:1px solid rgba(255,255,255,0.1);padding-left:2rem;">
+        <div class="footer-credit-role">Backend</div>
+        <div class="footer-credit-name">Mr. Vivek</div>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 ZarklyX. IT Support & Asset Management Module.</div>
+  </div>
+</footer>
+
+<script>
+// Modal functions
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => {
+    m.classList.remove('open'); document.body.style.overflow = '';
+  });
+});
+
+// Chart filter buttons
+document.querySelectorAll('.chart-filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    this.closest('.chart-filter').querySelectorAll('.chart-filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Sidebar navigation
+document.querySelectorAll('.db-side-item').forEach(item => {
+  item.addEventListener('click', function() {
+    if (!this.getAttribute('onclick')) {
+      document.querySelectorAll('.db-side-item').forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+    }
+  });
+});
+
+// DB nav items
+document.querySelectorAll('.db-nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.db-nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Line Chart — Ticket Resolution Timeline
+const lineCtx = document.getElementById('lineChart').getContext('2d');
+new Chart(lineCtx, {
+  type: 'line',
+  data: {
+    labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'],
+    datasets: [
+      {
+        label: 'Raised',
+        data: [5, 8, 6, 9, 7, 10, 8, 12],
+        borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)',
+        borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 4,
+        pointBackgroundColor: '#2563eb', pointBorderColor: '#fff', pointBorderWidth: 2,
+      },
+      {
+        label: 'Resolved',
+        data: [4, 6, 6, 8, 7, 9, 7, 10],
+        borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.06)',
+        borderWidth: 2, fill: true, tension: 0.4, pointRadius: 4,
+        pointBackgroundColor: '#10b981', pointBorderColor: '#fff', pointBorderWidth: 2,
+        borderDash: [4, 3],
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top', labels: { font: { size: 10, family: 'DM Sans' }, boxWidth: 10, padding: 12 } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
+      y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 }, color: '#94a3b8', stepSize: 2 } }
+    }
+  }
+});
+
+// Bar Chart — Tickets by Priority
+const barCtx = document.getElementById('barChart').getContext('2d');
+new Chart(barCtx, {
+  type: 'bar',
+  data: {
+    labels: ['High', 'Medium', 'Low'],
+    datasets: [{
+      data: [4, 12, 8],
+      backgroundColor: ['#f43f5e', '#f59e0b', '#10b981'],
+      borderRadius: 6, borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
+      y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 }, color: '#94a3b8', stepSize: 4 } }
+    }
+  }
+});
+
+// Donut Chart — Asset Distribution
+const donutCtx = document.getElementById('donutChart').getContext('2d');
+new Chart(donutCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Hardware', 'Services'],
+    datasets: [{
+      data: [18, 13],
+      backgroundColor: ['#2563eb', '#f59e0b'],
+      borderWidth: 0, hoverOffset: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '68%',
+    plugins: { legend: { display: false } }
+  }
+});
+</script>
+</body>
+</html>

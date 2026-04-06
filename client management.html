@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Zarklyx — Client Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #f4f6fa; color: #1a1d23; font-size: 13px; line-height: 1.5; overflow: hidden; height: 100vh; display: flex; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d0d5e0; border-radius: 99px; }
+
+/* ══════════════ SIDEBAR ══════════════ */
+.sidebar {
+  width: 200px; min-height: 100vh; background: #fff;
+  border-right: 1px solid #e8ecf2; display: flex; flex-direction: column;
+  padding: 0; flex-shrink: 0; z-index: 10;
+}
+.sb-logo {
+  display: flex; align-items: center; gap: 8px;
+  padding: 20px 20px 22px; border-bottom: 1px solid #f0f2f7;
+}
+.sb-logo-icon {
+  width: 30px; height: 30px; background: #3b6cf8;
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+}
+.sb-logo-icon svg { width: 18px; height: 18px; fill: #fff; }
+.sb-logo-text { font-size: 17px; font-weight: 700; color: #1a1d23; letter-spacing: -0.4px; }
+.sb-nav { padding: 12px 10px; flex: 1; }
+.sb-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 8px;
+  cursor: pointer; color: #6b7280; font-size: 13.5px; font-weight: 500;
+  transition: all .15s; margin-bottom: 2px; user-select: none;
+}
+.sb-item:hover { background: #f4f6fa; color: #374151; }
+.sb-item.active { background: #eef2ff; color: #3b6cf8; font-weight: 600; }
+.sb-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+/* ══════════════ MAIN ══════════════ */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* ── Topbar ── */
+.topbar {
+  height: 60px; background: #fff; border-bottom: 1px solid #e8ecf2;
+  display: flex; align-items: center; padding: 0 22px; gap: 14px;
+}
+.search-wrap {
+  flex: 1; max-width: 380px; position: relative;
+}
+.search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: #9ca3af; pointer-events: none; }
+.search-wrap input {
+  width: 100%; padding: 8px 12px 8px 36px;
+  border: 1.5px solid #e8ecf2; border-radius: 10px;
+  font-size: 13px; font-family: 'Inter', sans-serif;
+  color: #374151; background: #f9fafb; outline: none;
+  transition: all .15s;
+}
+.search-wrap input:focus { border-color: #3b6cf8; background: #fff; box-shadow: 0 0 0 3px rgba(59,108,248,0.1); }
+.search-wrap input::placeholder { color: #9ca3af; }
+.tb-spacer { flex: 1; }
+.btn-add-client {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 10px;
+  background: #3b6cf8; color: #fff;
+  font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif;
+  border: none; cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.btn-add-client:hover { background: #2d5ce8; }
+.btn-add-client svg { width: 14px; height: 14px; }
+.notif-btn {
+  position: relative; width: 38px; height: 38px;
+  border-radius: 50%; border: 1.5px solid #e8ecf2;
+  background: #fff; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s;
+}
+.notif-btn:hover { border-color: #d0d5e0; background: #f9fafb; }
+.notif-btn svg { width: 17px; height: 17px; color: #6b7280; }
+.notif-badge {
+  position: absolute; top: -3px; right: -3px;
+  width: 16px; height: 16px; background: #ef4444;
+  border-radius: 50%; border: 2px solid #fff;
+  font-size: 9px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-btn { display: flex; align-items: center; gap: 7px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: background .15s; }
+.profile-btn:hover { background: #f4f6fa; }
+.profile-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ef4444); overflow: hidden; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-chevron svg { width: 13px; height: 13px; color: #6b7280; }
+
+/* ── Content area ── */
+.content { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; gap: 18px; }
+.content-left { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.content-right { width: 270px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
+
+/* ══════════════ KPI CARDS ══════════════ */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.kpi-card {
+  background: #fff; border: 1px solid #e8ecf2;
+  border-radius: 14px; padding: 18px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  cursor: pointer; transition: all .18s;
+}
+.kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.kpi-label { font-size: 13px; font-weight: 500; color: #6b7280; }
+.kpi-badge { display: flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+.kpi-badge.green { background: #dcfce7; color: #16a34a; }
+.kpi-badge.green::before { content:''; width:6px; height:6px; border-radius:50%; background:#16a34a; display:inline-block; }
+.kpi-badge.yellow { background: #fef9c3; color: #ca8a04; }
+.kpi-badge.yellow::before { content:''; width:6px; height:6px; border-radius:50%; background:#ca8a04; display:inline-block; }
+.kpi-badge.blue { background: #dbeafe; color: #2563eb; }
+.kpi-badge.blue::before { content:''; width:6px; height:6px; border-radius:50%; background:#2563eb; display:inline-block; }
+.kpi-badge.purple { background: #ede9fe; color: #7c3aed; }
+.kpi-badge.purple::before { content:''; width:6px; height:6px; border-radius:50%; background:#7c3aed; display:inline-block; }
+.kpi-value { font-size: 30px; font-weight: 800; color: #111827; letter-spacing: -1px; line-height: 1; }
+
+/* ══════════════ PANELS ROW ══════════════ */
+.panels-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.panel-card { background: #fff; border: 1px solid #e8ecf2; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.panel-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.panel-title { font-size: 15px; font-weight: 700; color: #111827; }
+.btn-outline {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1.5px solid #e8ecf2; background: #fff;
+  font-size: 12px; font-weight: 600; color: #374151;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: all .15s; white-space: nowrap;
+}
+.btn-outline:hover { background: #f4f6fa; border-color: #d0d5e0; }
+.btn-primary-sm {
+  padding: 7px 16px; border-radius: 8px; border: none;
+  background: #3b6cf8; color: #fff;
+  font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.btn-primary-sm:hover { background: #2d5ce8; }
+
+/* Pending requests table */
+.pending-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 10px; }
+.req-table { width: 100%; border-collapse: collapse; }
+.req-table th { font-size: 11px; font-weight: 600; color: #9ca3af; text-align: left; padding: 5px 0; border-bottom: 1px solid #f0f2f7; }
+.req-table td { padding: 8px 0; border-bottom: 1px solid #f4f6fa; font-size: 12.5px; color: #374151; }
+.req-table tr:last-child td { border-bottom: none; }
+.req-table td:last-child { text-align: right; }
+.req-actions { display: flex; gap: 5px; justify-content: flex-end; }
+.btn-approve, .btn-reject {
+  width: 26px; height: 26px; border-radius: 6px; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s; flex-shrink: 0;
+}
+.btn-approve { background: #dcfce7; color: #16a34a; }
+.btn-approve:hover { background: #bbf7d0; }
+.btn-reject { background: #fee2e2; color: #dc2626; }
+.btn-reject:hover { background: #fecaca; }
+.btn-approve svg, .btn-reject svg { width: 13px; height: 13px; }
+
+/* Direct Client Add form */
+.form-input {
+  width: 100%; padding: 9px 12px; border: 1.5px solid #e8ecf2;
+  border-radius: 9px; font-size: 13px; font-family: 'Inter', sans-serif;
+  color: #374151; background: #fff; outline: none; margin-bottom: 10px;
+  transition: all .15s;
+}
+.form-input:focus { border-color: #3b6cf8; box-shadow: 0 0 0 3px rgba(59,108,248,0.1); }
+.form-input::placeholder { color: #9ca3af; }
+.form-select {
+  width: 100%; padding: 9px 12px; border: 1.5px solid #e8ecf2;
+  border-radius: 9px; font-size: 13px; font-family: 'Inter', sans-serif;
+  color: #9ca3af; background: #fff; outline: none; cursor: pointer;
+  appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 14px;
+  transition: all .15s; margin-bottom: 12px;
+}
+.form-select:focus { border-color: #3b6cf8; box-shadow: 0 0 0 3px rgba(59,108,248,0.1); }
+
+/* ══════════════ CLIENT TABLE ══════════════ */
+.table-card { background: #fff; border: 1px solid #e8ecf2; border-radius: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); overflow: hidden; }
+.client-table { width: 100%; border-collapse: collapse; }
+.client-table th { font-size: 12px; font-weight: 600; color: #6b7280; text-align: left; padding: 11px 16px; border-bottom: 1px solid #f0f2f7; background: #fff; white-space: nowrap; }
+.client-table th:first-child { width: 36px; }
+.client-table td { padding: 11px 16px; border-bottom: 1px solid #f4f6fa; font-size: 12.5px; color: #374151; }
+.client-table tr:last-child td { border-bottom: none; }
+.client-table tbody tr { transition: background .12s; cursor: pointer; }
+.client-table tbody tr:hover { background: #f9fafb; }
+.client-table tbody tr.selected { background: #eef2ff; }
+
+input[type="checkbox"] { width: 14px; height: 14px; border-radius: 4px; cursor: pointer; accent-color: #3b6cf8; }
+
+.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-selfreg { background: #fef3c7; color: #d97706; }
+.badge-directadd { background: #dbeafe; color: #2563eb; }
+.badge-pending { background: #fef9c3; color: #ca8a04; border: 1px solid #fde68a; }
+.badge-active { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+.badge-inactive { background: #f3f4f6; color: #6b7280; }
+
+.tbl-actions { display: flex; align-items: center; gap: 4px; }
+.tbl-icon-btn {
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 1px solid #e8ecf2; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #6b7280; transition: all .13s;
+}
+.tbl-icon-btn:hover { background: #f4f6fa; color: #374151; }
+.tbl-icon-btn svg { width: 12px; height: 12px; }
+
+/* Dropdown menu */
+.dropdown { position: relative; }
+.dropdown-menu {
+  display: none; position: absolute; right: 0; top: calc(100% + 4px); z-index: 100;
+  background: #fff; border: 1px solid #e8ecf2; border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 130px; overflow: hidden;
+}
+.dropdown-menu.open { display: block; animation: dropIn .15s ease; }
+@keyframes dropIn { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
+.dropdown-item { padding: 8px 14px; font-size: 12.5px; color: #374151; cursor: pointer; transition: background .12s; }
+.dropdown-item:hover { background: #f4f6fa; }
+.dropdown-item.danger { color: #dc2626; }
+.dropdown-item.danger:hover { background: #fef2f2; }
+
+/* ══════════════ RIGHT SIDEBAR ══════════════ */
+.rs-card { background: #fff; border: 1px solid #e8ecf2; border-radius: 14px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.rs-title { font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 12px; }
+
+/* Recent Activity */
+.activity-list { display: flex; flex-direction: column; gap: 10px; }
+.activity-item { display: flex; gap: 9px; align-items: flex-start; }
+.act-avatar { width: 28px; height: 28px; border-radius: 50%; background: #e8ecf2; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.act-avatar svg { width: 13px; height: 13px; color: #6b7280; }
+.act-avatar.green { background: #dcfce7; }
+.act-avatar.green svg { color: #16a34a; }
+.act-text { flex: 1; }
+.act-msg { font-size: 12px; color: #374151; line-height: 1.4; }
+.act-msg .highlight { color: #16a34a; font-weight: 600; }
+.act-time { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+/* Manager Workload */
+.workload-list { display: flex; flex-direction: column; gap: 8px; }
+.workload-item { display: flex; align-items: center; gap: 9px; padding: 6px 8px; border-radius: 8px; transition: background .12s; cursor: pointer; }
+.workload-item:hover { background: #f9fafb; }
+.wl-avatar { width: 28px; height: 28px; border-radius: 50%; background: #d0d5e0; overflow: hidden; flex-shrink: 0; }
+.wl-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.wl-name { flex: 1; font-size: 12.5px; color: #374151; font-weight: 500; }
+.wl-count { font-size: 12px; font-weight: 700; color: #374151; background: #f3f4f6; padding: 2px 9px; border-radius: 99px; }
+
+/* Dual Login URLs */
+.url-label { font-size: 11.5px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+.url-row { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+.url-input {
+  flex: 1; padding: 7px 10px; border: 1.5px solid #e8ecf2;
+  border-radius: 8px; font-size: 11px; font-family: 'DM Mono', 'Courier New', monospace;
+  color: #374151; background: #f9fafb; outline: none;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.btn-copy {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1.5px solid #e8ecf2; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #6b7280; transition: all .15s; flex-shrink: 0;
+}
+.btn-copy:hover { background: #f4f6fa; color: #3b6cf8; border-color: #c7d2fe; }
+.btn-copy svg { width: 13px; height: 13px; }
+.btn-copy.copied { background: #dcfce7; color: #16a34a; border-color: #bbf7d0; }
+
+/* ══════════════ MODAL ══════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(17,24,39,0.4); backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal-box {
+  background: #fff; border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  width: 460px; max-width: 94vw;
+  animation: modalIn .22s ease;
+}
+@keyframes modalIn { from { opacity:0; transform: scale(.95) translateY(10px); } to { opacity:1; transform: scale(1) translateY(0); } }
+.modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px 14px; border-bottom: 1px solid #f0f2f7; }
+.modal-title { font-size: 16px; font-weight: 700; color: #111827; }
+.modal-close { width: 30px; height: 30px; border-radius: 8px; border: 1px solid #e8ecf2; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #6b7280; transition: all .13s; }
+.modal-close:hover { background: #f4f6fa; }
+.modal-body { padding: 18px 22px 22px; }
+.form-label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 5px; display: block; }
+.form-group { margin-bottom: 14px; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+.btn-cancel { padding: 8px 18px; border-radius: 9px; border: 1.5px solid #e8ecf2; background: #fff; font-size: 13px; font-weight: 600; color: #374151; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .13s; }
+.btn-cancel:hover { background: #f4f6fa; }
+.btn-submit { padding: 8px 22px; border-radius: 9px; border: none; background: #3b6cf8; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .13s; }
+.btn-submit:hover { background: #2d5ce8; }
+
+/* Toast */
+#toast { position: fixed; bottom: 22px; right: 22px; z-index: 999; }
+.toast-msg {
+  background: #1f2937; color: #f9fafb; font-size: 12.5px;
+  padding: 10px 16px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  animation: slideUp .2s ease; margin-top: 8px; display: flex; align-items: center; gap: 8px;
+}
+@keyframes slideUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+.toast-msg.success { border-left: 3px solid #10b981; }
+.toast-msg.error { border-left: 3px solid #ef4444; }
+</style>
+</head>
+<body>
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <span class="sb-logo-text">Zarklyx</span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-item active" onclick="setNav(this,'Dashboard')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item" onclick="setNav(this,'Clients')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Clients
+    </div>
+    <div class="sb-item" onclick="setNav(this,'Leads')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Leads
+    </div>
+    <div class="sb-item" onclick="setNav(this,'Tasks')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Tasks
+    </div>
+    <div class="sb-item" onclick="setNav(this,'Reports')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </div>
+    <div class="sb-item" onclick="setNav(this,'Settings')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </div>
+  </nav>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="search-wrap">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable(this.value)"/>
+    </div>
+    <div class="tb-spacer"></div>
+    <button class="btn-add-client" onclick="openAddModal()">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Client
+    </button>
+    <div class="notif-btn" onclick="showToast('3 new notifications','success')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <div class="notif-badge">3</div>
+    </div>
+    <div class="profile-btn" onclick="showToast('Profile menu','')">
+      <div class="profile-avatar" style="background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;">AR</div>
+      <div class="profile-chevron"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="content-left">
+
+      <!-- KPI Cards -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Total Clients</span>
+            <span class="kpi-badge green">Green</span>
+          </div>
+          <div class="kpi-value" id="kpiTotal">2,451</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Pending Approvals</span>
+            <span class="kpi-badge yellow">Perd</span>
+          </div>
+          <div class="kpi-value" id="kpiPending">18</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Active Clients</span>
+            <span class="kpi-badge blue">Active</span>
+          </div>
+          <div class="kpi-value" id="kpiActive">2,103</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top">
+            <span class="kpi-label">New This Week</span>
+            <span class="kpi-badge purple">Eleg</span>
+          </div>
+          <div class="kpi-value" id="kpiNew">35</div>
+        </div>
+      </div>
+
+      <!-- Panels Row -->
+      <div class="panels-row">
+        <!-- Left: Self Registration -->
+        <div class="panel-card">
+          <div class="panel-hd">
+            <span class="panel-title">Client Self-Registration</span>
+            <button class="btn-outline" onclick="showToast('Invite link copied to clipboard!','success')">Send Invite Link</button>
+          </div>
+          <div class="pending-label">Pending Requests</div>
+          <table class="req-table" id="pendingTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Timestamp</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="pendingBody">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Right: Direct Client Add -->
+        <div class="panel-card">
+          <div class="panel-hd">
+            <span class="panel-title">Direct Client Add</span>
+            <button class="btn-primary-sm" onclick="submitDirectForm()">Add Client Manually</button>
+          </div>
+          <input class="form-input" id="dcName" type="text" placeholder="Name"/>
+          <input class="form-input" id="dcCompany" type="text" placeholder="Company"/>
+          <input class="form-input" id="dcEmail" type="email" placeholder="Email"/>
+          <select class="form-select" id="dcEmployee">
+            <option value="">Assign Employee</option>
+            <option>Jom Broitter</option>
+            <option>Jasan Manager</option>
+            <option>Client Employe</option>
+            <option>Aluan Employee</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Client Table -->
+      <div class="table-card">
+        <table class="client-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="selectAll" onchange="toggleAll(this)"/></th>
+              <th>Client Name</th>
+              <th>Company</th>
+              <th>Entry Type</th>
+              <th>Status</th>
+              <th>Assigned Manager</th>
+              <th>Last Activity</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody"></tbody>
+        </table>
+      </div>
+
+    </div><!-- /content-left -->
+
+    <!-- Right Sidebar -->
+    <div class="content-right">
+
+      <!-- Recent Activity -->
+      <div class="rs-card">
+        <div class="rs-title">Recent Activity</div>
+        <div class="activity-list" id="activityFeed">
+        </div>
+      </div>
+
+      <!-- Manager Workload -->
+      <div class="rs-card">
+        <div class="rs-title">Manager Workload</div>
+        <div class="workload-list" id="workloadList">
+        </div>
+      </div>
+
+      <!-- Dual Login URLs -->
+      <div class="rs-card">
+        <div class="rs-title">Dual Login URLs</div>
+        <div class="url-label">Main Portal</div>
+        <div class="url-row">
+          <input class="url-input" type="text" value="https://zarklyx.com/" readonly id="url1"/>
+          <button class="btn-copy" onclick="copyUrl('url1',this)" title="Copy">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+        <div class="url-label">Branded Client URL</div>
+        <div class="url-row">
+          <input class="url-input" type="text" value="https://zarklybrandedclient..." readonly id="url2"/>
+          <button class="btn-copy" onclick="copyUrl('url2',this)" title="Copy">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /content-right -->
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ════════ ADD CLIENT MODAL ════════ -->
+<div class="modal-overlay" id="addModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <div class="modal-title">Add New Client</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Client Name *</label>
+        <input class="form-input" id="m-name" type="text" placeholder="Full name" style="margin-bottom:0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Company *</label>
+        <input class="form-input" id="m-company" type="text" placeholder="Company name" style="margin-bottom:0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input class="form-input" id="m-email" type="email" placeholder="email@company.com" style="margin-bottom:0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Entry Type</label>
+        <select class="form-select" id="m-type" style="margin-bottom:0">
+          <option value="Direct Add">Direct Add</option>
+          <option value="Self-Reg">Self-Registration</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assign Manager</label>
+        <select class="form-select" id="m-manager" style="margin-bottom:0">
+          <option value="Jom Broitter">Jom Broitter</option>
+          <option value="Jasan Manager">Jasan Manager</option>
+          <option value="Client Employe">Client Employe</option>
+          <option value="Aluan Employee">Aluan Employee</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-submit" onclick="submitModal()">Add Client</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast"></div>
+
+<script>
+/* ── State ── */
+let clients = [
+  { id:1, name:'Client Name', company:'Company Inc.',   type:'Self-Reg',   status:'Pending', manager:'Jom Broitter',  date:'Jun 29, 2023' },
+  { id:2, name:'Client Name', company:'Company Inc.',   type:'Self-Reg',   status:'Pending', manager:'Jom Broitter',  date:'Jan 29, 2023' },
+  { id:3, name:'Client Name', company:'Company Company',type:'Direct Add',  status:'Active',  manager:'Jasan Manager', date:'Jan 27, 2023' },
+  { id:4, name:'Client Name', company:'Company Inc.',   type:'Direct Add',  status:'Active',  manager:'Jasan Manager', date:'Jan 27, 2023' },
+  { id:5, name:'Client Name', company:'Robis Inc.',     type:'Direct Add',  status:'Active',  manager:'Jasan Manager', date:'Jan 28, 2023' },
+  { id:6, name:'Client Name', company:'Company Company',type:'Direct Add',  status:'Active',  manager:'Jasan Manager', date:'Jan 28, 2023' },
+];
+
+let pendingRequests = [
+  { id:1, name:'John Smith',   email:'zarklyix@gmail.com',  time:'1 days ago' },
+  { id:2, name:'Renn Elivat',  email:'remiliiva@gmail.com', time:'1 days ago' },
+  { id:3, name:'John Smither', email:'zarklyx:@gmail.com',  time:'1 days ago' },
+];
+
+let activities = [
+  { type:'info', msg:'Client Registered rapproved',    time:'7 months ago' },
+  { type:'success', msg:'Client Registered on <span class="highlight">Approved</span>', time:'10 minutens ago' },
+];
+
+let workload = [
+  { name:'Client Employe',  count:47 },
+  { name:'Aluan Employee',  count:35 },
+  { name:'Client Employee', count:14 },
+];
+
+let nextId = 7;
+let openDropdown = null;
+
+/* ── Sidebar nav ── */
+function setNav(el, name) {
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  if(name !== 'Dashboard') showToast('Navigating to ' + name, '');
+}
+
+/* ── Render Pending Requests ── */
+function renderPending() {
+  const tbody = document.getElementById('pendingBody');
+  tbody.innerHTML = pendingRequests.map(r => `
+    <tr id="preq-${r.id}">
+      <td>${r.name}</td>
+      <td style="color:#6b7280">${r.email}</td>
+      <td style="color:#6b7280">${r.time}</td>
+      <td>
+        <div class="req-actions">
+          <button class="btn-approve" onclick="approvePending(${r.id})" title="Approve">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button class="btn-reject" onclick="rejectPending(${r.id})" title="Reject">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function approvePending(id) {
+  const req = pendingRequests.find(r => r.id === id);
+  if (!req) return;
+  // Add to client table
+  clients.unshift({ id: nextId++, name: req.name, company: 'Self-Reg Co.', type:'Self-Reg', status:'Active', manager:'Jom Broitter', date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) });
+  pendingRequests = pendingRequests.filter(r => r.id !== id);
+  addActivity('success', `${req.name} registration <span class="highlight">Approved</span>`, 'Just now');
+  updateKPIs();
+  renderPending();
+  renderTable(clients);
+  renderActivity();
+  showToast(req.name + ' approved successfully', 'success');
+  // Animate row removal
+  const row = document.getElementById('preq-' + id);
+  if(row) { row.style.transition='opacity .3s'; row.style.opacity='0'; setTimeout(()=>row.remove(),300); }
+}
+
+function rejectPending(id) {
+  const req = pendingRequests.find(r => r.id === id);
+  if (!req) return;
+  pendingRequests = pendingRequests.filter(r => r.id !== id);
+  addActivity('info', `${req.name} registration rejected`, 'Just now');
+  renderPending();
+  renderActivity();
+  showToast(req.name + ' rejected', 'error');
+}
+
+/* ── Render Client Table ── */
+function renderTable(data) {
+  const tbody = document.getElementById('clientTableBody');
+  if(data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af">No clients found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(c => `
+    <tr onclick="rowClick(event,${c.id})" id="row-${c.id}">
+      <td><input type="checkbox" class="row-cb" onclick="event.stopPropagation()"/></td>
+      <td style="font-weight:500">${c.name}</td>
+      <td>${c.company}</td>
+      <td><span class="badge ${c.type==='Self-Reg'?'badge-selfreg':'badge-directadd'}">${c.type}</span></td>
+      <td><span class="badge ${c.status==='Active'?'badge-active':'badge-pending'}">${c.status}</span></td>
+      <td>${c.manager}</td>
+      <td style="color:#6b7280">${c.date}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="tbl-actions">
+          <button class="tbl-icon-btn" onclick="editClient(${c.id})" title="Edit">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <div class="dropdown" id="dd-${c.id}">
+            <button class="tbl-icon-btn" onclick="toggleDropdown(${c.id})" title="More">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+            </button>
+            <div class="dropdown-menu" id="ddm-${c.id}">
+              <div class="dropdown-item" onclick="viewClient(${c.id})">👁 View Details</div>
+              <div class="dropdown-item" onclick="editClient(${c.id})">✏️ Edit</div>
+              <div class="dropdown-item danger" onclick="deleteClient(${c.id})">🗑 Delete</div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function rowClick(e, id) {
+  const row = document.getElementById('row-' + id);
+  row.classList.toggle('selected');
+}
+
+function toggleDropdown(id) {
+  const menu = document.getElementById('ddm-' + id);
+  const isOpen = menu.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+  openDropdown = null;
+  if(!isOpen) { menu.classList.add('open'); openDropdown = id; }
+}
+
+function editClient(id) {
+  const c = clients.find(x => x.id === id);
+  if(!c) return;
+  closeDropdowns();
+  showToast('Editing: ' + c.name + ' — ' + c.company, '');
+}
+
+function viewClient(id) {
+  const c = clients.find(x => x.id === id);
+  if(!c) return;
+  closeDropdowns();
+  showToast('Viewing: ' + c.name, '');
+}
+
+function deleteClient(id) {
+  closeDropdowns();
+  const c = clients.find(x => x.id === id);
+  if(!c) return;
+  if(!confirm('Delete client "' + c.name + '"?')) return;
+  clients = clients.filter(x => x.id !== id);
+  addActivity('info', c.name + ' client removed', 'Just now');
+  updateKPIs();
+  renderTable(clients);
+  renderActivity();
+  showToast('Client deleted', 'error');
+}
+
+function closeDropdowns() {
+  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+  openDropdown = null;
+}
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('.dropdown')) closeDropdowns();
+});
+
+function toggleAll(cb) {
+  document.querySelectorAll('.row-cb').forEach(c => c.checked = cb.checked);
+}
+
+/* ── Filter Table ── */
+function filterTable(q) {
+  const filtered = q.trim() === '' ? clients : clients.filter(c =>
+    c.name.toLowerCase().includes(q.toLowerCase()) ||
+    c.company.toLowerCase().includes(q.toLowerCase()) ||
+    c.manager.toLowerCase().includes(q.toLowerCase()) ||
+    c.status.toLowerCase().includes(q.toLowerCase()) ||
+    c.type.toLowerCase().includes(q.toLowerCase())
+  );
+  renderTable(filtered);
+}
+
+/* ── Activity Feed ── */
+function renderActivity() {
+  const el = document.getElementById('activityFeed');
+  el.innerHTML = activities.slice(0,5).map(a => `
+    <div class="activity-item">
+      <div class="act-avatar ${a.type==='success'?'green':''}">
+        ${a.type==='success'
+          ? '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+          : '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'}
+      </div>
+      <div class="act-text">
+        <div class="act-msg">${a.msg}</div>
+        <div class="act-time">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addActivity(type, msg, time) {
+  activities.unshift({ type, msg, time });
+  renderActivity();
+}
+
+/* ── Workload ── */
+function renderWorkload() {
+  const el = document.getElementById('workloadList');
+  el.innerHTML = workload.map((w,i) => `
+    <div class="workload-item">
+      <div class="wl-avatar" style="background:${['#dbeafe','#dcfce7','#fef3c7'][i%3]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${['#2563eb','#16a34a','#d97706'][i%3]}">
+        ${w.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
+      </div>
+      <div class="wl-name">${w.name}</div>
+      <div class="wl-count">${w.count}</div>
+    </div>
+  `).join('');
+}
+
+/* ── KPIs ── */
+function updateKPIs() {
+  const active = clients.filter(c => c.status === 'Active').length;
+  const pending = clients.filter(c => c.status === 'Pending').length + pendingRequests.length;
+  document.getElementById('kpiTotal').textContent = (2451 - 6 + clients.length).toLocaleString();
+  document.getElementById('kpiPending').textContent = pending;
+  document.getElementById('kpiActive').textContent = (2103 - 4 + active).toLocaleString();
+}
+
+/* ── Direct Form Submit ── */
+function submitDirectForm() {
+  const name = document.getElementById('dcName').value.trim();
+  const company = document.getElementById('dcCompany').value.trim();
+  const email = document.getElementById('dcEmail').value.trim();
+  const manager = document.getElementById('dcEmployee').value;
+  if(!name || !company || !email) { showToast('Please fill in all fields', 'error'); return; }
+  clients.unshift({ id: nextId++, name, company, type:'Direct Add', status:'Active', manager: manager || 'Unassigned', date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) });
+  document.getElementById('dcName').value = '';
+  document.getElementById('dcCompany').value = '';
+  document.getElementById('dcEmail').value = '';
+  document.getElementById('dcEmployee').value = '';
+  // Update workload
+  if(manager) {
+    const wl = workload.find(w => w.name === manager);
+    if(wl) wl.count++; else workload.push({ name: manager, count: 1 });
+    renderWorkload();
+  }
+  addActivity('success', `${name} added as <span class="highlight">Direct Add</span>`, 'Just now');
+  updateKPIs();
+  renderTable(clients);
+  showToast(name + ' added successfully!', 'success');
+}
+
+/* ── Modal ── */
+function openAddModal() {
+  document.getElementById('addModal').classList.add('open');
+  document.getElementById('m-name').focus();
+}
+function closeModal() { document.getElementById('addModal').classList.remove('open'); }
+
+function submitModal() {
+  const name = document.getElementById('m-name').value.trim();
+  const company = document.getElementById('m-company').value.trim();
+  const email = document.getElementById('m-email').value.trim();
+  const type = document.getElementById('m-type').value;
+  const manager = document.getElementById('m-manager').value;
+  if(!name || !company || !email) { showToast('Please fill in all required fields', 'error'); return; }
+  clients.unshift({ id: nextId++, name, company, type, status:'Active', manager, date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) });
+  const wl = workload.find(w => w.name === manager);
+  if(wl) wl.count++;
+  renderWorkload();
+  addActivity('success', `${name} added as <span class="highlight">Active</span>`, 'Just now');
+  updateKPIs();
+  renderTable(clients);
+  closeModal();
+  ['m-name','m-company','m-email'].forEach(id => document.getElementById(id).value = '');
+  showToast(name + ' added successfully!', 'success');
+}
+
+/* ── Copy URL ── */
+function copyUrl(inputId, btn) {
+  const val = document.getElementById(inputId).value;
+  navigator.clipboard.writeText(val).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    showToast('URL copied to clipboard!', 'success');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+    }, 2000);
+  }).catch(() => {
+    showToast('URL copied!', 'success');
+  });
+}
+
+/* ── Toast ── */
+function showToast(msg, type) {
+  const container = document.getElementById('toast');
+  const div = document.createElement('div');
+  div.className = 'toast-msg ' + type;
+  div.innerHTML = (type==='success'?'✓ ':'') + (type==='error'?'✕ ':'') + msg;
+  container.appendChild(div);
+  setTimeout(() => { div.style.opacity='0'; div.style.transform='translateY(10px)'; div.style.transition='all .3s'; setTimeout(()=>div.remove(),300); }, 3000);
+}
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', e => { if(e.key==='Escape') { closeModal(); closeDropdowns(); } });
+
+/* ── Init ── */
+renderPending();
+renderTable(clients);
+renderActivity();
+renderWorkload();
+</script>
+</body>
+</html>

@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZarklyX – Payroll Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --teal: #0d9488;
+  --teal-light: #14b8a6;
+  --teal-pale: #ccfbf1;
+  --teal-dark: #0f766e;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-500: #64748b;
+  --slate-300: #cbd5e1;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --white: #ffffff;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --violet: #7c3aed;
+  --emerald: #10b981;
+  --glass: rgba(255,255,255,0.7);
+  --glass-border: rgba(255,255,255,0.9);
+  --shadow-card: 0 4px 24px rgba(15,118,110,0.08), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-hover: 0 12px 40px rgba(15,118,110,0.15), 0 4px 12px rgba(0,0,0,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--slate-50);
+  color: var(--slate-800);
+  overflow-x: hidden;
+}
+
+/* ─── NAV ──────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(13,148,136,0.1);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--teal-dark); letter-spacing: -0.5px; }
+.nav-logo span { color: var(--slate-800); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--slate-500); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--teal); }
+.nav-cta { display: flex; gap: 0.75rem; }
+.btn-outline {
+  padding: 0.5rem 1.25rem; border-radius: 8px; border: 1.5px solid var(--teal);
+  color: var(--teal); font-size: 0.875rem; font-weight: 600; cursor: pointer;
+  background: transparent; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.btn-outline:hover { background: var(--teal-pale); }
+.btn-primary {
+  padding: 0.5rem 1.25rem; border-radius: 8px; border: none;
+  background: var(--teal); color: white; font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,148,136,0.3); }
+
+/* ─── HERO ──────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, #0f172a 0%, #134e4a 60%, #0d9488 100%);
+  padding: 5rem 2rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(20,184,166,0.25) 0%, transparent 70%);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(13,148,136,0.2); border: 1px solid rgba(20,184,166,0.4);
+  color: var(--teal-light); font-size: 0.78rem; font-weight: 600;
+  padding: 0.35rem 1rem; border-radius: 100px; margin-bottom: 1.5rem;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  position: relative; z-index: 1;
+}
+.hero-badge::before { content: '●'; font-size: 0.5rem; }
+.hero h1 {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.1;
+  color: white; margin-bottom: 1.25rem; position: relative; z-index: 1;
+  letter-spacing: -1.5px;
+}
+.hero h1 em { color: var(--teal-light); font-style: normal; }
+.hero-desc {
+  font-size: 1.1rem; color: rgba(255,255,255,0.72); max-width: 640px;
+  margin: 0 auto 2.5rem; line-height: 1.7; position: relative; z-index: 1;
+}
+.hero-cta { display: flex; gap: 1rem; justify-content: center; margin-bottom: 3.5rem; position: relative; z-index: 1; }
+.hero-btn-primary {
+  padding: 0.85rem 2rem; border-radius: 10px; background: var(--teal);
+  color: white; font-weight: 700; font-size: 0.95rem; border: none;
+  cursor: pointer; transition: all 0.25s; font-family: 'DM Sans', sans-serif;
+  box-shadow: 0 8px 24px rgba(13,148,136,0.4);
+}
+.hero-btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+.hero-btn-ghost {
+  padding: 0.85rem 2rem; border-radius: 10px;
+  background: rgba(255,255,255,0.1); color: white;
+  font-weight: 600; font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
+  transition: all 0.25s; font-family: 'DM Sans', sans-serif;
+  backdrop-filter: blur(8px);
+}
+.hero-btn-ghost:hover { background: rgba(255,255,255,0.18); }
+.hero-stats {
+  display: flex; justify-content: center; gap: 3rem;
+  position: relative; z-index: 1;
+}
+.hero-stat { text-align: center; }
+.hero-stat strong { display: block; font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; color: white; }
+.hero-stat span { font-size: 0.8rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ─── DASHBOARD SECTION ─────────────────────────── */
+.dashboard-section {
+  padding: 0 1.5rem 1rem;
+  margin-top: -1px;
+  background: linear-gradient(180deg, #134e4a 0%, var(--slate-50) 280px);
+}
+.dashboard-wrapper {
+  max-width: 1280px; margin: 0 auto;
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(13,148,136,0.1);
+  overflow: hidden;
+}
+
+/* ─── DASHBOARD INNER ───────────────────────────── */
+.db-header {
+  background: var(--slate-900);
+  padding: 0.9rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.db-header-left { display: flex; align-items: center; gap: 1rem; }
+.db-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; color: var(--teal-light); }
+.db-nav { display: flex; gap: 0.25rem; }
+.db-nav-item {
+  padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.78rem;
+  font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer;
+  transition: all 0.2s;
+}
+.db-nav-item:hover, .db-nav-item.active { background: rgba(13,148,136,0.2); color: var(--teal-light); }
+.db-header-right { display: flex; align-items: center; gap: 0.75rem; }
+.db-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: white;
+}
+.db-month-badge {
+  padding: 0.3rem 0.8rem; border-radius: 6px;
+  background: rgba(13,148,136,0.15); border: 1px solid rgba(20,184,166,0.3);
+  color: var(--teal-light); font-size: 0.75rem; font-weight: 600;
+}
+
+.db-body { display: flex; height: calc(100vh - 160px); max-height: 720px; min-height: 580px; }
+
+/* Sidebar */
+.db-sidebar {
+  width: 200px; min-width: 200px;
+  background: var(--slate-800);
+  padding: 1rem 0;
+  display: flex; flex-direction: column; gap: 0.25rem;
+}
+.db-side-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.65rem 1.25rem; font-size: 0.8rem; font-weight: 500;
+  color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+.db-side-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.db-side-item.active { background: rgba(13,148,136,0.15); color: var(--teal-light); border-left-color: var(--teal-light); }
+.db-side-icon { font-size: 1rem; width: 18px; text-align: center; }
+.db-side-section { padding: 1rem 1.25rem 0.35rem; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.5rem; }
+
+/* Main area */
+.db-main {
+  flex: 1; overflow-y: auto; padding: 1.25rem;
+  background: #f0f9f8;
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+.db-main::-webkit-scrollbar { width: 4px; }
+.db-main::-webkit-scrollbar-track { background: transparent; }
+.db-main::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
+
+.db-page-title {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.db-page-title h2 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--slate-800); }
+.db-page-title p { font-size: 0.75rem; color: var(--slate-500); margin-top: 2px; }
+.db-actions { display: flex; gap: 0.6rem; }
+.db-action-btn {
+  padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif; border: none;
+}
+.db-action-btn.primary { background: var(--teal); color: white; }
+.db-action-btn.primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,148,136,0.3); }
+.db-action-btn.secondary { background: white; color: var(--slate-700); border: 1px solid var(--slate-300); }
+.db-action-btn.secondary:hover { border-color: var(--teal); color: var(--teal); }
+
+/* KPI Cards */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.kpi-card {
+  background: var(--white); border-radius: 14px; padding: 1.1rem;
+  box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8);
+  transition: all 0.25s; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 14px 14px 0 0;
+}
+.kpi-card.teal::before { background: linear-gradient(90deg, var(--teal), var(--teal-light)); }
+.kpi-card.amber::before { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.kpi-card.emerald::before { background: linear-gradient(90deg, var(--emerald), #34d399); }
+.kpi-card.rose::before { background: linear-gradient(90deg, var(--rose), #fb7185); }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.kpi-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.kpi-icon.teal { background: #ccfbf1; }
+.kpi-icon.amber { background: #fef3c7; }
+.kpi-icon.emerald { background: #d1fae5; }
+.kpi-icon.rose { background: #ffe4e6; }
+.kpi-change { font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.5rem; border-radius: 6px; }
+.kpi-change.up { background: #d1fae5; color: #065f46; }
+.kpi-change.down { background: #ffe4e6; color: #9f1239; }
+.kpi-value { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--slate-800); line-height: 1; }
+.kpi-label { font-size: 0.72rem; color: var(--slate-500); font-weight: 500; margin-top: 0.3rem; }
+
+/* Charts Row */
+.charts-row { display: grid; grid-template-columns: 1.8fr 1fr; gap: 1rem; }
+.chart-card {
+  background: var(--white); border-radius: 14px; padding: 1.1rem;
+  box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8);
+}
+.chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.chart-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--slate-800); }
+.chart-subtitle { font-size: 0.7rem; color: var(--slate-500); margin-top: 2px; }
+.chart-filter {
+  display: flex; gap: 0.3rem;
+}
+.chart-filter-btn {
+  padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.68rem; font-weight: 600;
+  border: 1px solid var(--slate-300); background: transparent; cursor: pointer;
+  color: var(--slate-500); transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.chart-filter-btn.active { background: var(--teal); color: white; border-color: var(--teal); }
+.chart-canvas-wrap { height: 160px; position: relative; }
+
+/* Bottom row */
+.bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.table-card {
+  background: var(--white); border-radius: 14px; padding: 1.1rem;
+  box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8);
+}
+.table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+.table-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--slate-800); }
+.view-all { font-size: 0.72rem; color: var(--teal); font-weight: 600; cursor: pointer; text-decoration: none; }
+.view-all:hover { text-decoration: underline; }
+
+.emp-table { width: 100%; border-collapse: collapse; }
+.emp-table th { font-size: 0.65rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 0.6rem 0.6rem; text-align: left; border-bottom: 1px solid var(--slate-100); }
+.emp-table td { font-size: 0.75rem; color: var(--slate-700); padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--slate-100); }
+.emp-table tr:last-child td { border-bottom: none; }
+.emp-table tr:hover td { background: #f0fdfa; cursor: pointer; }
+.emp-avatar-cell { display: flex; align-items: center; gap: 0.5rem; }
+.emp-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: white; flex-shrink: 0; }
+.emp-name { font-weight: 600; color: var(--slate-800); }
+.status-badge { display: inline-flex; padding: 0.15rem 0.5rem; border-radius: 100px; font-size: 0.65rem; font-weight: 600; }
+.status-paid { background: #d1fae5; color: #065f46; }
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-hold { background: #ffe4e6; color: #9f1239; }
+
+/* Quick Actions */
+.quick-actions {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;
+}
+.qa-btn {
+  padding: 0.75rem; border-radius: 12px; text-align: center; cursor: pointer;
+  transition: all 0.2s; border: 1.5px solid transparent;
+  background: var(--white); box-shadow: var(--shadow-card);
+}
+.qa-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--teal-pale); }
+.qa-icon { font-size: 1.4rem; margin-bottom: 0.3rem; }
+.qa-label { font-size: 0.72rem; font-weight: 600; color: var(--slate-700); }
+
+/* ─── MODAL ──────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+  backdrop-filter: blur(6px); z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.modal-overlay.open { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: white; border-radius: 20px; width: 90%; max-width: 520px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.25);
+  animation: slideUp 0.25s ease;
+  overflow: hidden;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modal-head {
+  padding: 1.5rem 1.5rem 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.modal-head h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--slate-800); }
+.modal-head p { font-size: 0.8rem; color: var(--slate-500); margin-top: 4px; }
+.modal-close { width: 30px; height: 30px; border-radius: 8px; border: none; background: var(--slate-100); cursor: pointer; font-size: 1rem; color: var(--slate-500); transition: all 0.2s; }
+.modal-close:hover { background: var(--slate-200); color: var(--slate-800); }
+.modal-body { padding: 1.25rem 1.5rem 1.5rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem; }
+.form-group label { font-size: 0.75rem; font-weight: 600; color: var(--slate-700); }
+.form-input {
+  padding: 0.6rem 0.85rem; border-radius: 8px; border: 1.5px solid var(--slate-300);
+  font-size: 0.82rem; color: var(--slate-800); font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s; outline: none; background: var(--slate-50);
+}
+.form-input:focus { border-color: var(--teal); background: white; }
+.form-select {
+  padding: 0.6rem 0.85rem; border-radius: 8px; border: 1.5px solid var(--slate-300);
+  font-size: 0.82rem; color: var(--slate-800); font-family: 'DM Sans', sans-serif;
+  outline: none; background: var(--slate-50); cursor: pointer;
+  transition: border-color 0.2s;
+}
+.form-select:focus { border-color: var(--teal); background: white; }
+.modal-footer { padding: 1rem 1.5rem 1.5rem; display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+/* Salary Slip Modal */
+.slip-card { border: 1.5px solid var(--slate-200); border-radius: 14px; overflow: hidden; }
+.slip-head { background: linear-gradient(135deg, var(--slate-900), var(--teal-dark)); padding: 1.25rem; color: white; display: flex; justify-content: space-between; align-items: center; }
+.slip-head h4 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+.slip-head p { font-size: 0.72rem; opacity: 0.7; margin-top: 2px; }
+.slip-month { font-size: 0.78rem; opacity: 0.9; text-align: right; }
+.slip-info { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 1rem; background: var(--slate-50); }
+.slip-info-item label { font-size: 0.65rem; color: var(--slate-500); font-weight: 600; text-transform: uppercase; }
+.slip-info-item span { display: block; font-size: 0.82rem; color: var(--slate-800); font-weight: 600; margin-top: 2px; }
+.slip-table { width: 100%; border-collapse: collapse; margin: 0; }
+.slip-table th { background: var(--slate-100); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--slate-500); padding: 0.5rem 0.85rem; text-align: left; }
+.slip-table td { font-size: 0.78rem; color: var(--slate-700); padding: 0.5rem 0.85rem; border-bottom: 1px solid var(--slate-100); }
+.slip-table tr:last-child td { border-bottom: none; }
+.slip-table td:last-child { text-align: right; color: var(--slate-800); font-weight: 500; }
+.slip-net { display: flex; justify-content: space-between; align-items: center; padding: 0.85rem; background: linear-gradient(90deg, #ccfbf1, #d1fae5); }
+.slip-net span { font-size: 0.8rem; font-weight: 700; color: var(--teal-dark); }
+.slip-net strong { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--teal-dark); }
+
+/* Salary Sheet Modal */
+.sheet-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+.sheet-stat { background: var(--slate-50); border-radius: 10px; padding: 0.85rem; text-align: center; border: 1px solid var(--slate-200); }
+.sheet-stat strong { display: block; font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--slate-800); }
+.sheet-stat span { font-size: 0.7rem; color: var(--slate-500); }
+
+/* ─── LANDING CONTENT ───────────────────────────── */
+.section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+.section-label {
+  display: inline-block; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--teal); background: var(--teal-pale);
+  padding: 0.35rem 1rem; border-radius: 100px; margin-bottom: 1rem;
+}
+.section-title {
+  font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800; color: var(--slate-900); line-height: 1.15;
+  letter-spacing: -0.75px; margin-bottom: 1.25rem;
+}
+.section-title em { color: var(--teal); font-style: normal; }
+.section-intro { font-size: 1.05rem; color: var(--slate-500); line-height: 1.8; max-width: 720px; }
+
+/* What is payroll */
+.what-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; margin-top: 3.5rem; }
+.what-content p { font-size: 1rem; color: var(--slate-600); line-height: 1.8; margin-bottom: 1.25rem; }
+.what-cards { display: flex; flex-direction: column; gap: 0.85rem; }
+.what-card {
+  background: var(--white); border-radius: 14px; padding: 1.1rem 1.25rem;
+  border-left: 4px solid var(--teal); box-shadow: var(--shadow-card);
+  transition: transform 0.2s;
+}
+.what-card:hover { transform: translateX(4px); }
+.what-card h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.4rem; }
+.what-card p { font-size: 0.82rem; color: var(--slate-500); line-height: 1.6; }
+
+/* Steps */
+.steps-section { background: var(--slate-900); padding: 6rem 2rem; }
+.steps-inner { max-width: 1100px; margin: 0 auto; }
+.steps-section .section-label { background: rgba(13,148,136,0.2); color: var(--teal-light); }
+.steps-section .section-title { color: white; }
+.steps-section .section-intro { color: rgba(255,255,255,0.6); }
+.steps-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem; margin-top: 3.5rem; position: relative; }
+.steps-grid::before {
+  content: ''; position: absolute; top: 36px; left: 10%; right: 10%;
+  height: 2px; background: linear-gradient(90deg, var(--teal), var(--teal-light));
+  z-index: 0;
+}
+.step-card {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 1.5rem 1.1rem; text-align: center;
+  position: relative; z-index: 1; transition: all 0.25s;
+  backdrop-filter: blur(10px);
+}
+.step-card:hover { background: rgba(13,148,136,0.15); border-color: rgba(20,184,166,0.4); transform: translateY(-4px); }
+.step-num {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--teal);
+  color: white; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem; box-shadow: 0 8px 20px rgba(13,148,136,0.4);
+}
+.step-card h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: white; margin-bottom: 0.6rem; }
+.step-card p { font-size: 0.78rem; color: rgba(255,255,255,0.6); line-height: 1.65; }
+
+/* Features */
+.features-section { padding: 6rem 2rem; background: white; }
+.features-inner { max-width: 1100px; margin: 0 auto; }
+.features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-top: 3.5rem; }
+.feature-card {
+  background: var(--slate-50); border-radius: 16px; padding: 1.5rem;
+  border: 1.5px solid var(--slate-200); transition: all 0.25s;
+}
+.feature-card:hover { border-color: var(--teal-light); background: white; box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+.feature-icon { font-size: 1.75rem; margin-bottom: 0.85rem; }
+.feature-card h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.55rem; }
+.feature-card p { font-size: 0.8rem; color: var(--slate-500); line-height: 1.65; }
+
+/* Problems */
+.problems-section { padding: 6rem 2rem; background: var(--slate-50); }
+.problems-inner { max-width: 1100px; margin: 0 auto; }
+.problems-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+.problem-card {
+  background: white; border-radius: 16px; padding: 1.5rem;
+  box-shadow: var(--shadow-card); border: 1px solid rgba(0,0,0,0.04);
+  transition: all 0.25s;
+}
+.problem-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+.problem-badge { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.prob-icon { font-size: 1.25rem; }
+.prob-tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rose); background: #ffe4e6; padding: 0.2rem 0.6rem; border-radius: 6px; }
+.problem-card h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.5rem; }
+.problem-card .problem-desc { font-size: 0.8rem; color: var(--slate-500); line-height: 1.65; margin-bottom: 0.85rem; }
+.solution-pill { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--teal-pale); color: var(--teal-dark); font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 100px; }
+.solution-pill::before { content: '✓'; }
+
+/* Differentiators */
+.diff-section { padding: 6rem 2rem; background: white; }
+.diff-inner { max-width: 1100px; margin: 0 auto; }
+.diff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+.diff-card {
+  border-radius: 16px; padding: 1.75rem;
+  background: linear-gradient(135deg, var(--slate-50), white);
+  border: 1.5px solid var(--slate-200); transition: all 0.25s;
+}
+.diff-card:hover { border-color: var(--teal); transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.diff-icon-wrap { width: 48px; height: 48px; border-radius: 12px; background: var(--teal-pale); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1rem; }
+.diff-card h4 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.55rem; }
+.diff-card p { font-size: 0.82rem; color: var(--slate-500); line-height: 1.7; }
+
+/* Why Choose */
+.why-section { padding: 6rem 2rem; background: linear-gradient(135deg, #0f172a 0%, #134e4a 100%); }
+.why-inner { max-width: 1100px; margin: 0 auto; }
+.why-section .section-label { background: rgba(13,148,136,0.25); color: var(--teal-light); }
+.why-section .section-title { color: white; }
+.why-section .section-intro { color: rgba(255,255,255,0.6); }
+.why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 3.5rem; }
+.why-card {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 1.5rem; transition: all 0.25s;
+  backdrop-filter: blur(10px);
+}
+.why-card:hover { background: rgba(13,148,136,0.15); border-color: rgba(20,184,166,0.35); }
+.why-check { width: 36px; height: 36px; border-radius: 10px; background: rgba(13,148,136,0.3); display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-bottom: 0.85rem; }
+.why-card h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: white; margin-bottom: 0.5rem; }
+.why-card p { font-size: 0.8rem; color: rgba(255,255,255,0.6); line-height: 1.65; }
+
+/* CTA Section */
+.cta-section { padding: 5rem 2rem; text-align: center; background: white; }
+.cta-inner { max-width: 640px; margin: 0 auto; }
+.cta-inner h2 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--slate-900); margin-bottom: 1rem; letter-spacing: -0.75px; }
+.cta-inner p { color: var(--slate-500); font-size: 1rem; line-height: 1.7; margin-bottom: 2rem; }
+.cta-btns { display: flex; gap: 1rem; justify-content: center; }
+
+/* Footer */
+footer { background: var(--slate-900); padding: 2rem; text-align: center; color: rgba(255,255,255,0.4); font-size: 0.8rem; }
+footer span { color: var(--teal-light); }
+
+/* Animations */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.kpi-value { animation: countUp 0.5s ease backwards; }
+.kpi-card:nth-child(1) .kpi-value { animation-delay: 0.1s; }
+.kpi-card:nth-child(2) .kpi-value { animation-delay: 0.2s; }
+.kpi-card:nth-child(3) .kpi-value { animation-delay: 0.3s; }
+.kpi-card:nth-child(4) .kpi-value { animation-delay: 0.4s; }
+
+.donut-legend { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem; }
+.legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 0.4rem; }
+.legend-label { display: flex; align-items: center; color: var(--slate-600); }
+.legend-val { color: var(--slate-800); font-weight: 600; }
+
+.deduction-row { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0; border-bottom: 1px solid var(--slate-100); }
+.deduction-row:last-child { border-bottom: none; }
+.ded-info { display: flex; align-items: center; gap: 0.6rem; }
+.ded-dot { width: 8px; height: 8px; border-radius: 50%; }
+.ded-name { font-size: 0.75rem; color: var(--slate-700); font-weight: 500; }
+.ded-emp { font-size: 0.68rem; color: var(--slate-400); }
+.ded-amount { font-size: 0.78rem; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Zarkly<span>X</span></div>
+  <ul class="nav-links">
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#what">Overview</a></li>
+    <li><a href="#steps">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <div class="nav-cta">
+    <button class="btn-outline">Sign In</button>
+    <button class="btn-primary">Start Free Trial</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Payroll Management Module</div>
+  <h1>Pay your team right,<br><em>every single month.</em></h1>
+  <p class="hero-desc">ZarklyX transforms the way businesses handle payroll — from defining flexible salary structures and managing complex deductions to generating professional salary slips in seconds. Stop wrestling with spreadsheets. Let automation do the heavy lifting.</p>
+  <div class="hero-cta">
+    <button class="hero-btn-primary">Start Free Trial →</button>
+    <button class="hero-btn-ghost" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">View Live Dashboard</button>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>10,000+</strong><span>Businesses Trust Us</span></div>
+    <div class="hero-stat"><strong>₹2.4B+</strong><span>Payroll Processed</span></div>
+    <div class="hero-stat"><strong>99.9%</strong><span>Calculation Accuracy</span></div>
+    <div class="hero-stat"><strong>3 min</strong><span>Avg. Payroll Run</span></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<div class="dashboard-section" id="dashboard">
+  <div class="dashboard-wrapper">
+
+    <!-- DB Header -->
+    <div class="db-header">
+      <div class="db-header-left">
+        <div class="db-logo">ZarklyX</div>
+        <div class="db-nav">
+          <div class="db-nav-item active">Payroll</div>
+          <div class="db-nav-item">Employees</div>
+          <div class="db-nav-item">Reports</div>
+          <div class="db-nav-item">Settings</div>
+        </div>
+      </div>
+      <div class="db-header-right">
+        <div class="db-month-badge">📅 March 2026</div>
+        <div class="db-avatar">SA</div>
+      </div>
+    </div>
+
+    <div class="db-body">
+      <!-- Sidebar -->
+      <div class="db-sidebar">
+        <div class="db-side-section">Main</div>
+        <div class="db-side-item active"><span class="db-side-icon">📊</span>Dashboard</div>
+        <div class="db-side-item"><span class="db-side-icon">👥</span>Employees</div>
+        <div class="db-side-item"><span class="db-side-icon">🏗️</span>Salary Structure</div>
+        <div class="db-side-section">Payroll</div>
+        <div class="db-side-item" onclick="openModal('sheet')"><span class="db-side-icon">📋</span>Salary Sheet</div>
+        <div class="db-side-item" onclick="openModal('slip')"><span class="db-side-icon">📄</span>Salary Slips</div>
+        <div class="db-side-item" onclick="openModal('bonus')"><span class="db-side-icon">🎁</span>Bonuses</div>
+        <div class="db-side-item" onclick="openModal('deduction')"><span class="db-side-icon">➖</span>Deductions</div>
+        <div class="db-side-section">Analytics</div>
+        <div class="db-side-item"><span class="db-side-icon">📈</span>Reports</div>
+        <div class="db-side-item"><span class="db-side-icon">🔒</span>Audit Log</div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="db-main">
+        <!-- Title Row -->
+        <div class="db-page-title">
+          <div>
+            <h2>Payroll Dashboard</h2>
+            <p>March 2026 · All departments · 148 active employees</p>
+          </div>
+          <div class="db-actions">
+            <button class="db-action-btn secondary" onclick="openModal('slip')">📄 Download Slips</button>
+            <button class="db-action-btn secondary" onclick="openModal('deduction')">➖ Add Deduction</button>
+            <button class="db-action-btn secondary" onclick="openModal('bonus')">🎁 Add Bonus</button>
+            <button class="db-action-btn primary" onclick="openModal('sheet')">📋 Generate Sheet</button>
+          </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card teal">
+            <div class="kpi-top">
+              <div class="kpi-icon teal">👥</div>
+              <div class="kpi-change up">↑ +4</div>
+            </div>
+            <div class="kpi-value">148</div>
+            <div class="kpi-label">Total Employees</div>
+          </div>
+          <div class="kpi-card amber">
+            <div class="kpi-top">
+              <div class="kpi-icon amber">💰</div>
+              <div class="kpi-change up">↑ 3.2%</div>
+            </div>
+            <div class="kpi-value">₹42.6L</div>
+            <div class="kpi-label">Monthly Payroll</div>
+          </div>
+          <div class="kpi-card emerald">
+            <div class="kpi-top">
+              <div class="kpi-icon emerald">🎁</div>
+              <div class="kpi-change up">↑ 12%</div>
+            </div>
+            <div class="kpi-value">₹3.8L</div>
+            <div class="kpi-label">Bonuses Paid</div>
+          </div>
+          <div class="kpi-card rose">
+            <div class="kpi-top">
+              <div class="kpi-icon rose">➖</div>
+              <div class="kpi-change down">↓ 1.4%</div>
+            </div>
+            <div class="kpi-value">₹5.2L</div>
+            <div class="kpi-label">Total Deductions</div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Monthly Payroll Trend</div>
+                <div class="chart-subtitle">Total payout over last 6 months</div>
+              </div>
+              <div class="chart-filter">
+                <button class="chart-filter-btn active">6M</button>
+                <button class="chart-filter-btn">1Y</button>
+                <button class="chart-filter-btn">All</button>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Dept. Breakdown</div>
+                <div class="chart-subtitle">Payroll by department</div>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height:120px"><canvas id="donutChart"></canvas></div>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#0d9488"></div>Engineering</div><div class="legend-val">₹18.4L</div></div>
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#f59e0b"></div>Sales</div><div class="legend-val">₹9.2L</div></div>
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#7c3aed"></div>Operations</div><div class="legend-val">₹8.6L</div></div>
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#f43f5e"></div>HR & Admin</div><div class="legend-val">₹6.4L</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="bottom-row">
+          <!-- Employee Table -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Employee Salary Table</div>
+              <a class="view-all">View All →</a>
+            </div>
+            <table class="emp-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Department</th>
+                  <th>Net Pay</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr onclick="openModal('slip')">
+                  <td><div class="emp-avatar-cell"><div class="emp-avatar" style="background:#0d9488">RK</div><div><div class="emp-name">Rahul Kumar</div><div style="font-size:0.65rem;color:#94a3b8">Sr. Engineer</div></div></div></td>
+                  <td>Engineering</td>
+                  <td style="font-weight:700;color:#0f172a">₹87,500</td>
+                  <td><span class="status-badge status-paid">Paid</span></td>
+                </tr>
+                <tr onclick="openModal('slip')">
+                  <td><div class="emp-avatar-cell"><div class="emp-avatar" style="background:#7c3aed">PS</div><div><div class="emp-name">Priya Sharma</div><div style="font-size:0.65rem;color:#94a3b8">Sales Lead</div></div></div></td>
+                  <td>Sales</td>
+                  <td style="font-weight:700;color:#0f172a">₹62,000</td>
+                  <td><span class="status-badge status-paid">Paid</span></td>
+                </tr>
+                <tr onclick="openModal('slip')">
+                  <td><div class="emp-avatar-cell"><div class="emp-avatar" style="background:#f59e0b">AM</div><div><div class="emp-name">Arjun Mehta</div><div style="font-size:0.65rem;color:#94a3b8">Product Manager</div></div></div></td>
+                  <td>Operations</td>
+                  <td style="font-weight:700;color:#0f172a">₹95,200</td>
+                  <td><span class="status-badge status-pending">Pending</span></td>
+                </tr>
+                <tr onclick="openModal('slip')">
+                  <td><div class="emp-avatar-cell"><div class="emp-avatar" style="background:#f43f5e">SJ</div><div><div class="emp-name">Sneha Joshi</div><div style="font-size:0.65rem;color:#94a3b8">HR Manager</div></div></div></td>
+                  <td>HR & Admin</td>
+                  <td style="font-weight:700;color:#0f172a">₹54,000</td>
+                  <td><span class="status-badge status-paid">Paid</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Bonus & Deduction Log -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Bonus & Deduction Log</div>
+              <a class="view-all">View All →</a>
+            </div>
+            <div class="deduction-row">
+              <div class="ded-info">
+                <div class="ded-dot" style="background:#10b981"></div>
+                <div><div class="ded-name">Performance Bonus — Rahul Kumar</div><div class="ded-emp">Engineering · Mar 2026</div></div>
+              </div>
+              <div class="ded-amount" style="color:#059669">+₹12,000</div>
+            </div>
+            <div class="deduction-row">
+              <div class="ded-info">
+                <div class="ded-dot" style="background:#f43f5e"></div>
+                <div><div class="ded-name">Leave Deduction — Arjun Mehta</div><div class="ded-emp">Operations · Mar 2026</div></div>
+              </div>
+              <div class="ded-amount" style="color:#e11d48">-₹4,200</div>
+            </div>
+            <div class="deduction-row">
+              <div class="ded-info">
+                <div class="ded-dot" style="background:#10b981"></div>
+                <div><div class="ded-name">Festival Bonus — All Staff</div><div class="ded-emp">Company-wide · Mar 2026</div></div>
+              </div>
+              <div class="ded-amount" style="color:#059669">+₹85,000</div>
+            </div>
+            <div class="deduction-row">
+              <div class="ded-info">
+                <div class="ded-dot" style="background:#f43f5e"></div>
+                <div><div class="ded-name">TDS Deduction — Priya Sharma</div><div class="ded-emp">Sales · Mar 2026</div></div>
+              </div>
+              <div class="ded-amount" style="color:#e11d48">-₹6,800</div>
+            </div>
+            <div class="deduction-row">
+              <div class="ded-info">
+                <div class="ded-dot" style="background:#10b981"></div>
+                <div><div class="ded-name">Quarterly Incentive — Sales Team</div><div class="ded-emp">Sales · Mar 2026</div></div>
+              </div>
+              <div class="ded-amount" style="color:#059669">+₹32,500</div>
+            </div>
+
+            <!-- Quick Actions inside this card -->
+            <div style="margin-top:1rem;padding-top:0.85rem;border-top:1px solid #f1f5f9;">
+              <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:0.5rem;">Quick Actions</div>
+              <div class="quick-actions">
+                <div class="qa-btn" onclick="openModal('sheet')"><div class="qa-icon">📋</div><div class="qa-label">Salary Sheet</div></div>
+                <div class="qa-btn" onclick="openModal('bonus')"><div class="qa-icon">🎁</div><div class="qa-label">Add Bonus</div></div>
+                <div class="qa-btn" onclick="openModal('deduction')"><div class="qa-icon">➖</div><div class="qa-label">Add Deduction</div></div>
+                <div class="qa-btn" onclick="openModal('slip')"><div class="qa-icon">📄</div><div class="qa-label">Download Slips</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /db-main -->
+    </div><!-- /db-body -->
+  </div><!-- /dashboard-wrapper -->
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- LANDING CONTENT -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<!-- WHAT IS PAYROLL -->
+<section id="what">
+  <div class="section">
+    <span class="section-label">Understanding Payroll</span>
+    <h2 class="section-title">What is a <em>Payroll System</em><br>and why does it matter?</h2>
+    <p class="section-intro">Before diving into features, let's understand the foundation — what payroll is, and why managing it accurately is non-negotiable for any growing business.</p>
+    <div class="what-grid">
+      <div class="what-content">
+        <p>A payroll system is the complete process by which a business calculates and distributes compensation to its employees. It goes far beyond simply transferring money to bank accounts. A proper payroll system tracks every element of an employee's pay — their base salary, house rent allowance, special allowances, performance bonuses, statutory deductions like provident fund and professional tax, leave adjustments, and net take-home pay. It is the financial backbone of your organization's relationship with its workforce.</p>
+        <p>Businesses need payroll management because compensation errors — even minor ones — erode employee trust instantly. When employees receive incorrect salaries, face unexplained deductions, or wait longer than expected for their payments, it directly impacts morale, productivity, and retention. Beyond the human cost, incorrect payroll can trigger regulatory penalties from tax authorities, making accuracy a legal obligation, not just good practice.</p>
+        <p>When payroll is managed manually — through spreadsheets, calculators, and paper records — the risks multiply exponentially. A single formula error can cascade across dozens of employee records. Human fatigue leads to miscalculations. Version control across multiple spreadsheets becomes a nightmare. Data gets lost. And as your team grows, the time your HR and finance teams spend on payroll processing each month can balloon into dozens of unproductive hours that could be spent on strategic work.</p>
+        <p>Automation solves all of this elegantly. When your salary structures, tax rules, and deduction policies are configured once in a system like ZarklyX, the platform handles every subsequent payroll run with mathematical precision — in minutes, not days. Real-time visibility means managers always know where payroll stands, and employees receive transparent breakdowns of exactly how their salary was calculated.</p>
+      </div>
+      <div class="what-cards">
+        <div class="what-card">
+          <h4>⚠️ The Cost of Manual Errors</h4>
+          <p>Studies show that 40% of small businesses incur penalties from payroll errors annually. Even a 0.5% error in a ₹50L monthly payroll translates to ₹25,000 in discrepancies — affecting employee trust and potentially triggering audits.</p>
+        </div>
+        <div class="what-card">
+          <h4>⏱️ Time Lost to Manual Processing</h4>
+          <p>HR teams in mid-sized companies spend an average of 10–15 hours per month just running payroll manually. ZarklyX reduces this to under 15 minutes by automating every calculation and report.</p>
+        </div>
+        <div class="what-card">
+          <h4>📋 Compliance is Non-Negotiable</h4>
+          <p>TDS, EPF, ESIC, Professional Tax — Indian businesses must comply with multiple statutory requirements every month. ZarklyX tracks and applies these automatically, keeping your business audit-ready at all times.</p>
+        </div>
+        <div class="what-card">
+          <h4>📈 Scales as You Grow</h4>
+          <p>Whether you have 10 employees or 10,000, a payroll system must handle complexity without slowing down. ZarklyX is built on cloud infrastructure that scales effortlessly with your headcount and compensation complexity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="steps-section" id="steps">
+  <div class="steps-inner">
+    <span class="section-label">Step-by-Step Process</span>
+    <h2 class="section-title">How ZarklyX Payroll <em style="color:var(--teal-light)">Works</em></h2>
+    <p class="section-intro">From the moment you onboard a new employee to generating their monthly salary slip, every step of the payroll lifecycle is handled seamlessly inside ZarklyX.</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>Define Salary Structure</h4>
+        <p>Configure your organization's pay components — Basic Pay, HRA, Special Allowances, Medical Benefits, Travel Allowances, and any custom components unique to your company policy.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>Assign to Employees</h4>
+        <p>Map each employee to their designated salary structure based on role, grade, and compensation package. Different structures for different departments — fully flexible.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>Add Bonuses & Deductions</h4>
+        <p>Add one-time or recurring bonuses, performance incentives, leave deductions, TDS, EPF contributions, and other adjustments for the current payroll cycle.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h4>Generate Salary Sheet</h4>
+        <p>ZarklyX automatically compiles all employee payroll data into a master Salary Sheet — giving you a complete financial overview of that month's total payout obligations.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <h4>Download Salary Slips</h4>
+        <p>Professional, branded salary slips are auto-generated for every employee — showing earnings, allowances, bonuses, deductions, and net pay — ready to download in one click.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="features-inner">
+    <span class="section-label">Core Features</span>
+    <h2 class="section-title">Everything you need for<br><em>flawless payroll management</em></h2>
+    <p class="section-intro">ZarklyX Payroll is not a standalone tool — it's a complete, integrated system built for modern businesses that need precision, transparency, and speed at every step of the payroll cycle.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🏗️</div>
+        <h4>Salary Structure Management</h4>
+        <p>Build unlimited salary templates with custom components — Basic, HRA, LTA, Medical, Special Allowances, and any company-specific element. Apply structures globally or per individual.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎁</div>
+        <h4>Bonus & Incentive Management</h4>
+        <p>Add performance bonuses, festival bonuses, referral incentives, or any custom payout in seconds. Apply them to individual employees or entire departments with a single action.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">➖</div>
+        <h4>Deduction & Tax Handling</h4>
+        <p>Automate EPF, ESIC, TDS, Professional Tax, and leave-based deductions. ZarklyX calculates statutory deductions accurately every month, keeping you perpetually compliant.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h4>Automated Salary Calculations</h4>
+        <p>Once configured, ZarklyX computes every employee's gross pay, allowances, deductions, and net take-home automatically — eliminating manual effort and calculation risk entirely.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h4>Salary Sheet Overview</h4>
+        <p>Get a bird's-eye view of your entire company's payroll in one centralized sheet. Filter by department, location, or employee grade. Export to PDF or Excel for finance teams.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📄</div>
+        <h4>Professional Salary Slip Generator</h4>
+        <p>Generate beautifully formatted, branded salary slips for every employee. Each slip includes a full breakdown of earnings, deductions, and net pay — downloadable as PDF instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h4>Payroll Reports & Insights</h4>
+        <p>Access visual payroll analytics — monthly trend charts, department-wise breakdowns, bonus summaries, and year-on-year comparisons — to make data-driven compensation decisions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h4>Secure Employee Payroll Records</h4>
+        <p>Every payroll record is encrypted, timestamped, and stored in the cloud with role-based access controls. Your payroll data is never lost, never leaked, and always audit-ready.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMS -->
+<section class="problems-section" id="problems">
+  <div class="problems-inner">
+    <span class="section-label">Problems We Solve</span>
+    <h2 class="section-title">The payroll problems<br><em>every business knows too well</em></h2>
+    <p class="section-intro">If any of these sound familiar, you're not alone — and ZarklyX was built specifically to eliminate each one of them from your workflow forever.</p>
+    <div class="problems-grid">
+      <div class="problem-card">
+        <div class="problem-badge"><div class="prob-icon">📊</div><div class="prob-tag">Problem</div></div>
+        <h4>Manual Salary Calculation Errors</h4>
+        <p class="problem-desc">Spreadsheet formulas break. Humans make mistakes under time pressure. A single miscalculation in a base formula can propagate incorrect salaries across your entire workforce — damaging trust and triggering costly corrections.</p>
+        <div class="solution-pill">ZarklyX auto-calculates everything with zero formula errors</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-badge"><div class="prob-icon">⏳</div><div class="prob-tag">Problem</div></div>
+        <h4>Time-Consuming Payroll Processing</h4>
+        <p class="problem-desc">HR and finance teams spend entire days — sometimes weeks — collecting attendance data, applying adjustments, verifying figures, and preparing disbursement records. This time could be spent on high-value strategic work instead.</p>
+        <div class="solution-pill">Complete payroll runs in under 15 minutes with ZarklyX</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-badge"><div class="prob-icon">👁️</div><div class="prob-tag">Problem</div></div>
+        <h4>Lack of Salary Transparency</h4>
+        <p class="problem-desc">When employees receive salaries without clear breakdowns, they often doubt the accuracy of their pay. This lack of transparency breeds mistrust, leads to unnecessary HR queries, and creates a negative perception of the company's compensation practices.</p>
+        <div class="solution-pill">Itemized salary slips give employees full visibility</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-badge"><div class="prob-icon">🎁</div><div class="prob-tag">Problem</div></div>
+        <h4>Difficult Bonus & Deduction Management</h4>
+        <p class="problem-desc">Tracking who received what bonus, when a deduction was applied, and why it was made — across dozens or hundreds of employees — is a logistical nightmare without a centralized system. Errors here directly affect employee satisfaction.</p>
+        <div class="solution-pill">Centralized bonus & deduction log with full history</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-badge"><div class="prob-icon">🗂️</div><div class="prob-tag">Problem</div></div>
+        <h4>Payroll Data Scattered Across Tools</h4>
+        <p class="problem-desc">Most businesses manage payroll across a combination of email threads, spreadsheets, accounting software, and paper files. This fragmented approach makes it nearly impossible to get a real-time, accurate view of your payroll obligations.</p>
+        <div class="solution-pill">Single source of truth for all payroll data in ZarklyX</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-badge"><div class="prob-icon">📄</div><div class="prob-tag">Problem</div></div>
+        <h4>Delays in Generating Salary Slips</h4>
+        <p class="problem-desc">Employees often have to wait days after payday to receive their salary slips — which they need for rent agreements, loan applications, and tax filing. Manual slip generation is slow, inconsistent, and often error-prone in formatting.</p>
+        <div class="solution-pill">Instant, professional salary slips auto-generated on payout day</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFFERENTIATORS -->
+<section class="diff-section" id="diff">
+  <div class="diff-inner">
+    <span class="section-label">Why ZarklyX Is Different</span>
+    <h2 class="section-title">Not just another payroll tool.<br><em>A smarter business platform.</em></h2>
+    <p class="section-intro">Most payroll tools are isolated point solutions. ZarklyX is different — it's a unified business operating system where payroll is deeply integrated with every other department and workflow.</p>
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="diff-icon-wrap">🔗</div>
+        <h4>Unified Business Platform</h4>
+        <p>ZarklyX connects payroll with HR, attendance, leave management, performance reviews, and finance — all in one system. When an employee takes leave, it automatically reflects in payroll. When a performance review happens, bonuses update in real time. No more data entry duplication across disconnected tools.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-icon-wrap">✨</div>
+        <h4>Modern, Intuitive Interface</h4>
+        <p>ZarklyX was designed for the modern workplace — not IT specialists. Any HR manager or business owner can run payroll without training. The clean dashboard, guided workflows, and contextual prompts make even complex payroll operations feel effortless and intuitive.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-icon-wrap">⚡</div>
+        <h4>Automation-Ready Architecture</h4>
+        <p>Unlike traditional payroll software that automates some steps while leaving others manual, ZarklyX is designed to automate the entire payroll workflow — from data collection through salary slip distribution. Configure once, run forever with minimal human intervention required each cycle.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-icon-wrap">📡</div>
+        <h4>Real-Time Payroll Visibility</h4>
+        <p>Your payroll dashboard updates in real time as bonuses are added, deductions are applied, and headcount changes. Finance leaders and business owners have instant access to total payroll liability — enabling better cash flow planning, forecasting, and financial decision-making throughout the month.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-icon-wrap">📈</div>
+        <h4>Built to Scale with You</h4>
+        <p>Whether you're a startup with 10 employees or a company with 5,000, ZarklyX handles the same payroll complexity without performance degradation. Add new departments, new salary components, or new statutory requirements — the system adapts instantly without requiring expensive customizations or upgrades.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-icon-wrap">🔒</div>
+        <h4>Enterprise-Grade Security</h4>
+        <p>Payroll data is among the most sensitive information a company holds. ZarklyX protects it with AES-256 encryption at rest, TLS 1.3 in transit, role-based access controls, and full audit logs — so you always know who accessed what, when. Bank-level security without enterprise-level complexity.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE -->
+<section class="why-section" id="why">
+  <div class="why-inner">
+    <span class="section-label">Why Choose ZarklyX</span>
+    <h2 class="section-title">The payroll system your<br>team will <em style="color:var(--teal-light)">actually love using</em></h2>
+    <p class="section-intro">ZarklyX Payroll isn't just built to work correctly — it's built to make every person who touches the payroll process feel empowered, informed, and efficient.</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-check">⚡</div>
+        <h4>Faster Payroll Processing</h4>
+        <p>What used to take your HR team an entire week now takes minutes. ZarklyX pre-fills data from attendance, leave, and performance records — leaving your team to simply review and approve before running the payroll cycle. Speed without compromising accuracy.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-check">✓</div>
+        <h4>Improved Salary Accuracy</h4>
+        <p>Rule-based computation means the same formula is applied consistently every single month — for every employee, every component. There are no typos, no transposition errors, and no missed allowances. Your employees receive exactly what they are owed, every time.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-check">👁️</div>
+        <h4>Transparent Employee Records</h4>
+        <p>Every employee has access to their complete compensation history — past salary slips, applied bonuses, deduction records, and year-to-date summaries. This transparency builds trust, reduces HR queries, and empowers employees to plan their finances with confidence.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-check">📉</div>
+        <h4>Reduced Administrative Workload</h4>
+        <p>By automating the most repetitive and time-consuming elements of payroll — data collection, calculation, slip generation, and reporting — ZarklyX frees your HR and finance teams to focus on talent strategy, financial analysis, and work that genuinely moves your business forward.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-check">🔐</div>
+        <h4>Secure Payroll Management</h4>
+        <p>Your employee compensation data is confidential and sensitive. ZarklyX treats it that way with granular permission settings — payroll admins see everything, managers see their team, employees see only their own records. No data leaks. No unauthorized access. Always compliant.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-check">☁️</div>
+        <h4>Scalable Cloud Infrastructure</h4>
+        <p>ZarklyX runs on auto-scaling cloud infrastructure, meaning your payroll system is always fast, always available, and never burdened by growth. Onboard 500 new employees overnight and your next payroll run performs identically to when you had 50.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to run payroll in minutes?</h2>
+    <p>Join over 10,000 businesses that have already eliminated payroll headaches with ZarklyX. Set up your account in 5 minutes and run your first payroll today — no training required.</p>
+    <div class="cta-btns">
+      <button class="hero-btn-primary" style="font-family:'DM Sans',sans-serif">Start Free Trial — No Credit Card →</button>
+      <button class="hero-btn-ghost" style="font-family:'DM Sans',sans-serif;background:#f1f5f9;color:#334155;border-color:#cbd5e1">Book a Demo</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 <span>ZarklyX</span> — Intelligent Business Operations Platform. All rights reserved.</p>
+</footer>
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+
+<!-- Salary Sheet Modal -->
+<div class="modal-overlay" id="modal-sheet" onclick="closeOnOverlay(event,'modal-sheet')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>📋 Salary Sheet — March 2026</h3><p>Complete payroll overview for all departments</p></div>
+      <button class="modal-close" onclick="closeModal('modal-sheet')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sheet-summary">
+        <div class="sheet-stat"><strong>148</strong><span>Total Employees</span></div>
+        <div class="sheet-stat"><strong>₹42.6L</strong><span>Gross Payroll</span></div>
+        <div class="sheet-stat"><strong>₹37.4L</strong><span>Net Disbursement</span></div>
+      </div>
+      <table class="emp-table" style="margin-bottom:0">
+        <thead><tr><th>Department</th><th>Employees</th><th>Gross Pay</th><th>Deductions</th><th>Net Pay</th></tr></thead>
+        <tbody>
+          <tr><td>Engineering</td><td>52</td><td>₹19.8L</td><td>₹1.4L</td><td style="font-weight:700">₹18.4L</td></tr>
+          <tr><td>Sales</td><td>38</td><td>₹10.1L</td><td>₹0.9L</td><td style="font-weight:700">₹9.2L</td></tr>
+          <tr><td>Operations</td><td>34</td><td>₹9.4L</td><td>₹0.8L</td><td style="font-weight:700">₹8.6L</td></tr>
+          <tr><td>HR & Admin</td><td>24</td><td>₹7.2L</td><td>₹0.8L</td><td style="font-weight:700">₹6.4L</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="db-action-btn secondary" onclick="closeModal('modal-sheet')">Close</button>
+      <button class="db-action-btn primary">⬇ Export to Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Salary Slip Modal -->
+<div class="modal-overlay" id="modal-slip" onclick="closeOnOverlay(event,'modal-slip')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>📄 Salary Slip Preview</h3><p>Employee compensation details for March 2026</p></div>
+      <button class="modal-close" onclick="closeModal('modal-slip')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="slip-card">
+        <div class="slip-head">
+          <div><h4>ZarklyX Technologies Pvt. Ltd.</h4><p>Salary Slip — March 2026</p></div>
+          <div class="slip-month"><div style="font-size:1rem;font-weight:800">₹87,500</div><div>Net Pay</div></div>
+        </div>
+        <div class="slip-info">
+          <div class="slip-info-item"><label>Employee Name</label><span>Rahul Kumar</span></div>
+          <div class="slip-info-item"><label>Employee ID</label><span>ZX-1042</span></div>
+          <div class="slip-info-item"><label>Designation</label><span>Senior Engineer</span></div>
+          <div class="slip-info-item"><label>Department</label><span>Engineering</span></div>
+        </div>
+        <table class="slip-table">
+          <thead><tr><th>Earnings</th><th>Amount</th><th>Deductions</th><th>Amount</th></tr></thead>
+          <tbody>
+            <tr><td>Basic Pay</td><td>₹52,000</td><td>EPF (Employee)</td><td>₹6,240</td></tr>
+            <tr><td>House Rent Allowance</td><td>₹20,800</td><td>Professional Tax</td><td>₹200</td></tr>
+            <tr><td>Special Allowance</td><td>₹8,400</td><td>TDS</td><td>₹4,260</td></tr>
+            <tr><td>Performance Bonus</td><td>₹12,000</td><td>Leave Deduction</td><td>₹0</td></tr>
+            <tr><td style="font-weight:700">Gross Earnings</td><td style="font-weight:700">₹93,200</td><td style="font-weight:700">Total Deductions</td><td style="font-weight:700">₹10,700</td></tr>
+          </tbody>
+        </table>
+        <div class="slip-net"><span>Net Take-Home Pay</span><strong>₹82,500</strong></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="db-action-btn secondary" onclick="closeModal('modal-slip')">Close</button>
+      <button class="db-action-btn primary">⬇ Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Bonus Modal -->
+<div class="modal-overlay" id="modal-bonus" onclick="closeOnOverlay(event,'modal-bonus')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>🎁 Add Bonus</h3><p>Apply a bonus to one or more employees this payroll cycle</p></div>
+      <button class="modal-close" onclick="closeModal('modal-bonus')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label>Bonus Type</label>
+          <select class="form-select">
+            <option>Performance Bonus</option>
+            <option>Festival Bonus</option>
+            <option>Referral Bonus</option>
+            <option>Quarterly Incentive</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>Apply To</label>
+          <select class="form-select">
+            <option>Individual Employee</option>
+            <option>Entire Department</option>
+            <option>All Employees</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Select Employee / Department</label>
+        <select class="form-select">
+          <option>Rahul Kumar — Engineering</option>
+          <option>Priya Sharma — Sales</option>
+          <option>Arjun Mehta — Operations</option>
+          <option>Sneha Joshi — HR & Admin</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label>Bonus Amount (₹)</label>
+          <input class="form-input" type="number" placeholder="e.g. 10000">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>Payroll Month</label>
+          <input class="form-input" type="month" value="2026-03">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Remarks (optional)</label>
+        <input class="form-input" type="text" placeholder="e.g. Q1 performance incentive">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="db-action-btn secondary" onclick="closeModal('modal-bonus')">Cancel</button>
+      <button class="db-action-btn primary" onclick="closeModal('modal-bonus')">✓ Apply Bonus</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Deduction Modal -->
+<div class="modal-overlay" id="modal-deduction" onclick="closeOnOverlay(event,'modal-deduction')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>➖ Add Deduction</h3><p>Apply a deduction to an employee for this payroll cycle</p></div>
+      <button class="modal-close" onclick="closeModal('modal-deduction')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label>Deduction Type</label>
+          <select class="form-select">
+            <option>Leave Without Pay</option>
+            <option>TDS</option>
+            <option>EPF (Employee Share)</option>
+            <option>Professional Tax</option>
+            <option>Loan Recovery</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>Select Employee</label>
+          <select class="form-select">
+            <option>Rahul Kumar — Engineering</option>
+            <option>Priya Sharma — Sales</option>
+            <option>Arjun Mehta — Operations</option>
+            <option>Sneha Joshi — HR & Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label>Deduction Amount (₹)</label>
+          <input class="form-input" type="number" placeholder="e.g. 4200">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>Payroll Month</label>
+          <input class="form-input" type="month" value="2026-03">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Number of Days (if leave-based)</label>
+        <input class="form-input" type="number" placeholder="e.g. 2">
+      </div>
+      <div class="form-group">
+        <label>Remarks</label>
+        <input class="form-input" type="text" placeholder="e.g. 2 days leave without pay — March 5–6">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="db-action-btn secondary" onclick="closeModal('modal-deduction')">Cancel</button>
+      <button class="db-action-btn primary" onclick="closeModal('modal-deduction')">✓ Apply Deduction</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Modal Controls
+function openModal(type) {
+  document.getElementById('modal-' + type).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeOnOverlay(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+    document.body.style.overflow = '';
+  }
+});
+
+// Chart filter toggle
+document.querySelectorAll('.chart-filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    this.closest('.chart-filter').querySelectorAll('.chart-filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// DB nav toggle
+document.querySelectorAll('.db-nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.db-nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Line Chart
+const lineCtx = document.getElementById('lineChart').getContext('2d');
+const lineGradient = lineCtx.createLinearGradient(0, 0, 0, 160);
+lineGradient.addColorStop(0, 'rgba(13,148,136,0.25)');
+lineGradient.addColorStop(1, 'rgba(13,148,136,0.0)');
+
+new Chart(lineCtx, {
+  type: 'line',
+  data: {
+    labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+    datasets: [{
+      label: 'Payroll (₹L)',
+      data: [36.2, 38.5, 41.8, 39.4, 41.2, 42.6],
+      borderColor: '#0d9488',
+      borderWidth: 2.5,
+      backgroundColor: lineGradient,
+      fill: true,
+      tension: 0.45,
+      pointBackgroundColor: '#0d9488',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: {
+      backgroundColor: '#0f172a', titleColor: '#94a3b8', bodyColor: '#fff',
+      padding: 10, cornerRadius: 8,
+      callbacks: { label: ctx => ' ₹' + ctx.raw + 'L' }
+    }},
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10, family: 'DM Sans' }, color: '#94a3b8' } },
+      y: { grid: { color: '#f1f5f9', drawBorder: false }, ticks: { font: { size: 10, family: 'DM Sans' }, color: '#94a3b8', callback: v => '₹' + v + 'L' } }
+    }
+  }
+});
+
+// Donut Chart
+const donutCtx = document.getElementById('donutChart').getContext('2d');
+new Chart(donutCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Engineering', 'Sales', 'Operations', 'HR & Admin'],
+    datasets: [{
+      data: [18.4, 9.2, 8.6, 6.4],
+      backgroundColor: ['#0d9488', '#f59e0b', '#7c3aed', '#f43f5e'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '72%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0f172a', titleColor: '#94a3b8', bodyColor: '#fff',
+        padding: 10, cornerRadius: 8,
+        callbacks: { label: ctx => ' ₹' + ctx.raw + 'L' }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

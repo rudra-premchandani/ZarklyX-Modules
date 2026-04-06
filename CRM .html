@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZarklyX CRM Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: #f8fafc; margin: 0; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+
+  @keyframes dropIn { from { opacity:0; transform:translateY(-6px) scale(0.97);} to { opacity:1; transform:translateY(0) scale(1);} }
+  @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+  @keyframes slideUp { from { opacity:0; transform:translateY(12px) scale(0.98);} to { opacity:1; transform:translateY(0) scale(1);} }
+
+  .dropdown-menu { display:none; position:absolute; top:calc(100% + 6px); z-index:50; background:#fff; border:1px solid #f1f5f9; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,.08); padding:6px 0; min-width:160px; }
+  .dropdown-menu.open { display:block; animation: dropIn 0.12s ease-out; }
+  .dropdown-menu.align-right { right:0; left:auto; }
+  .dropdown-item { display:block; width:100%; text-align:left; padding:8px 14px; font-size:13px; color:#374151; cursor:pointer; border:none; background:none; transition:background .12s; font-family:inherit; }
+  .dropdown-item:hover { background:#f9fafb; }
+  .dropdown-item.active { background:#eef2ff; color:#4f46e5; font-weight:600; }
+
+  .modal-overlay { display:none; position:fixed; inset:0; z-index:50; align-items:center; justify-content:center; padding:16px; }
+  .modal-overlay.open { display:flex; animation: fadeIn 0.15s ease-out; }
+  .modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(4px); }
+  .modal-box { position:relative; background:#fff; border-radius:16px; box-shadow:0 25px 50px rgba(0,0,0,.15); width:100%; max-width:640px; max-height:88vh; overflow-y:auto; z-index:10; animation: slideUp 0.2s ease-out; }
+  .modal-box.narrow { max-width:420px; }
+  .modal-header { position:sticky; top:0; background:#fff; display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:1px solid #f1f5f9; border-radius:16px 16px 0 0; z-index:10; }
+  .modal-body { padding:24px; }
+
+  .tab-btn { padding:10px 12px; font-size:13px; font-weight:500; border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; color:#6b7280; transition:color .15s, border-color .15s; font-family:inherit; }
+  .tab-btn.active { border-bottom-color:#4f46e5; color:#4f46e5; }
+
+  .kanban-col { flex:1; min-width:175px; border-radius:12px; background:#f9fafb; transition:all .2s; }
+  .kcard { background:#fff; border:1px solid #f1f5f9; border-radius:12px; padding:14px; cursor:grab; transition:all .15s; user-select:none; margin-bottom:8px; }
+  .kcard:hover { box-shadow:0 4px 12px rgba(0,0,0,.07); border-color:#e0e7ff; transform:translateY(-2px); }
+  .kcard:active { cursor:grabbing; }
+  .kcard.dragging { opacity:.5; }
+
+  .kpi-card { background:#fff; border:1px solid #f1f5f9; border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.04); transition:all .15s; cursor:default; }
+  .kpi-card:hover { box-shadow:0 4px 14px rgba(0,0,0,.08); transform:translateY(-2px); }
+
+  .badge { display:inline-flex; align-items:center; padding:2px 10px; border-radius:9999px; font-size:11px; font-weight:600; }
+  .badge-green  { background:#d1fae5; color:#065f46; }
+  .badge-red    { background:#fee2e2; color:#b91c1c; }
+  .badge-yellow { background:#fef3c7; color:#92400e; }
+  .badge-blue   { background:#e0e7ff; color:#3730a3; }
+  .badge-purple { background:#ede9fe; color:#5b21b6; }
+  .badge-orange { background:#ffedd5; color:#9a3412; }
+  .badge-gray   { background:#f3f4f6; color:#374151; }
+
+  .avatar { border-radius:9999px; background:linear-gradient(135deg,#818cf8,#a78bfa); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; flex-shrink:0; }
+  .avatar-sm { width:24px; height:24px; font-size:9px; }
+  .avatar-md { width:32px; height:32px; font-size:11px; }
+
+  .nav-btn { display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px; border-radius:8px; border:none; background:none; font-size:13px; font-weight:500; cursor:pointer; transition:all .15s; color:#4b5563; text-align:left; font-family:inherit; }
+  .nav-btn:hover { background:#f9fafb; color:#1f2937; }
+  .nav-btn.active { background:#eef2ff; color:#4f46e5; }
+  .nav-btn .nav-icon { color:#9ca3af; flex-shrink:0; }
+  .nav-btn.active .nav-icon { color:#6366f1; }
+
+  .funnel-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 4px; border-radius:8px; border:none; cursor:pointer; font-size:11px; font-weight:600; transition:all .15s; font-family:inherit; }
+
+  #sidebar { position:fixed; left:0; top:0; bottom:0; width:224px; z-index:20; }
+  #topbar  { position:fixed; top:0; left:224px; right:0; height:60px; z-index:10; }
+  #main    { margin-left:224px; padding-top:60px; }
+
+  .topbar-btn { display:flex; align-items:center; gap:6px; padding:8px 12px; font-size:13px; border:1px solid #e5e7eb; border-radius:8px; background:#fff; color:#374151; cursor:pointer; font-family:inherit; white-space:nowrap; transition:background .12s; }
+  .topbar-btn:hover { background:#f9fafb; }
+
+  .trow:hover { background:rgba(99,102,241,.03); }
+
+  input:focus, select:focus { border-color:#a5b4fc !important; box-shadow:0 0 0 3px rgba(165,180,252,.2) !important; outline:none; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar" style="background:#fff; border-right:1px solid #f1f5f9; display:flex; flex-direction:column;">
+  <div style="display:flex;align-items:center;gap:10px;padding:0 20px;height:60px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
+    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(99,102,241,.35);flex-shrink:0;">
+      <span style="color:#fff;font-weight:700;font-size:14px;">Z</span>
+    </div>
+    <span style="font-weight:700;font-size:17px;letter-spacing:-.02em;color:#111827;">ZarklyX</span>
+  </div>
+  <nav style="flex:1;padding:16px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;">
+    <button class="nav-btn active" data-nav="dashboard" onclick="navigate('dashboard')">
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" data-nav="leads" onclick="navigate('leads')">
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Leads
+    </button>
+    <button class="nav-btn" data-nav="deals" onclick="navigate('deals')">
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      Deals / Opportunities
+    </button>
+    <button class="nav-btn" data-nav="customers" onclick="navigate('customers')">
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Customers
+    </button>
+    <button class="nav-btn" data-nav="activities" onclick="navigate('activities')">
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Activities
+    </button>
+    <button class="nav-btn" data-nav="reports" onclick="navigate('reports')">
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </button>
+    <button class="nav-btn" data-nav="tasks" onclick="navigate('tasks')">
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Tasks
+    </button>
+  </nav>
+  <div style="padding:12px 10px 16px;border-top:1px solid #f1f5f9;">
+    <button class="nav-btn">
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>
+      Settings
+    </button>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header id="topbar" style="background:#fff;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;padding:0 24px;gap:12px;">
+  <div style="position:relative;margin-right:4px;">
+    <svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="searchInput" oninput="applyFilters()" placeholder="Search deals, leads…"
+      style="padding:8px 16px 8px 32px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;width:224px;font-family:inherit;"/>
+  </div>
+
+  <div style="position:relative;">
+    <button class="topbar-btn" onclick="toggleDropdown('ddDate')">
+      Date Range <svg width="12" height="12" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="ddDate" class="dropdown-menu">
+      <button class="dropdown-item active" onclick="selectFilter('ddDate','dateRange',this)">Last 7 days</button>
+      <button class="dropdown-item" onclick="selectFilter('ddDate','dateRange',this)">Last 30 days</button>
+      <button class="dropdown-item" onclick="selectFilter('ddDate','dateRange',this)">Last Quarter</button>
+      <button class="dropdown-item" onclick="selectFilter('ddDate','dateRange',this)">This Year</button>
+      <button class="dropdown-item" onclick="selectFilter('ddDate','dateRange',this)">Custom Range</button>
+    </div>
+  </div>
+
+  <div style="position:relative;">
+    <button class="topbar-btn" onclick="toggleDropdown('ddRep')">
+      Sales Rep <svg width="12" height="12" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="ddRep" class="dropdown-menu">
+      <button class="dropdown-item active" onclick="selectFilter('ddRep','salesRep',this)">All Reps</button>
+      <button class="dropdown-item" onclick="selectFilter('ddRep','salesRep',this)">Alex Thompson</button>
+      <button class="dropdown-item" onclick="selectFilter('ddRep','salesRep',this)">Sarah Chen</button>
+      <button class="dropdown-item" onclick="selectFilter('ddRep','salesRep',this)">Marcus Johnson</button>
+      <button class="dropdown-item" onclick="selectFilter('ddRep','salesRep',this)">Lisa Park</button>
+    </div>
+  </div>
+
+  <div style="position:relative;">
+    <button class="topbar-btn" onclick="toggleDropdown('ddRegion')">
+      Region <svg width="12" height="12" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="ddRegion" class="dropdown-menu">
+      <button class="dropdown-item active" onclick="selectFilter('ddRegion','region',this)">All Regions</button>
+      <button class="dropdown-item" onclick="selectFilter('ddRegion','region',this)">North America</button>
+      <button class="dropdown-item" onclick="selectFilter('ddRegion','region',this)">Europe</button>
+      <button class="dropdown-item" onclick="selectFilter('ddRegion','region',this)">Asia Pacific</button>
+      <button class="dropdown-item" onclick="selectFilter('ddRegion','region',this)">LATAM</button>
+    </div>
+  </div>
+
+  <div style="flex:1;"></div>
+
+  <!-- Notifications -->
+  <div style="position:relative;">
+    <button onclick="toggleDropdown('ddNotif')" style="position:relative;padding:8px;border-radius:8px;border:none;background:none;cursor:pointer;color:#6b7280;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span id="notifBadge" style="position:absolute;top:4px;right:4px;width:16px;height:16px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center;">2</span>
+    </button>
+    <div id="ddNotif" class="dropdown-menu align-right" style="min-width:300px;">
+      <div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9;">
+        <span style="font-weight:600;font-size:13px;color:#111827;">Notifications</span>
+        <button onclick="markAllRead()" style="font-size:12px;color:#4f46e5;border:none;background:none;cursor:pointer;font-family:inherit;">Mark all read</button>
+      </div>
+      <div id="notifList"></div>
+    </div>
+  </div>
+
+  <!-- User -->
+  <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-left:1px solid #f1f5f9;margin-left:4px;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
+    <div class="avatar avatar-md">AT</div>
+    <div>
+      <p style="font-size:13px;font-weight:600;color:#111827;line-height:1;margin:0;">Alex Thompson</p>
+      <p style="font-size:11px;color:#9ca3af;margin:2px 0 0;">Admin</p>
+    </div>
+    <svg width="12" height="12" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main id="main">
+  <div style="padding:24px;max-width:1600px;display:flex;flex-direction:column;gap:20px;">
+
+    <!-- Breadcrumb -->
+    <div id="breadcrumb" style="display:flex;align-items:center;gap:6px;font-size:12px;color:#9ca3af;">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>/</span>
+      <span style="color:#374151;font-weight:600;">Dashboard</span>
+    </div>
+
+    <!-- KPI -->
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:16px;">
+      <div class="kpi-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;font-weight:500;margin:0;">Total Leads</p></div>
+        <p style="font-size:20px;font-weight:700;color:#111827;margin:0 0 4px;font-variant-numeric:tabular-nums;">1,513</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#059669;">▲ 29.88%</span>
+          <canvas id="sp0" width="90" height="32"></canvas>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;font-weight:500;margin:0;">Total Deals</p></div>
+        <p style="font-size:20px;font-weight:700;color:#111827;margin:0 0 4px;">146</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#059669;">▲ 18.87%</span>
+          <canvas id="sp1" width="90" height="32"></canvas>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;font-weight:500;margin:0;">Pipeline Value</p></div>
+        <p style="font-size:20px;font-weight:700;color:#111827;margin:0 0 4px;">$35,816</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#ef4444;">▼ 10.88%</span>
+          <canvas id="sp2" width="90" height="32"></canvas>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;font-weight:500;margin:0;">Revenue (MTD)</p></div>
+        <p style="font-size:20px;font-weight:700;color:#111827;margin:0 0 4px;">$102K</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#059669;">▲ 23.83%</span>
+          <canvas id="sp3" width="90" height="32"></canvas>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;font-weight:500;margin:0;">Conversion Rate</p></div>
+        <p style="font-size:20px;font-weight:700;color:#111827;margin:0 0 4px;">40.3%</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#ef4444;">▼ 0.92%</span>
+          <canvas id="sp4" width="90" height="32"></canvas>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;font-weight:500;margin:0;">Active Customers</p></div>
+        <p style="font-size:20px;font-weight:700;color:#111827;margin:0 0 4px;">63</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#059669;">▲ 18.67%</span>
+          <canvas id="sp5" width="90" height="32"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts + Funnel -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <!-- Revenue Chart -->
+        <div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="font-size:13px;font-weight:600;color:#111827;margin:0;">Revenue Trend</h3>
+            <span style="font-size:11px;background:#d1fae5;color:#065f46;font-weight:600;padding:4px 10px;border-radius:9999px;">+70% YoY</span>
+          </div>
+          <div style="height:190px;"><canvas id="revenueChart"></canvas></div>
+        </div>
+        <!-- Funnel -->
+        <div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);">
+          <p style="font-size:11px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px;">Sales Funnel — click to filter</p>
+          <div id="funnelBar" style="display:flex;gap:6px;"></div>
+        </div>
+      </div>
+      <!-- Source Chart -->
+      <div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <h3 style="font-size:13px;font-weight:600;color:#111827;margin:0;">Leads by Source</h3>
+          <span style="font-size:11px;background:#e0e7ff;color:#3730a3;font-weight:600;padding:4px 10px;border-radius:9999px;">30% Direct</span>
+        </div>
+        <div style="height:230px;display:flex;align-items:center;justify-content:center;"><canvas id="sourceChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Kanban + Activity -->
+    <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;align-items:start;">
+      <div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f1f5f9;">
+          <h3 style="font-size:13px;font-weight:600;color:#111827;margin:0;">Sales Pipeline Kanban</h3>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#9ca3af;cursor:pointer;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>PDF / CSV</span>
+          </div>
+        </div>
+        <div style="padding:16px;overflow-x:auto;">
+          <div id="kanbanBoard" style="display:flex;gap:12px;min-width:800px;"></div>
+        </div>
+      </div>
+      <!-- Activity Panel -->
+      <div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f1f5f9;">
+          <h3 style="font-size:13px;font-weight:600;color:#111827;margin:0;">Activities Panel</h3>
+        </div>
+        <div style="display:flex;border-bottom:1px solid #f1f5f9;">
+          <button class="tab-btn active" onclick="switchActivityTab('activity',this)" style="flex:1;">Feed</button>
+          <button class="tab-btn" onclick="switchActivityTab('meetings',this)" style="flex:1;">Meetings</button>
+          <button class="tab-btn" onclick="switchActivityTab('tasks',this)" style="flex:1;">Tasks</button>
+        </div>
+        <div id="activityFeed" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;max-height:320px;"></div>
+        <div style="padding:12px;border-top:1px solid #f1f5f9;">
+          <button onclick="openAddModal()" style="width:100%;padding:10px;font-size:13px;font-weight:600;color:#4f46e5;border:1px solid #c7d2fe;border-radius:12px;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='none'">
+            + Add Activity
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tables -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f1f5f9;">
+          <h3 style="font-size:13px;font-weight:600;color:#111827;margin:0;">Recent Leads</h3>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead style="background:#f9fafb;border-bottom:1px solid #f1f5f9;">
+              <tr>
+                <th onclick="sortLeads('contact')" style="text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;cursor:pointer;">Name</th>
+                <th onclick="sortLeads('source')" style="text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;cursor:pointer;">Source</th>
+                <th onclick="sortLeads('stageId')" style="text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;cursor:pointer;">Status</th>
+                <th style="text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;">Owner</th>
+                <th style="text-align:right;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #f1f5f9;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f1f5f9;">
+          <h3 style="font-size:13px;font-weight:600;color:#111827;margin:0;">Recent Deals</h3>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead style="background:#f9fafb;border-bottom:1px solid #f1f5f9;">
+              <tr>
+                <th onclick="sortDeals('name')" style="text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;cursor:pointer;">Deal Name</th>
+                <th onclick="sortDeals('stageId')" style="text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;cursor:pointer;">Stage</th>
+                <th onclick="sortDeals('amount')" style="text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;cursor:pointer;">Value</th>
+                <th style="text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;">Owner</th>
+                <th style="text-align:right;font-size:11px;font-weight:600;color:#6b7280;padding:12px 16px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dealsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- DEAL MODAL -->
+<div id="dealModal" class="modal-overlay">
+  <div class="modal-backdrop" onclick="closeDealModal()"></div>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="dealModalTitle" style="font-size:15px;font-weight:600;color:#111827;margin:0;"></h2>
+      <button onclick="closeDealModal()" style="padding:6px;border-radius:8px;border:none;background:none;cursor:pointer;color:#9ca3af;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="dealModalMeta" style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;"></div>
+      <div style="display:flex;gap:2px;margin-bottom:20px;border-bottom:1px solid #f1f5f9;">
+        <button class="tab-btn active" onclick="switchDealTab('overview',this)">overview</button>
+        <button class="tab-btn" onclick="switchDealTab('tasks',this)" id="dealTasksTabBtn">tasks</button>
+        <button class="tab-btn" onclick="switchDealTab('meetings',this)" id="dealMeetingsTabBtn">meetings</button>
+        <button class="tab-btn" onclick="switchDealTab('activity',this)">activity</button>
+      </div>
+      <div id="dealModalContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ACTIVITY MODAL -->
+<div id="addModal" class="modal-overlay">
+  <div class="modal-backdrop" onclick="closeAddModal()"></div>
+  <div class="modal-box narrow">
+    <div class="modal-header">
+      <h2 style="font-size:15px;font-weight:600;color:#111827;margin:0;">Add Activity</h2>
+      <button onclick="closeAddModal()" style="padding:6px;border-radius:8px;border:none;background:none;cursor:pointer;color:#9ca3af;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:16px;">
+        <button id="typeTask" onclick="setActivityType('task')" style="flex:1;padding:10px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#4f46e5;color:#fff;font-family:inherit;">✅ Task</button>
+        <button id="typeMeeting" onclick="setActivityType('meeting')" style="flex:1;padding:10px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#fff;color:#6b7280;font-family:inherit;">📅 Meeting</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Deal</label>
+          <select id="addLeadSelect" style="width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;font-size:13px;font-family:inherit;"></select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Title</label>
+          <input id="addTitle" placeholder="Enter title…" style="width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;font-size:13px;font-family:inherit;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Date</label>
+            <input id="addDate" type="date" style="width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;font-size:13px;font-family:inherit;">
+          </div>
+          <div id="addExtraField">
+            <label style="display:block;font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Priority</label>
+            <select id="addPriority" style="width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;font-size:13px;font-family:inherit;">
+              <option value="high">🔴 High</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;padding-top:4px;">
+          <button onclick="closeAddModal()" style="flex:1;padding:10px;font-size:13px;font-weight:600;color:#374151;background:#f3f4f6;border:none;border-radius:12px;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">Cancel</button>
+          <button onclick="submitActivity()" id="addSubmitBtn" style="flex:1;padding:10px;font-size:13px;font-weight:600;color:#fff;background:#4f46e5;border:none;border-radius:12px;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">Add Task</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const STAGES = [
+  { id:"prospecting",  name:"Prospecting",  color:"#6366f1", bg:"#eef2ff" },
+  { id:"qualification",name:"Qualification",color:"#8b5cf6", bg:"#f5f3ff" },
+  { id:"proposal",     name:"Proposal",     color:"#f59e0b", bg:"#fffbeb" },
+  { id:"negotiation",  name:"Negotiation",  color:"#f97316", bg:"#fff7ed" },
+  { id:"closed",       name:"Closed",       color:"#10b981", bg:"#ecfdf5" },
+];
+
+let leads = [
+  { id:"l1",  name:"Acme Corp Deal",      amount:45000,  stageId:"prospecting",  assignee:"Alex Thompson",  probability:20,  company:"Acme Corp",        contact:"John Smith",       email:"john@acme.com",         phone:"+1 555 0101",      source:"Organic",  region:"North America", createdAt:"Jan 17, 2023", closeDate:"Mar 15, 2024" },
+  { id:"l2",  name:"TechStart Series",    amount:82000,  stageId:"qualification",assignee:"Sarah Chen",     probability:45,  company:"TechStart Inc",     contact:"Emma Wilson",      email:"emma@techstart.com",    phone:"+1 555 0102",      source:"Paid Ads", region:"Europe",        createdAt:"Jan 18, 2023", closeDate:"Feb 28, 2024" },
+  { id:"l3",  name:"Global Retail RFP",   amount:120000, stageId:"proposal",     assignee:"Marcus Johnson", probability:65,  company:"Global Retail Co",  contact:"David Lee",        email:"david@globalretail.com",phone:"+44 20 7946 0958", source:"Referral", region:"Europe",        createdAt:"Jan 20, 2023", closeDate:"Apr 10, 2024" },
+  { id:"l4",  name:"MedTech Integration", amount:67500,  stageId:"negotiation",  assignee:"Lisa Park",      probability:80,  company:"MedTech Solutions", contact:"Anna Rodriguez",   email:"anna@medtech.com",      phone:"+1 555 0104",      source:"Direct",   region:"North America", createdAt:"Jan 22, 2023", closeDate:"Dec 30, 2023" },
+  { id:"l5",  name:"FinEdge Platform",    amount:95000,  stageId:"closed",       assignee:"Alex Thompson",  probability:100, company:"FinEdge Ltd",       contact:"Chris Wang",       email:"chris@finedge.com",     phone:"+852 2000 0001",   source:"Organic",  region:"Asia Pacific",  createdAt:"Dec 13, 2023", closeDate:"Dec 13, 2023" },
+  { id:"l6",  name:"RetailX Expansion",   amount:33000,  stageId:"qualification",assignee:"Sarah Chen",     probability:40,  company:"RetailX Corp",      contact:"Michael Brown",    email:"michael@retailx.com",   phone:"+1 555 0106",      source:"Paid Ads", region:"LATAM",         createdAt:"Jan 25, 2023", closeDate:"Mar 22, 2024" },
+  { id:"l7",  name:"CloudBase SaaS",      amount:58000,  stageId:"prospecting",  assignee:"Marcus Johnson", probability:15,  company:"CloudBase Ltd",     contact:"Jennifer Davis",   email:"jen@cloudbase.io",      phone:"+1 555 0107",      source:"Organic",  region:"North America", createdAt:"Jan 28, 2023", closeDate:"May 1, 2024"  },
+  { id:"l8",  name:"DataSync Enterprise", amount:145000, stageId:"proposal",     assignee:"Lisa Park",      probability:70,  company:"DataSync Inc",      contact:"Robert Chen",      email:"robert@datasync.com",   phone:"+1 555 0108",      source:"Referral", region:"North America", createdAt:"Feb 1, 2023",  closeDate:"Jan 15, 2024" },
+  { id:"l9",  name:"AutoFlow CRM",        amount:27000,  stageId:"negotiation",  assignee:"Alex Thompson",  probability:85,  company:"AutoFlow Systems",  contact:"Patricia Martinez",email:"pat@autoflow.com",      phone:"+34 91 000 0001",  source:"Direct",   region:"Europe",        createdAt:"Feb 5, 2023",  closeDate:"Dec 20, 2023" },
+  { id:"l10", name:"Nexus Analytics",     amount:76000,  stageId:"closed",       assignee:"Sarah Chen",     probability:100, company:"Nexus Analytics",   contact:"Kevin Park",       email:"kevin@nexus.com",       phone:"+1 555 0110",      source:"Organic",  region:"Asia Pacific",  createdAt:"Sep 13, 2023", closeDate:"Sep 13, 2023" },
+];
+
+let tasks = [
+  { id:"t1", leadId:"l1", title:"Follow-up call with Acme",  dueDate:"2024-01-15", status:"pending", priority:"high"   },
+  { id:"t2", leadId:"l3", title:"Send proposal document",    dueDate:"2024-01-10", status:"overdue", priority:"high"   },
+  { id:"t3", leadId:"l4", title:"Review contract terms",     dueDate:"2024-01-20", status:"pending", priority:"medium" },
+  { id:"t4", leadId:"l2", title:"Schedule demo call",        dueDate:"2024-01-25", status:"done",    priority:"low"    },
+  { id:"t5", leadId:"l8", title:"Prepare pricing deck",      dueDate:"2024-01-18", status:"pending", priority:"high"   },
+];
+
+let meetings = [
+  { id:"m1", leadId:"l1", title:"Discovery call — Acme Corp",time:"2:00 PM",  date:"2024-01-15", attendees:"Alex Thompson, John Smith"   },
+  { id:"m2", leadId:"l3", title:"Proposal walkthrough",      time:"10:00 AM", date:"2024-01-18", attendees:"Marcus Johnson, David Lee"    },
+  { id:"m3", leadId:"l4", title:"Negotiation session",       time:"3:30 PM",  date:"2024-01-12", attendees:"Lisa Park, Anna Rodriguez"    },
+];
+
+let activities = [
+  { id:"a1", type:"deal",    message:"FinEdge Platform moved to Closed Won",      time:"2 hours ago", icon:"🎉" },
+  { id:"a2", type:"task",    message:"Task 'Send proposal document' is overdue",  time:"3 hours ago", icon:"⚠️" },
+  { id:"a3", type:"meeting", message:"Meeting scheduled with Acme Corp",          time:"5 hours ago", icon:"📅" },
+  { id:"a4", type:"deal",    message:"MedTech Integration moved to Negotiation",  time:"1 day ago",   icon:"🔄" },
+  { id:"a5", type:"note",    message:"New lead: CloudBase SaaS added",            time:"1 day ago",   icon:"📝" },
+  { id:"a6", type:"deal",    message:"DataSync Enterprise moved to Proposal",     time:"2 days ago",  icon:"📋" },
+];
+
+let notifications = [
+  { id:"n1", type:"warning", message:"Follow-up due: Acme Corp Deal",        time:"10 min ago", read:false },
+  { id:"n2", type:"error",   message:"Overdue task: Send proposal document", time:"3 hrs ago",  read:false },
+  { id:"n3", type:"success", message:"Deal closed: FinEdge Platform ($95K)", time:"2 hrs ago",  read:true  },
+  { id:"n4", type:"info",    message:"Meeting in 1 hour: DataSync Inc",      time:"Today",      read:true  },
+  { id:"n5", type:"warning", message:"AutoFlow CRM closing Dec 20",          time:"Yesterday",  read:true  },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let filters = { salesRep:"All Reps", region:"All Regions", search:"", stageFilter:null };
+let currentLead = null;
+let currentDealTab = "overview";
+let currentActivityTab = "activity";
+let activityType = "task";
+let leadsSortCol = "createdAt", leadsSortDir = "desc";
+let dealsSortCol = "amount",    dealsSortDir = "desc";
+let dragId = null;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const fmt  = v => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(v);
+const fmtK = v => v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v}`;
+const initials = s => s.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
+
+function badge(text, color) {
+  return `<span class="badge badge-${color}">${text}</span>`;
+}
+function stageBadgeColor(id) {
+  return {prospecting:"blue",qualification:"purple",proposal:"yellow",negotiation:"orange",closed:"green"}[id]||"gray";
+}
+function avatar(name, size="sm") {
+  const sz = size==="sm"?"24px":"32px", fs = size==="sm"?"9px":"11px";
+  return `<div class="avatar" style="width:${sz};height:${sz};font-size:${fs};">${initials(name)}</div>`;
+}
+function getFiltered() {
+  const s = filters.search.toLowerCase();
+  return leads.filter(l =>
+    (!s || l.name.toLowerCase().includes(s) || l.company.toLowerCase().includes(s) || l.contact.toLowerCase().includes(s)) &&
+    (filters.salesRep==="All Reps"    || l.assignee===filters.salesRep) &&
+    (filters.region==="All Regions"   || l.region===filters.region) &&
+    (!filters.stageFilter             || l.stageId===filters.stageFilter)
+  );
+}
+function pushActivity(obj) {
+  activities.unshift({ id:"a"+Date.now(), ...obj });
+  if (currentActivityTab==="activity") renderActivityFeed();
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-nav="${page}"]`)?.classList.add('active');
+}
+
+// ── DROPDOWNS ─────────────────────────────────────────────────────────────────
+function toggleDropdown(id) {
+  const el = document.getElementById(id);
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.dropdown-menu').forEach(d=>d.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
+}
+function selectFilter(ddId, key, btn) {
+  filters[key] = btn.textContent.trim();
+  document.querySelectorAll(`#${ddId} .dropdown-item`).forEach(i=>i.classList.remove('active'));
+  btn.classList.add('active');
+  toggleDropdown(ddId);
+  applyFilters();
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('[onclick*="toggleDropdown"]') && !e.target.closest('.dropdown-menu'))
+    document.querySelectorAll('.dropdown-menu').forEach(d=>d.classList.remove('open'));
+});
+function applyFilters() {
+  filters.search = document.getElementById('searchInput').value;
+  renderKanban(); renderFunnel(); renderLeadsTable(); renderDealsTable();
+}
+
+// ── SPARKLINES ────────────────────────────────────────────────────────────────
+const SP_UP   = [22,31,28,45,52,48,61,67,72,85,92,102];
+const SP_MID  = [15,22,18,28,35,30,38,45,40,52,48,56];
+const SP_DOWN = [45,38,42,35,30,28,32,25,30,22,28,25];
+
+function drawSparkline(canvasId, data, color) {
+  const c = document.getElementById(canvasId);
+  if (!c) return;
+  const ctx = c.getContext('2d'), w = c.width, h = c.height;
+  ctx.clearRect(0,0,w,h);
+  const mx=Math.max(...data), mn=Math.min(...data), range=mx-mn||1;
+  ctx.beginPath();
+  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.lineCap='round'; ctx.lineJoin='round';
+  data.forEach((v,i)=>{ const x=(i/(data.length-1))*w, y=h-((v-mn)/range)*(h-4)-2; i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+  ctx.stroke();
+}
+
+function initSparklines() {
+  drawSparkline('sp0',SP_UP,'#10b981');
+  drawSparkline('sp1',SP_MID,'#10b981');
+  drawSparkline('sp2',SP_DOWN,'#ef4444');
+  drawSparkline('sp3',SP_UP,'#10b981');
+  drawSparkline('sp4',SP_MID,'#ef4444');
+  drawSparkline('sp5',SP_UP,'#10b981');
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────────
+function initRevenueChart() {
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  const g = ctx.createLinearGradient(0,0,0,190);
+  g.addColorStop(0,'rgba(99,102,241,.15)'); g.addColorStop(1,'rgba(99,102,241,0)');
+  new Chart(ctx, {
+    type:'line',
+    data:{
+      labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      datasets:[
+        { label:'Revenue', data:[22000,31000,28000,45000,52000,48000,61000,67000,72000,85000,92000,102000], borderColor:'#6366f1', borderWidth:2, backgroundColor:g, fill:true, tension:.4, pointRadius:2.5, pointBackgroundColor:'#6366f1', pointBorderWidth:0, pointHoverRadius:5 },
+        { label:'Leads', data:[45,52,61,78,89,95,102,118,125,134,142,156], borderColor:'#10b981', borderWidth:1.5, backgroundColor:'transparent', tension:.4, pointRadius:0, pointHoverRadius:4, yAxisID:'y2' }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>ctx.datasetIndex===0?fmt(ctx.raw):ctx.raw+' leads' }} },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:11},color:'#9ca3af'}, border:{display:false} },
+        y:{ grid:{color:'#f3f4f6',drawTicks:false}, ticks:{font:{size:11},color:'#9ca3af',callback:v=>`$${v/1000}k`}, border:{display:false} },
+        y2:{ display:false }
+      }
+    }
+  });
+}
+
+function initSourceChart() {
+  const ctx = document.getElementById('sourceChart').getContext('2d');
+  new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels:['Organic','Paid Ads','Referral','Direct'],
+      datasets:[{ data:[42,28,18,12], backgroundColor:['#6366f1','#f59e0b','#10b981','#f97316'], borderWidth:0, hoverOffset:6 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins:{
+        legend:{ position:'bottom', labels:{font:{size:11},color:'#6b7280',usePointStyle:true,pointStyle:'circle',padding:12} },
+        tooltip:{ callbacks:{ label:ctx=>` ${ctx.label}: ${ctx.raw}%` } }
+      }
+    }
+  });
+}
+
+// ── FUNNEL ────────────────────────────────────────────────────────────────────
+function renderFunnel() {
+  const bar = document.getElementById('funnelBar');
+  bar.innerHTML = '';
+  const filtered = getFiltered();
+  STAGES.forEach(s => {
+    const count = filtered.filter(l=>l.stageId===s.id).length;
+    const isActive = filters.stageFilter===s.id;
+    const btn = document.createElement('button');
+    btn.className = 'funnel-btn';
+    btn.style.cssText = `background:${isActive?s.color:s.bg};color:${isActive?'#fff':s.color};${isActive?'box-shadow:0 4px 12px rgba(0,0,0,.15);':''}`;
+    btn.innerHTML = `${s.name}<span style="padding:2px 6px;border-radius:9999px;font-size:10px;font-weight:700;margin-left:4px;background:${isActive?'rgba(255,255,255,.25)':'rgba(255,255,255,.7)'};">${count}</span>`;
+    btn.onclick = () => {
+      filters.stageFilter = isActive ? null : s.id;
+      renderFunnel(); renderKanban(); renderLeadsTable(); renderDealsTable(); updateBreadcrumb();
+    };
+    bar.appendChild(btn);
+  });
+}
+
+function updateBreadcrumb() {
+  const bc = document.getElementById('breadcrumb');
+  if (filters.stageFilter) {
+    const s = STAGES.find(x=>x.id===filters.stageFilter);
+    bc.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>/</span><span style="color:#374151;font-weight:600;">Dashboard</span><span>/</span><span style="color:#4f46e5;font-weight:600;">${s.name}</span><button onclick="filters.stageFilter=null;renderFunnel();renderKanban();renderLeadsTable();renderDealsTable();updateBreadcrumb();" style="border:none;background:none;cursor:pointer;color:#9ca3af;padding:0 2px;margin-left:2px;font-size:12px;">✕</button>`;
+  } else {
+    bc.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>/</span><span style="color:#374151;font-weight:600;">Dashboard</span>`;
+  }
+}
+
+// ── KANBAN ────────────────────────────────────────────────────────────────────
+function renderKanban() {
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = '';
+  const filtered = getFiltered();
+  STAGES.forEach(s => {
+    const sl = filtered.filter(l=>l.stageId===s.id);
+    const total = sl.reduce((sum,l)=>sum+l.amount,0);
+    const col = document.createElement('div');
+    col.className = 'kanban-col';
+    col.dataset.stageId = s.id;
+    col.innerHTML = `
+      <div style="padding:10px 12px;border-bottom:1px solid rgba(0,0,0,.06);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:${s.color};"></div>
+            <span style="font-size:12px;font-weight:600;color:#374151;">${s.name}</span>
+          </div>
+          <span style="font-size:11px;color:#6b7280;background:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.08);">${sl.length}</span>
+        </div>
+        <p style="font-size:11px;font-weight:600;margin:0;padding-left:16px;color:${s.color};">${fmtK(total)}</p>
+      </div>
+      <div class="kcard-list" style="padding:8px;min-height:100px;" data-stage="${s.id}">
+        ${sl.map(l=>makeKCard(l)).join('')}
+      </div>`;
+    setupDrop(col, s);
+    board.appendChild(col);
+    col.querySelectorAll('.kcard').forEach(c=>setupDrag(c));
+  });
+}
+
+function makeKCard(l) {
+  const pc = l.probability>=70?'color:#059669;background:#d1fae5':l.probability>=40?'color:#d97706;background:#fef3c7':'color:#6b7280;background:#f3f4f6';
+  return `<div class="kcard" draggable="true" data-lead-id="${l.id}" onclick="openDealModal('${l.id}')">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+      <p style="font-size:12px;font-weight:600;color:#111827;margin:0;line-height:1.35;flex:1;">${l.name}</p>
+    </div>
+    <p style="font-size:13px;font-weight:700;color:#1f2937;margin:0 0 10px;">${fmtK(l.amount)}</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:6px;">${avatar(l.assignee,'sm')}<span style="font-size:11px;color:#6b7280;font-weight:500;">${l.assignee.split(' ')[0]}</span></div>
+      <span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:9999px;${pc}">${l.probability}%</span>
+    </div>
+  </div>`;
+}
+
+function setupDrag(card) {
+  card.addEventListener('dragstart', e => { dragId=card.dataset.leadId; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+  card.addEventListener('dragend', () => card.classList.remove('dragging'));
+}
+
+function setupDrop(col, s) {
+  col.addEventListener('dragover', e => { e.preventDefault(); col.style.boxShadow=`inset 0 0 0 2px ${s.color}`; col.style.background=s.bg; });
+  col.addEventListener('dragleave', e => { if(!col.contains(e.relatedTarget)){ col.style.boxShadow=''; col.style.background='#f9fafb'; } });
+  col.addEventListener('drop', e => {
+    e.preventDefault(); col.style.boxShadow=''; col.style.background='#f9fafb';
+    if (!dragId) return;
+    const lead = leads.find(l=>l.id===dragId);
+    if (!lead||lead.stageId===s.id) { dragId=null; return; }
+    const old = STAGES.find(x=>x.id===lead.stageId);
+    lead.stageId = s.id;
+    pushActivity({ type:"deal", message:`"${lead.name}" moved: ${old.name} → ${s.name}`, time:"Just now", icon:s.id==='closed'?'🎉':'🔄' });
+    dragId = null;
+    renderKanban(); renderFunnel(); renderLeadsTable(); renderDealsTable(); renderActivityFeed();
+  });
+}
+
+// ── ACTIVITY PANEL ────────────────────────────────────────────────────────────
+function switchActivityTab(tab, btn) {
+  currentActivityTab = tab;
+  btn.closest('[style*="border-bottom"]').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderActivityFeed();
+}
+
+function renderActivityFeed() {
+  const feed = document.getElementById('activityFeed');
+  if (currentActivityTab==='activity') {
+    feed.innerHTML = activities.slice(0,10).map(a=>`
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:8px;border-radius:8px;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+        <div style="width:28px;height:28px;border-radius:50%;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:1px solid #f1f5f9;">${a.icon}</div>
+        <div><p style="font-size:12px;color:#374151;font-weight:500;margin:0;line-height:1.4;">${a.message}</p><p style="font-size:10px;color:#9ca3af;margin:2px 0 0;">${a.time}</p></div>
+      </div>`).join('');
+  } else if (currentActivityTab==='meetings') {
+    feed.innerHTML = meetings.map(m=>`
+      <div style="padding:10px;border-radius:8px;background:#f9fafb;margin-bottom:2px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:4px;">
+          <p style="font-size:12px;font-weight:600;color:#1f2937;margin:0;line-height:1.3;">${m.title}</p>${badge('Meet','blue')}
+        </div>
+        <p style="font-size:10px;color:#9ca3af;margin:4px 0 0;">${m.date} · ${m.time}</p>
+      </div>`).join('');
+  } else {
+    feed.innerHTML = tasks.map(t=>`
+      <div style="padding:10px;border-radius:8px;background:#f9fafb;margin-bottom:2px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:4px;">
+          <p style="font-size:12px;font-weight:600;color:#1f2937;margin:0;line-height:1.3;">${t.title}</p>${badge(t.status,t.status==='done'?'green':t.status==='overdue'?'red':'yellow')}
+        </div>
+        <p style="font-size:10px;color:#9ca3af;margin:4px 0 0;">Due: ${t.dueDate}</p>
+      </div>`).join('');
+  }
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+function renderNotifications() {
+  const list = document.getElementById('notifList');
+  const dotColors = { warning:'#fbbf24', error:'#f87171', success:'#34d399', info:'#60a5fa' };
+  list.innerHTML = notifications.map(n=>`
+    <div onclick="markRead('${n.id}')" style="display:flex;align-items:flex-start;gap:12px;padding:10px 14px;cursor:pointer;background:${!n.read?'rgba(99,102,241,.04)':''};" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='${!n.read?'rgba(99,102,241,.04)':''}'">
+      <div style="width:8px;height:8px;border-radius:50%;background:${dotColors[n.type]||'#60a5fa'};flex-shrink:0;margin-top:6px;"></div>
+      <div><p style="font-size:13px;line-height:1.4;margin:0;${!n.read?'font-weight:600;color:#111827;':'color:#6b7280;'}">${n.message}</p><p style="font-size:11px;color:#9ca3af;margin:2px 0 0;">${n.time}</p></div>
+    </div>`).join('');
+  const unread = notifications.filter(n=>!n.read).length;
+  const nb = document.getElementById('notifBadge');
+  nb.textContent = unread; nb.style.display = unread>0?'flex':'none';
+}
+
+function markRead(id) { const n=notifications.find(x=>x.id===id); if(n) n.read=true; renderNotifications(); }
+function markAllRead() { notifications.forEach(n=>n.read=true); renderNotifications(); }
+
+// ── TABLES ────────────────────────────────────────────────────────────────────
+function renderLeadsTable() {
+  const filtered = getFiltered();
+  const sorted = [...filtered].sort((a,b)=>{
+    const m=leadsSortDir==='asc'?1:-1;
+    return leadsSortCol==='amount'?(a.amount-b.amount)*m:String(a[leadsSortCol]).localeCompare(String(b[leadsSortCol]))*m;
+  });
+  document.getElementById('leadsTableBody').innerHTML = sorted.slice(0,5).map(l=>`
+    <tr class="trow" onclick="openDealModal('${l.id}')" style="border-bottom:1px solid #f9fafb;cursor:pointer;transition:background .1s;">
+      <td style="padding:12px 16px;">
+        <div style="display:flex;align-items:center;gap:10px;">${avatar(l.contact,'md')}<div><p style="font-size:13px;font-weight:500;color:#1f2937;margin:0;">${l.contact}</p><p style="font-size:11px;color:#9ca3af;margin:1px 0 0;">${l.company}</p></div></div>
+      </td>
+      <td style="padding:12px 16px;font-size:13px;color:#6b7280;">${l.source}</td>
+      <td style="padding:12px 16px;">${badge(STAGES.find(s=>s.id===l.stageId)?.name,stageBadgeColor(l.stageId))}</td>
+      <td style="padding:12px 16px;font-size:13px;color:#6b7280;">${l.assignee}</td>
+      <td style="padding:12px 16px;text-align:right;" onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
+          <button onclick="openDealModal('${l.id}')" style="padding:5px 10px;font-size:11px;font-weight:600;color:#4f46e5;background:#eef2ff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'">View</button>
+          <div style="position:relative;">
+            <button onclick="toggleDropdown('asgn_${l.id}')" style="padding:5px 10px;font-size:11px;font-weight:600;color:#374151;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">Assign</button>
+            <div id="asgn_${l.id}" class="dropdown-menu align-right">
+              ${['Alex Thompson','Sarah Chen','Marcus Johnson','Lisa Park'].map(r=>`<button class="dropdown-item${l.assignee===r?' active':''}" onclick="assignLead('${l.id}','${r}','asgn_${l.id}')">${r}</button>`).join('')}
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function sortLeads(col) {
+  if(leadsSortCol===col) leadsSortDir=leadsSortDir==='asc'?'desc':'asc'; else{leadsSortCol=col;leadsSortDir='asc';} renderLeadsTable();
+}
+function assignLead(leadId, assignee, ddId) {
+  const l=leads.find(x=>x.id===leadId); if(l) l.assignee=assignee; toggleDropdown(ddId); renderLeadsTable(); renderKanban();
+}
+
+function renderDealsTable() {
+  const filtered = getFiltered();
+  const sorted = [...filtered].sort((a,b)=>{
+    const m=dealsSortDir==='asc'?1:-1;
+    return dealsSortCol==='amount'?(a.amount-b.amount)*m:String(a[dealsSortCol]).localeCompare(String(b[dealsSortCol]))*m;
+  });
+  document.getElementById('dealsTableBody').innerHTML = sorted.slice(0,5).map(l=>`
+    <tr class="trow" onclick="openDealModal('${l.id}')" style="border-bottom:1px solid #f9fafb;cursor:pointer;transition:background .1s;">
+      <td style="padding:12px 16px;font-size:13px;font-weight:600;color:#1f2937;">${l.name}</td>
+      <td style="padding:12px 16px;">${badge(STAGES.find(s=>s.id===l.stageId)?.name,stageBadgeColor(l.stageId))}</td>
+      <td style="padding:12px 16px;font-size:13px;font-weight:700;color:#1f2937;">${fmt(l.amount)}</td>
+      <td style="padding:12px 16px;font-size:13px;color:#6b7280;">${l.assignee}</td>
+      <td style="padding:12px 16px;text-align:right;" onclick="event.stopPropagation()">
+        <button onclick="openDealModal('${l.id}')" style="padding:5px 10px;font-size:11px;font-weight:600;color:#4f46e5;background:#eef2ff;border:none;border-radius:8px;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'">View</button>
+      </td>
+    </tr>`).join('');
+}
+
+function sortDeals(col) {
+  if(dealsSortCol===col) dealsSortDir=dealsSortDir==='asc'?'desc':'asc'; else{dealsSortCol=col;dealsSortDir='asc';} renderDealsTable();
+}
+
+// ── DEAL MODAL ────────────────────────────────────────────────────────────────
+function openDealModal(leadId) {
+  currentLead = leads.find(l=>l.id===leadId); if(!currentLead) return;
+  currentDealTab = 'overview';
+  document.getElementById('dealModalTitle').textContent = currentLead.name;
+  const lt = tasks.filter(t=>t.leadId===currentLead.id).length;
+  const lm = meetings.filter(m=>m.leadId===currentLead.id).length;
+  document.getElementById('dealTasksTabBtn').textContent = `tasks (${lt})`;
+  document.getElementById('dealMeetingsTabBtn').textContent = `meetings (${lm})`;
+  renderDealMeta(); renderDealContent();
+  document.getElementById('dealModal').classList.add('open');
+  document.querySelectorAll('#dealModal .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('#dealModal .tab-btn').classList.add('active');
+}
+function closeDealModal() { document.getElementById('dealModal').classList.remove('open'); currentLead=null; }
+
+function renderDealMeta() {
+  if (!currentLead) return;
+  const s = STAGES.find(x=>x.id===currentLead.stageId);
+  const pc = currentLead.probability>=70?'color:#059669':'color:#d97706';
+  document.getElementById('dealModalMeta').innerHTML = `${badge(s?.name,stageBadgeColor(currentLead.stageId))}<span style="font-size:22px;font-weight:700;color:#111827;">${fmt(currentLead.amount)}</span><span style="font-size:14px;font-weight:600;${pc}">${currentLead.probability}% win</span>`;
+}
+
+function switchDealTab(tab, btn) {
+  currentDealTab = tab;
+  btn.closest('[style*="border-bottom"]').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDealContent();
+}
+
+function renderDealContent() {
+  if (!currentLead) return;
+  const c = document.getElementById('dealModalContent');
+  const lt = tasks.filter(t=>t.leadId===currentLead.id);
+  const lm = meetings.filter(m=>m.leadId===currentLead.id);
+  if (currentDealTab==='overview') {
+    const fields = [{icon:'🏢',label:'Company',val:currentLead.company},{icon:'👤',label:'Contact',val:currentLead.contact},{icon:'✉️',label:'Email',val:currentLead.email},{icon:'📞',label:'Phone',val:currentLead.phone},{icon:'🌍',label:'Region',val:currentLead.region},{icon:'📅',label:'Close Date',val:currentLead.closeDate}];
+    c.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">${fields.map(f=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:12px;background:#f9fafb;border-radius:12px;"><span style="font-size:14px;margin-top:1px;">${f.icon}</span><div><p style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin:0;">${f.label}</p><p style="font-size:13px;color:#1f2937;font-weight:500;margin:2px 0 0;">${f.val}</p></div></div>`).join('')}</div><div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:12px;margin-top:12px;">${avatar(currentLead.assignee,'md')}<div><p style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin:0;">Assigned To</p><p style="font-size:13px;font-weight:600;color:#1f2937;margin:2px 0 0;">${currentLead.assignee}</p></div></div>`;
+  } else if (currentDealTab==='tasks') {
+    c.innerHTML = `${lt.length===0?'<p style="text-align:center;color:#9ca3af;font-size:13px;padding:32px 0;">No tasks yet</p>':''}${lt.map(t=>`<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:12px;margin-bottom:8px;"><div style="width:8px;height:8px;border-radius:50%;background:${t.status==='done'?'#34d399':t.status==='overdue'?'#f87171':'#fbbf24'};flex-shrink:0;"></div><div style="flex:1;"><p style="font-size:13px;font-weight:500;color:#1f2937;margin:0;">${t.title}</p><p style="font-size:11px;color:#9ca3af;margin:2px 0 0;">Due: ${t.dueDate}</p></div>${badge(t.status,t.status==='done'?'green':t.status==='overdue'?'red':'yellow')}</div>`).join('')}<button onclick='closeDealModal();openAddModal("task","${currentLead.id}")' style="width:100%;margin-top:4px;padding:10px;font-size:13px;font-weight:600;color:#4f46e5;border:1px dashed #c7d2fe;border-radius:12px;background:none;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='none'">+ Add Task</button>`;
+  } else if (currentDealTab==='meetings') {
+    c.innerHTML = `${lm.length===0?'<p style="text-align:center;color:#9ca3af;font-size:13px;padding:32px 0;">No meetings scheduled</p>':''}${lm.map(m=>`<div style="padding:12px;background:#f9fafb;border-radius:12px;margin-bottom:8px;"><p style="font-size:13px;font-weight:600;color:#1f2937;margin:0;">${m.title}</p><div style="display:flex;align-items:center;gap:12px;margin-top:4px;"><span style="font-size:12px;color:#9ca3af;">📅 ${m.date}</span><span style="font-size:12px;color:#9ca3af;">🕐 ${m.time}</span></div><p style="font-size:11px;color:#9ca3af;margin:4px 0 0;">${m.attendees}</p></div>`).join('')}<button onclick='closeDealModal();openAddModal("meeting","${currentLead.id}")' style="width:100%;margin-top:4px;padding:10px;font-size:13px;font-weight:600;color:#4f46e5;border:1px dashed #c7d2fe;border-radius:12px;background:none;cursor:pointer;font-family:inherit;" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='none'">+ Schedule Meeting</button>`;
+  } else {
+    c.innerHTML = activities.slice(0,10).map(a=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:10px;border-radius:10px;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''"><span style="font-size:15px;">${a.icon}</span><div><p style="font-size:13px;color:#374151;margin:0;line-height:1.4;">${a.message}</p><p style="font-size:11px;color:#9ca3af;margin:2px 0 0;">${a.time}</p></div></div>`).join('');
+  }
+}
+
+// ── ADD MODAL ─────────────────────────────────────────────────────────────────
+function openAddModal(type='task', leadId=null) {
+  activityType = type;
+  const sel = document.getElementById('addLeadSelect');
+  sel.innerHTML = leads.map(l=>`<option value="${l.id}"${l.id===leadId?' selected':''}>${l.name}</option>`).join('');
+  setActivityType(type);
+  document.getElementById('addTitle').value = '';
+  document.getElementById('addDate').value = '';
+  document.getElementById('addModal').classList.add('open');
+}
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+function setActivityType(type) {
+  activityType = type;
+  const isTask = type==='task';
+  document.getElementById('typeTask').style.cssText    = `flex:1;padding:10px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;background:${isTask?'#4f46e5':'#fff'};color:${isTask?'#fff':'#6b7280'};`;
+  document.getElementById('typeMeeting').style.cssText = `flex:1;padding:10px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;background:${!isTask?'#4f46e5':'#fff'};color:${!isTask?'#fff':'#6b7280'};`;
+  document.getElementById('addSubmitBtn').textContent = isTask?'Add Task':'Schedule Meeting';
+  document.getElementById('addExtraField').innerHTML = isTask
+    ? `<label style="display:block;font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Priority</label><select id="addPriority" style="width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;font-size:13px;font-family:inherit;"><option value="high">🔴 High</option><option value="medium" selected>🟡 Medium</option><option value="low">🟢 Low</option></select>`
+    : `<label style="display:block;font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Time</label><input id="addTime" type="time" style="width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;font-size:13px;font-family:inherit;">`;
+}
+
+function submitActivity() {
+  const title = document.getElementById('addTitle').value.trim();
+  if (!title) { document.getElementById('addTitle').style.borderColor='#f87171'; return; }
+  const leadId = document.getElementById('addLeadSelect').value;
+  const date   = document.getElementById('addDate').value;
+  if (activityType==='task') {
+    const priority = document.getElementById('addPriority')?.value||'medium';
+    tasks.push({ id:'t'+Date.now(), leadId, title, dueDate:date||'TBD', status:'pending', priority });
+    pushActivity({ type:'task', message:`Task added: "${title}"`, time:'Just now', icon:'✅' });
+  } else {
+    const time = document.getElementById('addTime')?.value||'TBD';
+    meetings.push({ id:'m'+Date.now(), leadId, title, date:date||'TBD', time, attendees:'Alex Thompson' });
+    pushActivity({ type:'meeting', message:`Meeting scheduled: "${title}"`, time:'Just now', icon:'📅' });
+  }
+  renderActivityFeed();
+  closeAddModal();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  initSparklines();
+  initRevenueChart();
+  initSourceChart();
+  renderFunnel();
+  renderKanban();
+  renderActivityFeed();
+  renderNotifications();
+  renderLeadsTable();
+  renderDealsTable();
+});
+</script>
+</body>
+</html>

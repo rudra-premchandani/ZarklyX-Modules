@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZarklyX – System Monitoring & Activity Tracking</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --teal: #0d9488;
+  --teal-light: #14b8a6;
+  --teal-pale: #ccfbf1;
+  --teal-dark: #0f766e;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --white: #ffffff;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --violet: #7c3aed;
+  --emerald: #10b981;
+  --blue: #3b82f6;
+  --glass: rgba(255,255,255,0.7);
+  --glass-border: rgba(255,255,255,0.9);
+  --shadow-card: 0 4px 24px rgba(15,118,110,0.08), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-hover: 0 12px 40px rgba(15,118,110,0.15), 0 4px 12px rgba(0,0,0,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--slate-50); color: var(--slate-800); overflow-x: hidden; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(13,148,136,0.1);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--teal-dark); letter-spacing: -0.5px; }
+.nav-logo span { color: var(--slate-800); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--slate-500); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--teal); }
+.nav-cta { display: flex; gap: 0.75rem; }
+.btn-outline { padding: 0.5rem 1.25rem; border-radius: 8px; border: 1.5px solid var(--teal); color: var(--teal); font-size: 0.875rem; font-weight: 600; cursor: pointer; background: transparent; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.btn-outline:hover { background: var(--teal-pale); }
+.btn-primary { padding: 0.5rem 1.25rem; border-radius: 8px; border: none; background: var(--teal); color: white; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,148,136,0.3); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #0f172a 0%, #134e4a 60%, #0d9488 100%);
+  padding: 5rem 2rem 3rem; text-align: center; position: relative; overflow: hidden;
+}
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(20,184,166,0.25) 0%, transparent 70%); }
+.hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(13,148,136,0.2); border: 1px solid rgba(20,184,166,0.4); color: var(--teal-light); font-size: 0.78rem; font-weight: 600; padding: 0.35rem 1rem; border-radius: 100px; margin-bottom: 1.5rem; letter-spacing: 0.05em; text-transform: uppercase; position: relative; z-index: 1; }
+.hero-badge::before { content: '●'; font-size: 0.5rem; }
+.hero h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.1; color: white; margin-bottom: 1.25rem; position: relative; z-index: 1; letter-spacing: -1.5px; }
+.hero h1 em { color: var(--teal-light); font-style: normal; }
+.hero-desc { font-size: 1.1rem; color: rgba(255,255,255,0.72); max-width: 640px; margin: 0 auto 2.5rem; line-height: 1.7; position: relative; z-index: 1; }
+.hero-cta { display: flex; gap: 1rem; justify-content: center; margin-bottom: 3.5rem; position: relative; z-index: 1; }
+.hero-btn-primary { padding: 0.85rem 2rem; border-radius: 10px; background: var(--teal); color: white; font-weight: 700; font-size: 0.95rem; border: none; cursor: pointer; transition: all 0.25s; font-family: 'DM Sans', sans-serif; box-shadow: 0 8px 24px rgba(13,148,136,0.4); }
+.hero-btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+.hero-btn-ghost { padding: 0.85rem 2rem; border-radius: 10px; background: rgba(255,255,255,0.1); color: white; font-weight: 600; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.25s; font-family: 'DM Sans', sans-serif; backdrop-filter: blur(8px); }
+.hero-btn-ghost:hover { background: rgba(255,255,255,0.18); }
+.hero-stats { display: flex; justify-content: center; gap: 3rem; position: relative; z-index: 1; }
+.hero-stat { text-align: center; }
+.hero-stat strong { display: block; font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; color: white; }
+.hero-stat span { font-size: 0.8rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* DASHBOARD SECTION */
+.dashboard-section { padding: 0 1.5rem 1rem; margin-top: -1px; background: linear-gradient(180deg, #134e4a 0%, var(--slate-50) 280px); }
+.dashboard-wrapper { max-width: 1280px; margin: 0 auto; background: var(--white); border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(13,148,136,0.1); overflow: hidden; }
+
+/* DB HEADER */
+.db-header { background: var(--slate-900); padding: 0.9rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+.db-header-left { display: flex; align-items: center; gap: 1rem; }
+.db-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; color: var(--teal-light); }
+.db-nav { display: flex; gap: 0.25rem; }
+.db-nav-item { padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.2s; }
+.db-nav-item:hover, .db-nav-item.active { background: rgba(13,148,136,0.2); color: var(--teal-light); }
+.db-header-right { display: flex; align-items: center; gap: 0.75rem; }
+.db-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; }
+.db-month-badge { padding: 0.3rem 0.8rem; border-radius: 6px; background: rgba(13,148,136,0.15); border: 1px solid rgba(20,184,166,0.3); color: var(--teal-light); font-size: 0.75rem; font-weight: 600; }
+
+.db-body { display: flex; height: calc(100vh - 160px); max-height: 760px; min-height: 600px; }
+
+/* SIDEBAR */
+.db-sidebar { width: 210px; min-width: 210px; background: var(--slate-800); padding: 1rem 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.db-side-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1.25rem; font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+.db-side-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.db-side-item.active { background: rgba(13,148,136,0.15); color: var(--teal-light); border-left-color: var(--teal-light); }
+.db-side-icon { font-size: 1rem; width: 18px; text-align: center; }
+.db-side-section { padding: 1rem 1.25rem 0.35rem; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.5rem; }
+
+/* MAIN AREA */
+.db-main { flex: 1; overflow-y: auto; padding: 1.25rem; background: #f0f9f8; display: flex; flex-direction: column; gap: 1.25rem; }
+.db-main::-webkit-scrollbar { width: 4px; }
+.db-main::-webkit-scrollbar-track { background: transparent; }
+.db-main::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
+
+.db-page-title { display: flex; align-items: center; justify-content: space-between; }
+.db-page-title h2 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--slate-800); }
+.db-page-title p { font-size: 0.75rem; color: var(--slate-500); margin-top: 2px; }
+.db-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.db-action-btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; border: none; }
+.db-action-btn.primary { background: var(--teal); color: white; }
+.db-action-btn.primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,148,136,0.3); }
+.db-action-btn.secondary { background: white; color: var(--slate-700); border: 1px solid var(--slate-300); }
+.db-action-btn.secondary:hover { border-color: var(--teal); color: var(--teal); }
+.db-action-btn.amber-btn { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.db-action-btn.amber-btn:hover { background: #fde68a; }
+
+/* KPI CARDS */
+.kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; }
+.kpi-card { background: var(--white); border-radius: 14px; padding: 0.9rem; box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8); transition: all 0.25s; cursor: pointer; position: relative; overflow: hidden; }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0; }
+.kpi-card.teal::before { background: linear-gradient(90deg, var(--teal), var(--teal-light)); }
+.kpi-card.amber::before { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.kpi-card.emerald::before { background: linear-gradient(90deg, var(--emerald), #34d399); }
+.kpi-card.rose::before { background: linear-gradient(90deg, var(--rose), #fb7185); }
+.kpi-card.violet::before { background: linear-gradient(90deg, var(--violet), #a78bfa); }
+.kpi-card.blue::before { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+.kpi-card.orange::before { background: linear-gradient(90deg, #f97316, #fb923c); }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.kpi-card.active-filter { transform: translateY(-3px); box-shadow: var(--shadow-hover); outline: 2px solid var(--teal); }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.kpi-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+.kpi-icon.teal { background: #ccfbf1; }
+.kpi-icon.amber { background: #fef3c7; }
+.kpi-icon.emerald { background: #d1fae5; }
+.kpi-icon.rose { background: #ffe4e6; }
+.kpi-icon.violet { background: #ede9fe; }
+.kpi-icon.blue { background: #dbeafe; }
+.kpi-icon.orange { background: #ffedd5; }
+.kpi-change { font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.4rem; border-radius: 5px; }
+.kpi-change.up { background: #d1fae5; color: #065f46; }
+.kpi-change.down { background: #ffe4e6; color: #9f1239; }
+.kpi-value { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--slate-800); line-height: 1; }
+.kpi-label { font-size: 0.65rem; color: var(--slate-500); font-weight: 500; margin-top: 0.25rem; }
+
+@keyframes countUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.kpi-value { animation: countUp 0.5s ease backwards; }
+.kpi-card:nth-child(1) .kpi-value { animation-delay: 0.1s; }
+.kpi-card:nth-child(2) .kpi-value { animation-delay: 0.15s; }
+.kpi-card:nth-child(3) .kpi-value { animation-delay: 0.2s; }
+.kpi-card:nth-child(4) .kpi-value { animation-delay: 0.25s; }
+.kpi-card:nth-child(5) .kpi-value { animation-delay: 0.3s; }
+.kpi-card:nth-child(6) .kpi-value { animation-delay: 0.35s; }
+
+/* CHARTS */
+.charts-row { display: grid; grid-template-columns: 1.8fr 0.9fr 0.9fr; gap: 1rem; }
+.chart-card { background: var(--white); border-radius: 14px; padding: 1.1rem; box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8); }
+.chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.chart-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--slate-800); }
+.chart-subtitle { font-size: 0.7rem; color: var(--slate-500); margin-top: 2px; }
+.chart-filter { display: flex; gap: 0.3rem; }
+.chart-filter-btn { padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.68rem; font-weight: 600; border: 1px solid var(--slate-300); background: transparent; cursor: pointer; color: var(--slate-500); transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.chart-filter-btn.active { background: var(--teal); color: white; border-color: var(--teal); }
+.chart-canvas-wrap { height: 150px; position: relative; }
+.donut-legend { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.65rem; }
+.legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.68rem; }
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; margin-right: 0.4rem; }
+.legend-label { display: flex; align-items: center; color: var(--slate-600); }
+.legend-val { color: var(--slate-800); font-weight: 600; }
+
+/* TABLES ROW */
+.tables-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.table-card { background: var(--white); border-radius: 14px; padding: 1.1rem; box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.8); }
+.table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+.table-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--slate-800); }
+.view-all { font-size: 0.72rem; color: var(--teal); font-weight: 600; cursor: pointer; }
+.view-all:hover { text-decoration: underline; }
+.emp-table { width: 100%; border-collapse: collapse; }
+.emp-table th { font-size: 0.62rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 0.5rem 0.5rem; text-align: left; border-bottom: 1px solid var(--slate-100); }
+.emp-table td { font-size: 0.73rem; color: var(--slate-700); padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--slate-100); }
+.emp-table tr:last-child td { border-bottom: none; }
+.emp-table tr:hover td { background: #f0fdfa; cursor: pointer; }
+.status-badge { display: inline-flex; padding: 0.15rem 0.5rem; border-radius: 100px; font-size: 0.62rem; font-weight: 600; }
+.status-create  { background: #d1fae5; color: #065f46; }
+.status-update  { background: #dbeafe; color: #1e40af; }
+.status-delete  { background: #ffe4e6; color: #9f1239; }
+.status-login   { background: #ccfbf1; color: #0f766e; }
+.status-logout  { background: #fef3c7; color: #92400e; }
+.status-click   { background: #ede9fe; color: #5b21b6; }
+.status-hover   { background: #fce7f3; color: #9d174d; }
+.status-key     { background: #e0f2fe; color: #075985; }
+.status-mouse   { background: var(--slate-100); color: var(--slate-700); }
+.status-success { background: #d1fae5; color: #065f46; }
+.status-warning { background: #fef3c7; color: #92400e; }
+.status-error   { background: #ffe4e6; color: #9f1239; }
+
+/* QUICK ACTIONS */
+.quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+.qa-btn { padding: 0.65rem 0.5rem; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent; background: var(--white); box-shadow: var(--shadow-card); }
+.qa-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--teal-pale); }
+.qa-icon { font-size: 1.2rem; margin-bottom: 0.25rem; }
+.qa-label { font-size: 0.65rem; font-weight: 600; color: var(--slate-700); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.55); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 20px; width: 90%; max-width: 560px; box-shadow: 0 40px 100px rgba(0,0,0,0.25); overflow: hidden; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modal { animation: slideUp 0.25s ease; }
+.modal-head { padding: 1.5rem 1.5rem 0; display: flex; align-items: flex-start; justify-content: space-between; }
+.modal-head h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--slate-800); }
+.modal-head p { font-size: 0.8rem; color: var(--slate-500); margin-top: 4px; }
+.modal-close { width: 30px; height: 30px; border-radius: 8px; border: none; background: var(--slate-100); cursor: pointer; font-size: 1rem; color: var(--slate-500); transition: all 0.2s; }
+.modal-close:hover { background: var(--slate-200); }
+.modal-body { padding: 1.25rem 1.5rem 1.5rem; }
+.modal-info-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--slate-100); font-size: 0.8rem; }
+.modal-info-row:last-child { border-bottom: none; }
+.modal-info-label { color: var(--slate-500); font-weight: 500; }
+.modal-info-value { color: var(--slate-800); font-weight: 600; }
+.modal-footer { padding: 1rem 1.5rem 1.5rem; display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+/* LANDING CONTENT */
+.section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+.section-label { display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal); background: var(--teal-pale); padding: 0.35rem 1rem; border-radius: 100px; margin-bottom: 1rem; }
+.section-title { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800; color: var(--slate-900); line-height: 1.15; letter-spacing: -0.75px; margin-bottom: 1.25rem; }
+.section-title em { color: var(--teal); font-style: normal; }
+.section-intro { font-size: 1.05rem; color: var(--slate-500); line-height: 1.8; max-width: 720px; }
+
+/* WHAT IS */
+.what-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; margin-top: 3.5rem; }
+.what-content p { font-size: 1rem; color: var(--slate-600); line-height: 1.8; margin-bottom: 1.25rem; }
+.what-cards { display: flex; flex-direction: column; gap: 0.85rem; }
+.what-card { background: var(--white); border-radius: 14px; padding: 1.1rem 1.25rem; border-left: 4px solid var(--teal); box-shadow: var(--shadow-card); transition: transform 0.2s; }
+.what-card:hover { transform: translateX(4px); }
+.what-card h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.4rem; }
+.what-card p { font-size: 0.82rem; color: var(--slate-500); line-height: 1.6; }
+
+/* STEPS */
+.steps-section { background: var(--slate-900); padding: 6rem 2rem; }
+.steps-inner { max-width: 1100px; margin: 0 auto; }
+.steps-section .section-label { background: rgba(13,148,136,0.2); color: var(--teal-light); }
+.steps-section .section-title { color: white; }
+.steps-section .section-intro { color: rgba(255,255,255,0.6); }
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 3.5rem; position: relative; }
+.steps-grid::before { content: ''; position: absolute; top: 36px; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, var(--teal), var(--teal-light)); z-index: 0; }
+.step-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.5rem 1.1rem; text-align: center; position: relative; z-index: 1; transition: all 0.25s; backdrop-filter: blur(10px); }
+.step-card:hover { background: rgba(13,148,136,0.15); border-color: rgba(20,184,166,0.4); transform: translateY(-4px); }
+.step-num { width: 48px; height: 48px; border-radius: 50%; background: var(--teal); color: white; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: 0 8px 20px rgba(13,148,136,0.4); }
+.step-card h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: white; margin-bottom: 0.6rem; }
+.step-card p { font-size: 0.78rem; color: rgba(255,255,255,0.6); line-height: 1.65; }
+
+/* FEATURES */
+.features-section { padding: 6rem 2rem; background: white; }
+.features-inner { max-width: 1100px; margin: 0 auto; }
+
+/* CONTROL SECTION */
+.control-section { padding: 6rem 2rem; background: var(--slate-50); }
+.control-inner { max-width: 1100px; margin: 0 auto; }
+
+/* WHY SECTION */
+.why-section { padding: 6rem 2rem; background: linear-gradient(135deg, #0f172a 0%, #134e4a 100%); }
+.why-inner { max-width: 1100px; margin: 0 auto; }
+.why-section .section-label { background: rgba(13,148,136,0.25); color: var(--teal-light); }
+.why-section .section-title { color: white; }
+.why-section .section-intro { color: rgba(255,255,255,0.6); }
+
+/* CTA */
+.cta-section { padding: 5rem 2rem; text-align: center; background: white; }
+.cta-inner { max-width: 640px; margin: 0 auto; }
+.cta-inner h2 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--slate-900); margin-bottom: 1rem; letter-spacing: -0.75px; }
+.cta-inner p { color: var(--slate-500); font-size: 1rem; line-height: 1.7; margin-bottom: 2rem; }
+.cta-btns { display: flex; gap: 1rem; justify-content: center; }
+
+/* FOOTER */
+footer { background: var(--slate-900); padding: 2.5rem 2rem; }
+.footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.footer-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--teal-light); }
+.footer-credits { display: flex; gap: 2rem; }
+.footer-credit { text-align: center; }
+.footer-credit-role { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.35); margin-bottom: 0.2rem; }
+.footer-credit-name { font-size: 0.82rem; font-weight: 600; color: var(--teal-light); }
+.footer-copy { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
+
+@media(max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  .tables-row { grid-template-columns: 1fr; }
+  .what-grid, .control-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
+  .steps-grid::before { display: none; }
+  .footer-inner { flex-direction: column; text-align: center; }
+  .footer-credits { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Zarkly<span>X</span></div>
+  <ul class="nav-links">
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#what">Overview</a></li>
+    <li><a href="#steps">How It Works</a></li>
+    <li><a href="#features">System Logs</a></li>
+    <li><a href="#control">Activity Logger</a></li>
+  </ul>
+  <div class="nav-cta">
+    <button class="btn-outline">Sign In</button>
+    <button class="btn-primary">Get Started</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">System Monitoring & Activity Tracking Module</div>
+  <h1>Track every action,<br><em>in real time.</em></h1>
+  <p class="hero-desc">From internal data operations to live user behavior, keep your system fully transparent. ZarklyX captures every log and every interaction in one intelligent monitoring platform.</p>
+  <div class="hero-cta">
+    <button class="hero-btn-primary">Get Started →</button>
+    <button class="hero-btn-ghost" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">View Live Dashboard</button>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>1,284</strong><span>Log Events Today</span></div>
+    <div class="hero-stat"><strong>38</strong><span>Active Sessions</span></div>
+    <div class="hero-stat"><strong>100%</strong><span>Events Captured</span></div>
+    <div class="hero-stat"><strong>&lt;1ms</strong><span>Log Write Latency</span></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<div class="dashboard-section" id="dashboard">
+  <div class="dashboard-wrapper">
+
+    <!-- DB Header -->
+    <div class="db-header">
+      <div class="db-header-left">
+        <div class="db-logo">ZarklyX</div>
+        <div class="db-nav">
+          <div class="db-nav-item active">Overview</div>
+          <div class="db-nav-item">System Logs</div>
+          <div class="db-nav-item">Activity</div>
+          <div class="db-nav-item">Reports</div>
+        </div>
+      </div>
+      <div class="db-header-right">
+        <div class="db-month-badge">📅 March 2026</div>
+        <div class="db-avatar">AS</div>
+      </div>
+    </div>
+
+    <div class="db-body">
+      <!-- Sidebar -->
+      <div class="db-sidebar">
+        <div class="db-side-section">Overview</div>
+        <div class="db-side-item active" onclick="setSideNav(this)"><span class="db-side-icon">📊</span>Dashboard</div>
+        <div class="db-side-item" onclick="setSideNav(this)"><span class="db-side-icon">📈</span>Analytics</div>
+        <div class="db-side-item" onclick="setSideNav(this)"><span class="db-side-icon">🔔</span>Alerts</div>
+
+        <div class="db-side-section">System Logs</div>
+        <div class="db-side-item" onclick="openModal('create')"><span class="db-side-icon">➕</span>Create Logs</div>
+        <div class="db-side-item" onclick="openModal('update')"><span class="db-side-icon">✏️</span>Update Logs</div>
+        <div class="db-side-item" onclick="openModal('delete')"><span class="db-side-icon">🗑️</span>Delete Logs</div>
+
+        <div class="db-side-section">Activity Logger</div>
+        <div class="db-side-item" onclick="openModal('session')"><span class="db-side-icon">🔑</span>Login / Logout</div>
+        <div class="db-side-item" onclick="openModal('clicks')"><span class="db-side-icon">👆</span>Click Events</div>
+        <div class="db-side-item" onclick="openModal('keys')"><span class="db-side-icon">⌨️</span>Key Presses</div>
+        <div class="db-side-item" onclick="openModal('mouse')"><span class="db-side-icon">🖱️</span>Mouse Movements</div>
+
+        <div class="db-side-section">Reports</div>
+        <div class="db-side-item" onclick="setSideNav(this)"><span class="db-side-icon">📉</span>Audit Trail</div>
+        <div class="db-side-item" onclick="setSideNav(this)"><span class="db-side-icon">🔒</span>Access Control</div>
+      </div>
+
+      <!-- Main -->
+      <div class="db-main">
+
+        <!-- Title -->
+        <div class="db-page-title">
+          <div>
+            <h2>System Monitoring & Activity Tracking</h2>
+            <p>March 2026 · All users · Real-time log and activity overview</p>
+          </div>
+          <div class="db-actions">
+            <button class="db-action-btn secondary" onclick="openModal('create')">➕ Create Log</button>
+            <button class="db-action-btn secondary" onclick="openModal('session')">🔑 Sessions</button>
+            <button class="db-action-btn amber-btn" onclick="openModal('delete')">🗑️ Delete Log</button>
+            <button class="db-action-btn primary" onclick="openModal('clicks')">👆 View Clicks</button>
+          </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card teal" onclick="filterKpi(this,'all-logs')" data-tip="All system log events">
+            <div class="kpi-top"><div class="kpi-icon teal">🗂️</div><div class="kpi-change up">↑ 12.4%</div></div>
+            <div class="kpi-value">1,284</div>
+            <div class="kpi-label">Total Logs</div>
+          </div>
+          <div class="kpi-card emerald" onclick="filterKpi(this,'all-act')" data-tip="All user activity events">
+            <div class="kpi-top"><div class="kpi-icon emerald">🖱️</div><div class="kpi-change up">↑ 8.1%</div></div>
+            <div class="kpi-value">3,741</div>
+            <div class="kpi-label">Total Activities</div>
+          </div>
+          <div class="kpi-card amber" onclick="filterKpi(this,'login')" data-tip="Login and logout events">
+            <div class="kpi-top"><div class="kpi-icon amber">🔑</div><div class="kpi-change up">↑ 5.0%</div></div>
+            <div class="kpi-value">210</div>
+            <div class="kpi-label">Logins</div>
+          </div>
+          <div class="kpi-card violet" onclick="filterKpi(this,'click')" data-tip="Click events recorded">
+            <div class="kpi-top"><div class="kpi-icon violet">👆</div><div class="kpi-change up">↑ 18.6%</div></div>
+            <div class="kpi-value">1,406</div>
+            <div class="kpi-label">Click Events</div>
+          </div>
+          <div class="kpi-card blue" onclick="filterKpi(this,'key')" data-tip="Keyboard interactions">
+            <div class="kpi-top"><div class="kpi-icon blue">⌨️</div><div class="kpi-change down">↓ 3.2%</div></div>
+            <div class="kpi-value">892</div>
+            <div class="kpi-label">Key Presses</div>
+          </div>
+          <div class="kpi-card rose" onclick="filterKpi(this,'delete')" data-tip="Delete operations logged">
+            <div class="kpi-top"><div class="kpi-icon rose">🗑️</div><div class="kpi-change down">↓ 1.8%</div></div>
+            <div class="kpi-value">241</div>
+            <div class="kpi-label">Deletes</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">System Log Events — Hourly</div>
+                <div class="chart-subtitle">Create · Update · Delete over time</div>
+              </div>
+              <div class="chart-filter">
+                <button class="chart-filter-btn active">Today</button>
+                <button class="chart-filter-btn">7D</button>
+                <button class="chart-filter-btn">30D</button>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Log Type Breakdown</div>
+                <div class="chart-subtitle">By operation</div>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height:110px"><canvas id="barChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Activity Distribution</div>
+                <div class="chart-subtitle">User event types</div>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap" style="height:110px"><canvas id="donutChart"></canvas></div>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#0d9488"></div>Login/Logout</div><div class="legend-val">210</div></div>
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#7c3aed"></div>Click</div><div class="legend-val">1,406</div></div>
+              <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#3b82f6"></div>Key Press</div><div class="legend-val">892</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tables Row 1 -->
+        <div class="tables-row">
+          <!-- System Logs Table -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title" id="logTableTitle">System Logs</div>
+              <span class="view-all" onclick="openModal('create')">+ New Entry →</span>
+            </div>
+            <table class="emp-table">
+              <thead><tr><th>Timestamp</th><th>User</th><th>Operation</th><th>Module</th><th>Status</th></tr></thead>
+              <tbody id="logTableBody">
+                <tr onclick="openModal('create')">
+                  <td style="color:var(--slate-500)">09:04:11</td>
+                  <td style="font-weight:600;color:#0d9488">a.sharma</td>
+                  <td><span class="status-badge status-create">Create</span></td>
+                  <td>Invoices</td>
+                  <td><span class="status-badge status-success">Success</span></td>
+                </tr>
+                <tr onclick="openModal('update')">
+                  <td style="color:var(--slate-500)">09:17:38</td>
+                  <td style="font-weight:600;color:#0d9488">r.patel</td>
+                  <td><span class="status-badge status-update">Update</span></td>
+                  <td>Customers</td>
+                  <td><span class="status-badge status-success">Success</span></td>
+                </tr>
+                <tr onclick="openModal('delete')">
+                  <td style="color:var(--slate-500)">09:31:55</td>
+                  <td style="font-weight:600;color:#0d9488">k.mehta</td>
+                  <td><span class="status-badge status-delete">Delete</span></td>
+                  <td>Products</td>
+                  <td><span class="status-badge status-success">Success</span></td>
+                </tr>
+                <tr onclick="openModal('create')">
+                  <td style="color:var(--slate-500)">10:02:14</td>
+                  <td style="font-weight:600;color:#0d9488">a.sharma</td>
+                  <td><span class="status-badge status-create">Create</span></td>
+                  <td>Orders</td>
+                  <td><span class="status-badge status-success">Success</span></td>
+                </tr>
+                <tr onclick="openModal('update')">
+                  <td style="color:var(--slate-500)">10:18:47</td>
+                  <td style="font-weight:600;color:#0d9488">v.nair</td>
+                  <td><span class="status-badge status-update">Update</span></td>
+                  <td>Reports</td>
+                  <td><span class="status-badge status-warning">Warning</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Activity Logger Table -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title" id="actTableTitle">Activity Logger</div>
+              <span class="view-all" onclick="openModal('session')">View All →</span>
+            </div>
+            <table class="emp-table">
+              <thead><tr><th>Timestamp</th><th>User</th><th>Event</th><th>Target</th><th>Duration</th></tr></thead>
+              <tbody id="actTableBody">
+                <tr onclick="openModal('session')">
+                  <td style="color:var(--slate-500)">09:00:02</td>
+                  <td style="font-weight:600;color:#7c3aed">a.sharma</td>
+                  <td><span class="status-badge status-login">Login</span></td>
+                  <td>Auth Portal</td>
+                  <td>—</td>
+                </tr>
+                <tr onclick="openModal('clicks')">
+                  <td style="color:var(--slate-500)">09:05:44</td>
+                  <td style="font-weight:600;color:#7c3aed">a.sharma</td>
+                  <td><span class="status-badge status-click">Click</span></td>
+                  <td>New Invoice Btn</td>
+                  <td>&lt;1s</td>
+                </tr>
+                <tr onclick="openModal('mouse')">
+                  <td style="color:var(--slate-500)">09:22:10</td>
+                  <td style="font-weight:600;color:#7c3aed">r.patel</td>
+                  <td><span class="status-badge status-mouse">Mouse Move</span></td>
+                  <td>Dashboard</td>
+                  <td>4m 12s</td>
+                </tr>
+                <tr onclick="openModal('keys')">
+                  <td style="color:var(--slate-500)">09:33:05</td>
+                  <td style="font-weight:600;color:#7c3aed">k.mehta</td>
+                  <td><span class="status-badge status-key">Key Press</span></td>
+                  <td>Search Field</td>
+                  <td>2m 08s</td>
+                </tr>
+                <tr onclick="openModal('session')">
+                  <td style="color:var(--slate-500)">09:48:30</td>
+                  <td style="font-weight:600;color:#7c3aed">v.nair</td>
+                  <td><span class="status-badge status-hover">Hover</span></td>
+                  <td>Report Card</td>
+                  <td>6s</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Quick Actions Row -->
+        <div class="tables-row">
+          <!-- Hover & General Activity -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Hover & General Activity</div>
+              <span class="view-all">View All →</span>
+            </div>
+            <table class="emp-table">
+              <thead><tr><th>Time</th><th>User</th><th>Type</th><th>Element</th><th>Duration</th></tr></thead>
+              <tbody>
+                <tr onclick="openModal('mouse')">
+                  <td style="color:var(--slate-500)">10:01:14</td>
+                  <td style="font-weight:600">v.nair</td>
+                  <td><span class="status-badge status-hover">Hover</span></td>
+                  <td>KPI Card</td>
+                  <td>4s</td>
+                </tr>
+                <tr onclick="openModal('mouse')">
+                  <td style="color:var(--slate-500)">10:09:32</td>
+                  <td style="font-weight:600">r.patel</td>
+                  <td><span class="status-badge status-mouse">General</span></td>
+                  <td>Table Row</td>
+                  <td>12m</td>
+                </tr>
+                <tr onclick="openModal('mouse')">
+                  <td style="color:var(--slate-500)">10:14:08</td>
+                  <td style="font-weight:600">k.mehta</td>
+                  <td><span class="status-badge status-hover">Hover</span></td>
+                  <td>Sidebar Menu</td>
+                  <td>2s</td>
+                </tr>
+                <tr onclick="openModal('mouse')">
+                  <td style="color:var(--slate-500)">10:22:50</td>
+                  <td style="font-weight:600">a.sharma</td>
+                  <td><span class="status-badge status-mouse">General</span></td>
+                  <td>Chart Area</td>
+                  <td>8m</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Quick Actions</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;">
+              <div class="qa-btn" onclick="openModal('create')"><div class="qa-icon">➕</div><div class="qa-label">View Create Logs</div></div>
+              <div class="qa-btn" onclick="openModal('update')"><div class="qa-icon">✏️</div><div class="qa-label">View Update Logs</div></div>
+              <div class="qa-btn" onclick="openModal('delete')"><div class="qa-icon">🗑️</div><div class="qa-label">View Delete Logs</div></div>
+              <div class="qa-btn" onclick="openModal('session')"><div class="qa-icon">🔑</div><div class="qa-label">Session Log</div></div>
+              <div class="qa-btn" onclick="openModal('clicks')"><div class="qa-icon">👆</div><div class="qa-label">Click Events</div></div>
+              <div class="qa-btn" onclick="openModal('keys')"><div class="qa-icon">⌨️</div><div class="qa-label">Key Press Log</div></div>
+              <div class="qa-btn" onclick="openModal('mouse')"><div class="qa-icon">🖱️</div><div class="qa-label">Mouse Movements</div></div>
+              <div class="qa-btn" onclick="openModal('mouse')"><div class="qa-icon">📊</div><div class="qa-label">Export Report</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /db-main -->
+    </div><!-- /db-body -->
+  </div><!-- /dashboard-wrapper -->
+</div><!-- /dashboard-section -->
+
+<!-- ── WHAT IS ── -->
+<section id="what">
+  <div class="section">
+    <span class="section-label">What Is This Module</span>
+    <h2 class="section-title">Complete visibility into<br><em>every system event.</em></h2>
+    <p class="section-intro">ZarklyX System Monitoring captures two distinct layers of data — internal software operations and real human behavior — forming a complete, auditable record of everything that happens inside your platform.</p>
+    <div class="what-grid">
+      <div class="what-content">
+        <p>System Logs track every internal operation performed within the software. Every time someone interacts with the data, a log is automatically created and timestamped. Whether new information is being added, existing records are being modified, or data is being removed, every data-level change is captured with full traceability and linked to the user who triggered it.</p>
+        <p>The Activity Logger works at a different layer — it monitors how a person actually uses the interface from the moment they log in until they log out. Rather than tracking data changes, it captures behavioral signals: where users move their cursor, what they type, which elements they click, how long they hover over a component, and everything else they do while active in the system.</p>
+      </div>
+      <div class="what-cards">
+        <div class="what-card">
+          <h4>🗂️ System Logs</h4>
+          <p>Tracks Create, Update, and Delete operations — every time data is added, changed, or removed, a timestamped log entry is written automatically.</p>
+        </div>
+        <div class="what-card">
+          <h4>🖱️ Activity Logger</h4>
+          <p>Monitors user behavior throughout every session — login and logout times, mouse movements, key presses, hover events, clicks, and general activity.</p>
+        </div>
+        <div class="what-card">
+          <h4>🔍 Full Audit Trail</h4>
+          <p>Every log and activity event is stored, queryable, and linked to the responsible user, providing a complete audit trail that is always accessible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STEPS ── -->
+<section class="steps-section" id="steps">
+  <div class="steps-inner">
+    <span class="section-label">Step-by-Step Process</span>
+    <h2 class="section-title">How the System <em style="color:var(--teal-light)">Works</em></h2>
+    <p class="section-intro">From the moment a user logs in to the moment they close their session, every operation and interaction flows through two parallel tracking systems that run silently in the background.</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>User Logs In</h4>
+        <p>The Activity Logger immediately records the login event with a precise timestamp, opening the session window and beginning continuous behavioral monitoring across the interface.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>Data Interactions Logged</h4>
+        <p>Every time the user adds, modifies, or removes information, the System Logger writes a Create, Update, or Delete entry — capturing the operation, module, user, and timestamp automatically.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>Behavior Continuously Tracked</h4>
+        <p>Simultaneously, the Activity Logger records all interface interactions — mouse movements, key presses, hover durations, and click events — building a complete behavioral map of the session.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h4>Session Ends & Logs Finalized</h4>
+        <p>When the user logs out, the logout event is recorded, closing the session record. All logs from both systems are immediately available for review, filtering, and audit in the dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES / SYSTEM LOGS DETAIL ── -->
+<section class="features-section" id="features">
+  <div class="features-inner">
+    <span class="section-label">System Logs</span>
+    <h2 class="section-title">Every data change,<br><em>permanently recorded.</em></h2>
+    <p class="section-intro">System Logs track every internal operation performed within the software. Every time someone interacts with the data, a log is created. Each log entry captures the operation type, the user responsible, the affected module, and the precise time it occurred — giving you a complete, immutable record of all data-level activity across the platform.</p>
+    <div style="margin-top:3.5rem;max-width:820px;display:flex;flex-direction:column;gap:2rem;">
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Create</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">A Create log is generated every time new information is added to the system. Whether a user is adding a new record, registering a new entry, or writing a new data object, the system captures this operation instantly. The log records who performed the action, which module was affected, and the exact timestamp at which the new information was written — ensuring that every addition to the data layer is fully traceable and accountable.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Update</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">An Update log is recorded each time existing information within the system is changed. Any modification made to a previously stored record — regardless of how minor the change — triggers an Update entry in the System Log. This ensures a complete trail of alterations over time, allowing administrators to see not just what data exists now, but how it has evolved and which users were responsible for each change that was made.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Delete</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">A Delete log is captured whenever information is permanently removed from the system. This log records the deletion event precisely, documenting what was removed, who removed it, from which module, and when the removal occurred. No data can be deleted silently — every Delete operation creates a clear and permanent audit entry that remains visible in the System Log even after the original data is no longer present in the system.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTROL / ACTIVITY LOGGER DETAIL ── -->
+<section class="control-section" id="control">
+  <div class="control-inner">
+    <span class="section-label">Activity Logger</span>
+    <h2 class="section-title">User behavior, <em>fully visible.</em><br>From login to logout.</h2>
+    <p class="section-intro">The Activity Logger tracks user behavior from the moment they log in. It monitors how a person actually uses the interface — capturing a continuous, real-time record of everything a user does while active in the system, far beyond just what data they changed.</p>
+    <div style="margin-top:3.5rem;max-width:820px;display:flex;flex-direction:column;gap:2rem;">
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Login / Logout</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">The Activity Logger records the precise timestamps of when a user starts and ends their session. The Login event is captured the moment a user authenticates and enters the system, while the Logout event is recorded when they formally end their session. Together, these two events establish the exact active window of every user session, providing a clear and auditable record of when each user was present in the platform.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Mouse Movements</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">Mouse Movement tracking captures where the user moves their cursor on the screen throughout their session. This continuous tracking reveals navigation patterns, the areas of the interface that receive the most attention, and how users physically move through the platform's layout. Mouse movement data provides a spatial understanding of user behavior that complements the discrete event logs recorded for clicks, hovers, and keyboard interactions.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Key Presses</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">The Activity Logger records any typing or keyboard activity performed by the user during their session. Every key press — whether it is text being entered into a form field, a search query being typed, or a keyboard shortcut being used — is logged as a Key Press event. This captures the full scope of keyboard-driven interactions, offering visibility into how users engage with input-heavy workflows and which areas of the system they interact with through typing.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Hover</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">Hover events are captured when a user holds their cursor over a specific element for a particular time or duration. Unlike a brief pass of the cursor, a Hover event represents sustained attention — the user's cursor resting over a button, card, tooltip, or interface element long enough to indicate intent or interest. Recording hover events reveals which parts of the interface attract attention even before a click occurs, providing a deeper layer of behavioral context beyond explicit interactions.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">Click</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">A Click log is formed every time the user clicks on any element within the interface. Each individual click interaction is recorded as its own event entry, capturing which element was clicked, by which user, and at what point during the session. Click events represent the most direct and deliberate form of user interaction, making them a primary indicator of what actions users are actually taking and which interface elements are driving the most engagement throughout each session.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;">General Activity</h3>
+        <p style="font-size:1rem;color:var(--slate-600);line-height:1.85;">General Activity covers the overall tracking of everything the user is doing while active in the system. Beyond the specific categorized events — clicks, key presses, hovers, and mouse movements — General Activity provides a continuous layer of presence and engagement monitoring. It ensures that the full scope of a user's active session is captured, even when the interaction does not fall neatly into one of the defined event categories, giving administrators a complete picture of user presence and behavior at all times.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY ── -->
+<section class="why-section">
+  <div class="why-inner">
+    <span class="section-label">Why ZarklyX</span>
+    <h2 class="section-title">Full transparency,<br><em style="color:var(--teal-light)">built into every layer.</em></h2>
+    <p class="section-intro">ZarklyX System Monitoring is designed for teams that need complete operational visibility — without building custom logging infrastructure from scratch.</p>
+    <div style="margin-top:3.5rem;max-width:820px;display:flex;flex-direction:column;gap:2rem;">
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.65rem;">Two Layers, One System</h3>
+        <p style="font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.85;">System Logs and the Activity Logger operate simultaneously, capturing both what happens to your data and how your users interact with the interface. Together, they provide a dual-layer view of your platform that no single logging approach can deliver — internal operations and human behavior, unified in one dashboard.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.65rem;">Real-Time Visibility</h3>
+        <p style="font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.85;">Every Create, Update, Delete, Click, Key Press, Hover, and Mouse Movement is captured and available in the dashboard immediately as it occurs. You always know exactly what is happening across your system in real time — without waiting for batch processing, scheduled reports, or manual log exports to understand the current state of activity.</p>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.65rem;">Complete Audit Trail</h3>
+        <p style="font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.85;">Every log entry — from a data deletion to a hover event — is stored with full attribution: who performed the action, when it occurred, and which part of the system was involved. Nothing is ever recorded silently or anonymously. The result is a complete, immutable audit trail that gives administrators full accountability over both data changes and user behavior across every session.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to monitor every<br>action in your system?</h2>
+    <p>Join teams that use ZarklyX to maintain complete operational transparency — from the first data entry to the last user session of the day.</p>
+    <div class="cta-btns">
+      <button class="btn-primary" style="padding:0.9rem 2.5rem;font-size:1rem;">Get Started →</button>
+      <button class="btn-outline" style="padding:0.9rem 2rem;font-size:1rem;">Book a Demo</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">Zarkly<span style="color:white">X</span></div>
+    <div class="footer-credits">
+      <div class="footer-credit">
+        <div class="footer-credit-role">Frontend</div>
+        <div class="footer-credit-name">Mr. Prathan</div>
+      </div>
+      <div class="footer-credit" style="border-left:1px solid rgba(255,255,255,0.1);padding-left:2rem;">
+        <div class="footer-credit-role">Backend</div>
+        <div class="footer-credit-name">Mr. Varad</div>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 ZarklyX. System Monitoring & Activity Tracking Module.</div>
+  </div>
+</footer>
+
+<!-- ── MODALS ── -->
+
+<!-- Create Log Modal -->
+<div class="modal-overlay" id="modal-create">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>➕ Create Log Detail</h3><p>A new data record was written to the system</p></div>
+      <button class="modal-close" onclick="closeModal('create')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-row"><span class="modal-info-label">Timestamp</span><span class="modal-info-value">09:04:11 — 26 Mar 2026</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">User</span><span class="modal-info-value">a.sharma</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Operation</span><span class="modal-info-value"><span class="status-badge status-create">Create</span></span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Module</span><span class="modal-info-value">Invoices</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Payload Size</span><span class="modal-info-value">2.4 KB</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">IP Address</span><span class="modal-info-value">192.168.1.12</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Status</span><span class="modal-info-value"><span class="status-badge status-success">Success</span></span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('create')">Close</button>
+      <button class="btn-primary">Mark Reviewed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Update Log Modal -->
+<div class="modal-overlay" id="modal-update">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>✏️ Update Log Detail</h3><p>An existing record was modified in the system</p></div>
+      <button class="modal-close" onclick="closeModal('update')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-row"><span class="modal-info-label">Timestamp</span><span class="modal-info-value">09:17:38 — 26 Mar 2026</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">User</span><span class="modal-info-value">r.patel</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Operation</span><span class="modal-info-value"><span class="status-badge status-update">Update</span></span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Module</span><span class="modal-info-value">Customers</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Fields Changed</span><span class="modal-info-value">3 fields</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">IP Address</span><span class="modal-info-value">192.168.1.44</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Status</span><span class="modal-info-value"><span class="status-badge status-success">Success</span></span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('update')">Close</button>
+      <button class="btn-primary">Mark Reviewed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Log Modal -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>🗑️ Delete Log Detail</h3><p>A record was permanently removed from the system</p></div>
+      <button class="modal-close" onclick="closeModal('delete')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-row"><span class="modal-info-label">Timestamp</span><span class="modal-info-value">09:31:55 — 26 Mar 2026</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">User</span><span class="modal-info-value">k.mehta</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Operation</span><span class="modal-info-value"><span class="status-badge status-delete">Delete</span></span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Module</span><span class="modal-info-value">Products</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Record ID</span><span class="modal-info-value">PRD-00482</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">IP Address</span><span class="modal-info-value">192.168.1.77</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Status</span><span class="modal-info-value"><span class="status-badge status-success">Success</span></span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('delete')">Close</button>
+      <button class="btn-primary">Mark Reviewed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session Modal -->
+<div class="modal-overlay" id="modal-session">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>🔑 Session Event Detail</h3><p>Login / Logout activity record</p></div>
+      <button class="modal-close" onclick="closeModal('session')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-row"><span class="modal-info-label">Login Time</span><span class="modal-info-value">09:00:02 — 26 Mar 2026</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Logout Time</span><span class="modal-info-value">10:50:00 — 26 Mar 2026</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">User</span><span class="modal-info-value">a.sharma</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Session Duration</span><span class="modal-info-value">1h 49m 58s</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Browser</span><span class="modal-info-value">Chrome 120</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">IP Address</span><span class="modal-info-value">192.168.1.12</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('session')">Close</button>
+      <button class="btn-primary">View Full Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- Clicks Modal -->
+<div class="modal-overlay" id="modal-clicks">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>👆 Click Event Detail</h3><p>User interface click interaction log</p></div>
+      <button class="modal-close" onclick="closeModal('clicks')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-row"><span class="modal-info-label">Timestamp</span><span class="modal-info-value">09:05:44 — 26 Mar 2026</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">User</span><span class="modal-info-value">a.sharma</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Event</span><span class="modal-info-value"><span class="status-badge status-click">Click</span></span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Target Element</span><span class="modal-info-value">New Invoice Button</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Page</span><span class="modal-info-value">Dashboard › Invoices</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Duration</span><span class="modal-info-value">&lt; 1s</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('clicks')">Close</button>
+      <button class="btn-primary">Mark Reviewed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Keys Modal -->
+<div class="modal-overlay" id="modal-keys">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>⌨️ Key Press Event Detail</h3><p>Keyboard activity log</p></div>
+      <button class="modal-close" onclick="closeModal('keys')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-row"><span class="modal-info-label">Timestamp</span><span class="modal-info-value">09:33:05 — 26 Mar 2026</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">User</span><span class="modal-info-value">k.mehta</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Event</span><span class="modal-info-value"><span class="status-badge status-key">Key Press</span></span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Target Field</span><span class="modal-info-value">Search Input</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Duration</span><span class="modal-info-value">2m 08s</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Browser</span><span class="modal-info-value">Safari 17</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('keys')">Close</button>
+      <button class="btn-primary">Mark Reviewed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mouse Modal -->
+<div class="modal-overlay" id="modal-mouse">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>🖱️ Mouse / Hover Event Detail</h3><p>Cursor movement and hover interaction log</p></div>
+      <button class="modal-close" onclick="closeModal('mouse')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-row"><span class="modal-info-label">Timestamp</span><span class="modal-info-value">09:22:10 — 26 Mar 2026</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">User</span><span class="modal-info-value">r.patel</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Event</span><span class="modal-info-value"><span class="status-badge status-mouse">Mouse Move</span></span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Target Area</span><span class="modal-info-value">Dashboard</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Duration</span><span class="modal-info-value">4m 12s</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Browser</span><span class="modal-info-value">Firefox 118</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('mouse')">Close</button>
+      <button class="btn-primary">Mark Reviewed</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Modal functions
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => {
+    m.classList.remove('open'); document.body.style.overflow = '';
+  });
+});
+
+// Chart filter buttons
+document.querySelectorAll('.chart-filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    this.closest('.chart-filter').querySelectorAll('.chart-filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Sidebar navigation
+document.querySelectorAll('.db-side-item').forEach(item => {
+  item.addEventListener('click', function() {
+    if (!this.getAttribute('onclick') || this.getAttribute('onclick').includes('setSideNav')) {
+      document.querySelectorAll('.db-side-item').forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+    }
+  });
+});
+function setSideNav(el) {
+  document.querySelectorAll('.db-side-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// DB nav items
+document.querySelectorAll('.db-nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.db-nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// KPI card filter
+const LOG_DATA = [
+  {time:'09:04:11',user:'a.sharma',op:'Create',mod:'Invoices',  st:'Success'},
+  {time:'09:17:38',user:'r.patel', op:'Update',mod:'Customers', st:'Success'},
+  {time:'09:31:55',user:'k.mehta', op:'Delete',mod:'Products',  st:'Success'},
+  {time:'10:02:14',user:'a.sharma',op:'Create',mod:'Orders',    st:'Success'},
+  {time:'10:18:47',user:'v.nair',  op:'Update',mod:'Reports',   st:'Warning'},
+  {time:'10:45:03',user:'k.mehta', op:'Delete',mod:'Drafts',    st:'Success'},
+];
+const ACT_DATA = [
+  {time:'09:00:02',user:'a.sharma',ev:'Login',    tgt:'Auth Portal',      dur:'—'},
+  {time:'09:05:44',user:'a.sharma',ev:'Click',    tgt:'New Invoice Btn',  dur:'<1s'},
+  {time:'09:22:10',user:'r.patel', ev:'Mouse Move',tgt:'Dashboard',       dur:'4m 12s'},
+  {time:'09:33:05',user:'k.mehta', ev:'Key Press', tgt:'Search Field',    dur:'2m 08s'},
+  {time:'09:48:30',user:'v.nair',  ev:'Hover',     tgt:'Report Card',     dur:'6s'},
+  {time:'10:10:00',user:'r.patel', ev:'Click',     tgt:'Export Button',   dur:'<1s'},
+  {time:'10:50:00',user:'k.mehta', ev:'Logout',    tgt:'Auth Portal',     dur:'—'},
+];
+const OP_BADGE = {Create:'status-create',Update:'status-update',Delete:'status-delete'};
+const EV_BADGE = {Login:'status-login',Logout:'status-logout',Click:'status-click',Hover:'status-hover','Key Press':'status-key','Mouse Move':'status-mouse'};
+const ST_BADGE = {Success:'status-success',Warning:'status-warning',Error:'status-error'};
+const OP_MODAL = {Create:'create',Update:'update',Delete:'delete'};
+const EV_MODAL = {Login:'session',Logout:'session',Click:'clicks','Key Press':'keys','Mouse Move':'mouse',Hover:'mouse'};
+
+function renderLogs(data) {
+  const tbody = document.getElementById('logTableBody');
+  tbody.innerHTML = data.map(r => `
+    <tr onclick="openModal('${OP_MODAL[r.op]||'create'}')">
+      <td style="color:var(--slate-500)">${r.time}</td>
+      <td style="font-weight:600;color:#0d9488">${r.user}</td>
+      <td><span class="status-badge ${OP_BADGE[r.op]||''}">${r.op}</span></td>
+      <td>${r.mod}</td>
+      <td><span class="status-badge ${ST_BADGE[r.st]||''}">${r.st}</span></td>
+    </tr>`).join('');
+}
+function renderActs(data) {
+  const tbody = document.getElementById('actTableBody');
+  tbody.innerHTML = data.map(r => `
+    <tr onclick="openModal('${EV_MODAL[r.ev]||'session'}')">
+      <td style="color:var(--slate-500)">${r.time}</td>
+      <td style="font-weight:600;color:#7c3aed">${r.user}</td>
+      <td><span class="status-badge ${EV_BADGE[r.ev]||''}">${r.ev}</span></td>
+      <td>${r.tgt}</td>
+      <td>${r.dur}</td>
+    </tr>`).join('');
+}
+
+let activeKpi = null;
+function filterKpi(el, type) {
+  document.querySelectorAll('.kpi-card').forEach(k => k.classList.remove('active-filter'));
+  if (activeKpi === type) { activeKpi = null; renderLogs(LOG_DATA); renderActs(ACT_DATA); return; }
+  el.classList.add('active-filter');
+  activeKpi = type;
+  if (type === 'all-logs') { renderLogs(LOG_DATA); }
+  else if (type === 'all-act') { renderActs(ACT_DATA); }
+  else if (['Create','Update','Delete'].includes(type)) { renderLogs(LOG_DATA.filter(r => r.op === type)); }
+  else if (type === 'login') { renderActs(ACT_DATA.filter(r => r.ev === 'Login' || r.ev === 'Logout')); }
+  else if (type === 'click') { renderActs(ACT_DATA.filter(r => r.ev === 'Click')); }
+  else if (type === 'key') { renderActs(ACT_DATA.filter(r => r.ev === 'Key Press')); }
+  else if (type === 'delete') { renderLogs(LOG_DATA.filter(r => r.op === 'Delete')); }
+}
+
+// Line Chart — Log Events Hourly
+const lineCtx = document.getElementById('lineChart').getContext('2d');
+new Chart(lineCtx, {
+  type: 'line',
+  data: {
+    labels: ['06:00','08:00','10:00','12:00','14:00','16:00'],
+    datasets: [
+      { label: 'Create', data: [12, 45, 110, 88, 96, 72], borderColor: '#0d9488', backgroundColor: 'rgba(13,148,136,0.08)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#0d9488', pointBorderColor: '#fff', pointBorderWidth: 2 },
+      { label: 'Update', data: [8,  38, 95,  104,78, 88], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.06)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointBorderWidth: 2 },
+      { label: 'Delete', data: [3,  18, 42,  38, 30, 28], borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.05)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#f43f5e', pointBorderColor: '#fff', pointBorderWidth: 2, borderDash: [4,3] }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top', labels: { font: { size: 10, family: 'DM Sans' }, boxWidth: 10, padding: 12 } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
+      y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 }, color: '#94a3b8' } }
+    }
+  }
+});
+
+// Bar Chart — Operation Breakdown
+const barCtx = document.getElementById('barChart').getContext('2d');
+new Chart(barCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Create', 'Update', 'Delete'],
+    datasets: [{ data: [432, 611, 241], backgroundColor: ['#0d9488','#3b82f6','#f43f5e'], borderRadius: 6, borderSkipped: false }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#94a3b8' } },
+      y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 9 }, color: '#94a3b8' } }
+    }
+  }
+});
+
+// Donut Chart — Activity Distribution
+const donutCtx = document.getElementById('donutChart').getContext('2d');
+new Chart(donutCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Login/Logout','Click','Key Press','Mouse Move','Hover','General'],
+    datasets: [{ data: [210, 1406, 892, 540, 340, 353], backgroundColor: ['#0d9488','#7c3aed','#3b82f6','#64748b','#f43f5e','#f59e0b'], borderWidth: 0, hoverOffset: 6 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '68%',
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Init tables
+renderLogs(LOG_DATA);
+renderActs(ACT_DATA);
+</script>
+</body>
+</html>

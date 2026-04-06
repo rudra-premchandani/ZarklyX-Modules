@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ZarklyX — Project Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #f4f3f0;
+  --surface: #ffffff;
+  --surface2: #f9f8f6;
+  --border: rgba(30,28,24,0.10);
+  --border-strong: rgba(30,28,24,0.18);
+  --ink: #1a1916;
+  --ink2: #4a4843;
+  --ink3: #8a8782;
+  --accent: #1a3a5c;
+  --accent-light: #e8eef5;
+  --green: #1a6b45;
+  --green-bg: #e6f3ec;
+  --yellow: #7a5c0a;
+  --yellow-bg: #fdf3d8;
+  --red: #8b1f1f;
+  --red-bg: #fce8e8;
+  --blue: #1c4fa0;
+  --blue-bg: #e8effc;
+  --purple: #4a2580;
+  --purple-bg: #f0ebfb;
+  --tag-h: #6b1a1a; --tag-h-bg: #fce8e8;
+  --tag-m: #5c4a0a; --tag-m-bg: #fdf3d8;
+  --tag-l: #1a4a1a; --tag-l-bg: #e6f3e6;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
+.mono { font-family: 'DM Mono', monospace; }
+
+/* ── Layout ── */
+.shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 220px; min-height: 100vh; background: var(--accent);
+  display: flex; flex-direction: column; position: sticky; top: 0; flex-shrink: 0;
+}
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── Sidebar ── */
+.sb-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.sb-logo .logo-mark {
+  font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700;
+  color: #fff; letter-spacing: -0.5px;
+}
+.sb-logo .logo-sub { font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+.sb-section { padding: 16px 12px 4px; font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,0.3); font-family: 'DM Mono', monospace; }
+.sb-nav { padding: 4px 8px; }
+.sb-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: var(--radius); cursor: pointer;
+  color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 400;
+  transition: all 0.15s; margin-bottom: 2px;
+}
+.sb-item:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); }
+.sb-item.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 500; }
+.sb-item .sb-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+.sb-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 16px; }
+.sb-bottom { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+.sb-user { display: flex; align-items: center; gap: 10px; }
+.sb-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; flex-shrink: 0; }
+.sb-user-info .name { font-size: 12px; font-weight: 500; color: #fff; }
+.sb-user-info .role { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+/* ── Topbar ── */
+.topbar {
+  height: 56px; background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 28px; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; flex: 1; color: var(--ink); }
+.topbar-title span { color: var(--ink3); font-weight: 300; }
+.health-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; font-family: 'DM Mono', monospace;
+}
+.health-badge.green { background: var(--green-bg); color: var(--green); }
+.health-badge.yellow { background: var(--yellow-bg); color: var(--yellow); }
+.health-badge.red { background: var(--red-bg); color: var(--red); }
+.health-dot { width: 6px; height: 6px; border-radius: 50%; }
+.health-badge.green .health-dot { background: #22c55e; }
+.health-badge.yellow .health-dot { background: #f59e0b; animation: pulse 2s infinite; }
+.health-badge.red .health-dot { background: #ef4444; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.topbar-btn {
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border-strong);
+  background: var(--surface); font-size: 12px; font-weight: 500; color: var(--ink2);
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.topbar-btn:hover { background: var(--surface2); }
+.topbar-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.topbar-btn.primary:hover { background: #142e4a; }
+
+/* ── Content ── */
+.content { padding: 24px 28px; flex: 1; overflow-y: auto; }
+
+/* ── Section header ── */
+.section-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.section-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 500; color: var(--ink); }
+.section-label { font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink3); font-family: 'DM Mono', monospace; margin-bottom: 14px; }
+.section-link { font-size: 11px; color: var(--blue); cursor: pointer; text-decoration: none; font-family: 'DM Mono', monospace; }
+
+/* ── Cards ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.card-pad { padding: 18px 20px; }
+.card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-title { font-family: 'Fraunces', serif; font-size: 13px; font-weight: 500; color: var(--ink2); }
+
+/* ── KPI Row ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-bottom: 20px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 18px 20px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent-clr, #1a3a5c);
+}
+.kpi-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink3); font-family: 'DM Mono', monospace; margin-bottom: 8px; }
+.kpi-value { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--ink); line-height: 1; margin-bottom: 6px; }
+.kpi-sub { font-size: 11px; color: var(--ink3); display: flex; align-items: center; gap: 4px; }
+.kpi-trend { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 4px; }
+.kpi-trend.up { background: var(--green-bg); color: var(--green); }
+.kpi-trend.dn { background: var(--red-bg); color: var(--red); }
+
+/* ── Progress Bar ── */
+.prog-track { height: 6px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+.prog-sm { height: 4px; }
+
+/* ── Mid Grid ── */
+.mid-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
+.mid-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+
+/* ── Gantt ── */
+.gantt-wrap { overflow-x: auto; }
+.gantt-table { width: 100%; min-width: 600px; border-collapse: collapse; }
+.gantt-table th { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink3); font-family: 'DM Mono', monospace; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+.gantt-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.gantt-table tr:last-child td { border-bottom: none; }
+.gantt-table tr:hover td { background: var(--surface2); }
+.gantt-task-name { font-size: 12px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.gantt-phase { font-size: 10px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+.gantt-bar-cell { width: 55%; padding: 7px 8px; }
+.gantt-timeline { position: relative; height: 22px; }
+.gantt-bar {
+  position: absolute; height: 14px; top: 4px; border-radius: 3px;
+  display: flex; align-items: center; padding: 0 6px; font-size: 9px; font-family: 'DM Mono', monospace; font-weight: 500;
+  white-space: nowrap; overflow: hidden;
+}
+.gantt-bar .bar-inner { height: 100%; border-radius: 2px; position: absolute; left: 0; top: 0; opacity: 0.35; }
+.milestone-marker { position: absolute; width: 10px; height: 10px; background: #f59e0b; border: 2px solid #fff; border-radius: 50%; top: 6px; z-index: 2; box-shadow: 0 0 0 1px #f59e0b; }
+
+/* ── Task Tree ── */
+.task-tree { display: flex; flex-direction: column; gap: 3px; }
+.task-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius);
+  cursor: pointer; transition: background 0.12s; border: 1px solid transparent;
+}
+.task-row:hover { background: var(--surface2); border-color: var(--border); }
+.task-row.phase { background: var(--surface2); border-color: var(--border); }
+.task-row.phase .task-name { font-weight: 600; font-size: 12px; }
+.task-row.task { padding-left: 26px; }
+.task-row.subtask { padding-left: 44px; }
+.expand-btn { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; color: var(--ink3); cursor: pointer; transition: transform 0.2s; }
+.expand-btn.open { transform: rotate(90deg); }
+.task-name { flex: 1; font-size: 12px; color: var(--ink); }
+.task-owner { font-size: 10px; color: var(--ink3); font-family: 'DM Mono', monospace; display: flex; align-items: center; gap: 5px; }
+.owner-avatar { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; color: #fff; flex-shrink: 0; }
+.task-prog { width: 60px; }
+.task-prog .prog-track { background: rgba(0,0,0,0.06); }
+
+/* ── Status pills ── */
+.status-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; font-family: 'DM Mono', monospace; white-space: nowrap; }
+.s-done { background: var(--green-bg); color: var(--green); }
+.s-prog { background: var(--blue-bg); color: var(--blue); }
+.s-blocked { background: var(--red-bg); color: var(--red); }
+.s-review { background: var(--purple-bg); color: var(--purple); }
+.s-pending { background: var(--surface2); color: var(--ink3); border: 1px solid var(--border); }
+
+/* ── Budget ── */
+.budget-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.budget-label { font-size: 11px; color: var(--ink2); width: 80px; flex-shrink: 0; }
+.budget-amount { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink); width: 72px; text-align: right; flex-shrink: 0; }
+.budget-track { flex: 1; height: 8px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+.budget-fill { height: 100%; border-radius: 99px; }
+
+/* ── Team cards ── */
+.team-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.team-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+.team-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.team-name { font-size: 12px; font-weight: 600; color: var(--ink); }
+.team-role { font-size: 10px; color: var(--ink3); }
+.team-tasks { display: flex; gap: 4px; flex-wrap: wrap; }
+.task-chip { font-size: 10px; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); color: var(--ink2); background: var(--surface); }
+
+/* ── Kanban ── */
+.kanban-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+.kan-col { display: flex; flex-direction: column; }
+.kan-col-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.kan-col-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; font-family: 'DM Mono', monospace; }
+.kan-count { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.kan-cards { display: flex; flex-direction: column; gap: 8px; }
+.kan-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; box-shadow: var(--shadow); cursor: grab; transition: all 0.15s;
+  position: relative; overflow: hidden;
+}
+.kan-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--card-accent, #1a3a5c); }
+.kan-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--border-strong); }
+.kan-card-title { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px; line-height: 1.4; }
+.kan-card-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.kan-card-assignee { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+.kan-card-deadline { font-size: 10px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+.kan-card-deadline.overdue { color: var(--red); }
+.priority-badge { font-size: 9px; padding: 1px 6px; border-radius: 3px; font-family: 'DM Mono', monospace; font-weight: 500; }
+.p-high { background: var(--tag-h-bg); color: var(--tag-h); }
+.p-med { background: var(--tag-m-bg); color: var(--tag-m); }
+.p-low { background: var(--tag-l-bg); color: var(--tag-l); }
+
+/* ── Analytics ── */
+.analytics-grid { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 14px; margin-bottom: 20px; }
+.risk-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.risk-row:last-child { border-bottom: none; }
+.risk-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.risk-title { font-size: 12px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.risk-desc { font-size: 10px; color: var(--ink3); }
+
+/* ── Chart containers ── */
+.chart-wrap { position: relative; width: 100%; }
+
+/* ── Milestone timeline ── */
+.milestone-list { display: flex; flex-direction: column; gap: 0; position: relative; }
+.milestone-list::before { content: ''; position: absolute; left: 8px; top: 12px; bottom: 12px; width: 1px; background: var(--border); }
+.ms-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; position: relative; }
+.ms-dot { width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--border); margin-top: 1px; z-index: 1; }
+.ms-dot.done { background: #22c55e; box-shadow: 0 0 0 1px #16a34a; }
+.ms-dot.active { background: #3b82f6; box-shadow: 0 0 0 1px #1d4ed8; }
+.ms-dot.upcoming { background: var(--surface); box-shadow: 0 0 0 1px var(--border-strong); }
+.ms-dot.risk { background: #f59e0b; box-shadow: 0 0 0 1px #d97706; }
+.ms-body { flex: 1; }
+.ms-name { font-size: 12px; font-weight: 600; color: var(--ink); }
+.ms-date { font-size: 10px; color: var(--ink3); font-family: 'DM Mono', monospace; margin-top: 1px; }
+
+/* ── Pie custom legend ── */
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.legend-label { font-size: 11px; color: var(--ink2); flex: 1; }
+.legend-val { font-size: 11px; color: var(--ink); font-family: 'DM Mono', monospace; font-weight: 500; }
+
+/* ── Delay chart label ── */
+.delay-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11px; }
+.delay-label { width: 80px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.delay-bar-wrap { flex: 1; height: 16px; position: relative; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.delay-planned { height: 8px; background: #bfdbfe; position: absolute; top: 0; border-radius: 3px; }
+.delay-actual { height: 8px; background: #3b82f6; position: absolute; bottom: 0; border-radius: 3px; }
+.delay-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink3); width: 28px; text-align: right; }
+
+/* ── Fade in animation ── */
+@keyframes fadeUp { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+.fade-up { animation: fadeUp 0.4s ease both; }
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.10s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.20s; }
+.delay-5 { animation-delay: 0.25s; }
+.delay-6 { animation-delay: 0.30s; }
+
+/* ── Utility ── */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-6 { gap: 6px; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.text-muted { color: var(--ink3); }
+.text-sm { font-size: 11px; }
+.text-mono { font-family: 'DM Mono', monospace; }
+.w-full { width: 100%; }
+.font-500 { font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="logo-mark">ZarklyX</div>
+    <div class="logo-sub">Enterprise Suite</div>
+  </div>
+
+  <div class="sb-section">Workspace</div>
+  <nav class="sb-nav">
+    <div class="sb-item active" onclick="setActiveNav(this,'Dashboard')">
+      <svg class="sb-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="1.8"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item" onclick="setActiveNav(this,'Tasks')">
+      <svg class="sb-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Tasks
+    </div>
+    <div class="sb-item" onclick="setActiveNav(this,'Timeline')">
+      <svg class="sb-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="1.8"/><path stroke-width="1.8" d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Timeline
+    </div>
+    <div class="sb-item" onclick="setActiveNav(this,'Team')">
+      <svg class="sb-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Team
+    </div>
+    <div class="sb-item" onclick="setActiveNav(this,'Analytics')">
+      <svg class="sb-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      Analytics
+    </div>
+  </nav>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Projects</div>
+  <nav class="sb-nav">
+    <div class="sb-item" style="font-size:12px" onclick="setActiveProject(this,'Nexus Core v3')">
+      <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>
+      Nexus Core v3
+    </div>
+    <div class="sb-item" style="font-size:12px" onclick="setActiveProject(this,'Manufacturing OS')">
+      <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span>
+      Manufacturing OS
+    </div>
+    <div class="sb-item active" style="font-size:12px" onclick="setActiveProject(this,'Atlas Platform')">
+      <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0"></span>
+      Atlas Platform
+    </div>
+    <div class="sb-item" style="font-size:12px" onclick="setActiveProject(this,'Ops Integration')">
+      <span style="width:8px;height:8px;border-radius:50%;background:#a855f7;flex-shrink:0"></span>
+      Ops Integration
+    </div>
+  </nav>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar">RK</div>
+      <div class="sb-user-info">
+        <div class="name">Riya Kapoor</div>
+        <div class="role">Project Director</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-title">Atlas Platform <span>/ Q4 Delivery Sprint</span></div>
+    <div class="health-badge yellow">
+      <div class="health-dot"></div>
+      At Risk
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="topbar-btn" onclick="showToast('📄 Exporting dashboard as PDF…','info')">Export PDF</button>
+      <button class="topbar-btn" onclick="openShareModal()">Share</button>
+      <button class="topbar-btn primary" onclick="openNewTaskModal()">+ New Task</button>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ═══ EXECUTIVE KPIs ═══ -->
+    <div class="section-label fade-up">Executive Overview</div>
+    <div class="kpi-grid fade-up delay-1">
+      <div class="kpi-card" style="--accent-clr:#3b82f6">
+        <div class="kpi-label">Overall Progress</div>
+        <div class="kpi-value">67%</div>
+        <div style="margin-bottom:10px">
+          <div class="prog-track"><div class="prog-fill" style="width:67%;background:#3b82f6"></div></div>
+        </div>
+        <div class="kpi-sub">
+          <span class="kpi-trend up">↑ 4.2%</span>
+          <span>vs last sprint</span>
+        </div>
+      </div>
+      <div class="kpi-card" style="--accent-clr:#f59e0b">
+        <div class="kpi-label">Timeline Status</div>
+        <div class="kpi-value">−11d</div>
+        <div class="kpi-sub" style="margin-bottom:10px">
+          <span style="color:var(--yellow);font-size:11px;font-family:'DM Mono',monospace">Deadline: Dec 31, 2024</span>
+        </div>
+        <div class="kpi-sub">
+          <span class="kpi-trend dn">3 tasks late</span>
+          <span>behind schedule</span>
+        </div>
+      </div>
+      <div class="kpi-card" style="--accent-clr:#22c55e">
+        <div class="kpi-label">Budget Utilisation</div>
+        <div class="kpi-value">$1.24M</div>
+        <div style="margin-bottom:10px">
+          <div class="prog-track"><div class="prog-fill" style="width:74%;background:#22c55e"></div></div>
+        </div>
+        <div class="kpi-sub">
+          <span class="kpi-trend up">74% used</span>
+          <span>$430K remaining</span>
+        </div>
+      </div>
+      <div class="kpi-card" style="--accent-clr:#a855f7">
+        <div class="kpi-label">Tasks Completed</div>
+        <div class="kpi-value">84/126</div>
+        <div style="margin-bottom:10px">
+          <div class="prog-track"><div class="prog-fill" style="width:67%;background:#a855f7"></div></div>
+        </div>
+        <div class="kpi-sub">
+          <span class="kpi-trend up">12 closed</span>
+          <span>this week</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ GANTT + MILESTONES ═══ -->
+    <div class="mid-grid fade-up delay-2">
+      <!-- Gantt -->
+      <div class="card card-pad">
+        <div class="card-hd">
+          <div class="card-title">Timeline — Gantt View</div>
+          <div style="display:flex;gap:8px">
+            <span class="status-pill s-done" style="cursor:pointer" onclick="filterGantt('done',this)">Completed</span>
+            <span class="status-pill s-prog" style="cursor:pointer" onclick="filterGantt('prog',this)">In Progress</span>
+            <span class="status-pill s-pending" style="cursor:pointer" onclick="filterGantt('pending',this)">Upcoming</span>
+          </div>
+        </div>
+        <div class="gantt-wrap">
+          <table class="gantt-table">
+            <thead>
+              <tr>
+                <th style="width:28%">Task</th>
+                <th style="width:12%">Owner</th>
+                <th class="gantt-bar-cell">Oct — Nov — Dec 2024</th>
+                <th style="width:10%">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="gantt-task-name" style="color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace">PHASE 1 — Foundation</div></td>
+                <td></td>
+                <td class="gantt-bar-cell"></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><div class="gantt-task-name">System Architecture</div><div class="gantt-phase">Eng Core</div></td>
+                <td><div class="task-owner"><div class="owner-avatar" style="background:#3b82f6">AK</div></div></td>
+                <td class="gantt-bar-cell">
+                  <div class="gantt-timeline">
+                    <div class="gantt-bar" style="left:0%;width:28%;background:#bfdbfe;color:#1e40af">
+                      <div class="bar-inner" style="background:#3b82f6;width:100%"></div>
+                      Architecture
+                    </div>
+                  </div>
+                </td>
+                <td><span class="status-pill s-done">Done</span></td>
+              </tr>
+              <tr>
+                <td><div class="gantt-task-name">DB Schema Design</div><div class="gantt-phase">Data Layer</div></td>
+                <td><div class="task-owner"><div class="owner-avatar" style="background:#8b5cf6">SP</div></div></td>
+                <td class="gantt-bar-cell">
+                  <div class="gantt-timeline">
+                    <div class="gantt-bar" style="left:8%;width:22%;background:#ede9fe;color:#4c1d95">
+                      <div class="bar-inner" style="background:#8b5cf6;width:100%"></div>
+                      DB Schema
+                    </div>
+                  </div>
+                </td>
+                <td><span class="status-pill s-done">Done</span></td>
+              </tr>
+              <tr>
+                <td><div class="gantt-task-name">API Gateway Setup</div><div class="gantt-phase">Backend</div></td>
+                <td><div class="task-owner"><div class="owner-avatar" style="background:#f59e0b">MR</div></div></td>
+                <td class="gantt-bar-cell">
+                  <div class="gantt-timeline">
+                    <div class="gantt-bar" style="left:20%;width:30%;background:#fef3c7;color:#78350f">
+                      <div class="bar-inner" style="background:#f59e0b;width:70%"></div>
+                      API Gateway
+                    </div>
+                    <div class="milestone-marker" style="left:48%"></div>
+                  </div>
+                </td>
+                <td><span class="status-pill s-prog">Active</span></td>
+              </tr>
+              <tr>
+                <td><div class="gantt-task-name">Auth & Permissions</div><div class="gantt-phase">Security</div></td>
+                <td><div class="task-owner"><div class="owner-avatar" style="background:#ef4444">TL</div></div></td>
+                <td class="gantt-bar-cell">
+                  <div class="gantt-timeline">
+                    <div class="gantt-bar" style="left:28%;width:26%;background:#fee2e2;color:#7f1d1d">
+                      <div class="bar-inner" style="background:#ef4444;width:45%"></div>
+                      Auth
+                    </div>
+                  </div>
+                </td>
+                <td><span class="status-pill s-blocked">Blocked</span></td>
+              </tr>
+              <tr>
+                <td><div class="gantt-task-name">Frontend Shell</div><div class="gantt-phase">UI Platform</div></td>
+                <td><div class="task-owner"><div class="owner-avatar" style="background:#10b981">YC</div></div></td>
+                <td class="gantt-bar-cell">
+                  <div class="gantt-timeline">
+                    <div class="gantt-bar" style="left:35%;width:38%;background:#d1fae5;color:#064e3b">
+                      <div class="bar-inner" style="background:#10b981;width:30%"></div>
+                      Frontend
+                    </div>
+                  </div>
+                </td>
+                <td><span class="status-pill s-prog">Active</span></td>
+              </tr>
+              <tr>
+                <td><div class="gantt-task-name">Integration Testing</div><div class="gantt-phase">QA</div></td>
+                <td><div class="task-owner"><div class="owner-avatar" style="background:#6366f1">JP</div></div></td>
+                <td class="gantt-bar-cell">
+                  <div class="gantt-timeline">
+                    <div class="gantt-bar" style="left:62%;width:28%;background:#e0e7ff;color:#312e81">
+                      <div class="bar-inner" style="background:#6366f1;width:0%"></div>
+                      QA Testing
+                    </div>
+                    <div class="milestone-marker" style="left:88%"></div>
+                  </div>
+                </td>
+                <td><span class="status-pill s-pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td><div class="gantt-task-name">Production Deploy</div><div class="gantt-phase">DevOps</div></td>
+                <td><div class="task-owner"><div class="owner-avatar" style="background:#1a3a5c">RK</div></div></td>
+                <td class="gantt-bar-cell">
+                  <div class="gantt-timeline">
+                    <div class="gantt-bar" style="left:88%;width:12%;background:#e8eef5;color:#1a3a5c">
+                      <div class="bar-inner" style="background:#1a3a5c;width:0%"></div>
+                      Deploy
+                    </div>
+                    <div class="milestone-marker" style="left:98%;background:#ef4444;box-shadow:0 0 0 1px #ef4444"></div>
+                  </div>
+                </td>
+                <td><span class="status-pill s-pending">Pending</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:12px;font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace">
+          <span>●<span style="color:#f59e0b">●</span> Milestone</span>
+          <span style="color:#ef4444">●</span> Critical deadline Dec 31</span>
+          <span>Bar fill = completion %</span>
+        </div>
+      </div>
+
+      <!-- Milestones -->
+      <div class="card card-pad">
+        <div class="card-hd">
+          <div class="card-title">Key Milestones</div>
+          <span class="text-sm text-muted text-mono">Q4 2024</span>
+        </div>
+        <div class="milestone-list">
+          <div class="ms-item">
+            <div class="ms-dot done"></div>
+            <div class="ms-body">
+              <div class="ms-name">Architecture sign-off</div>
+              <div class="ms-date">Oct 15, 2024 — Complete</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-dot done"></div>
+            <div class="ms-body">
+              <div class="ms-name">DB schema frozen</div>
+              <div class="ms-date">Oct 28, 2024 — Complete</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-dot active"></div>
+            <div class="ms-body">
+              <div class="ms-name">API v1 release</div>
+              <div class="ms-date">Nov 22, 2024 — Active</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-dot risk"></div>
+            <div class="ms-body">
+              <div class="ms-name">Security audit pass</div>
+              <div class="ms-date">Nov 30, 2024 — At Risk</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-dot upcoming"></div>
+            <div class="ms-body">
+              <div class="ms-name">Beta launch</div>
+              <div class="ms-date">Dec 15, 2024 — Upcoming</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-dot upcoming" style="border-color:#ef4444;box-shadow:0 0 0 1px #ef4444"></div>
+            <div class="ms-body">
+              <div class="ms-name">Production go-live</div>
+              <div class="ms-date" style="color:var(--red)">Dec 31, 2024 — DEADLINE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ FINANCIAL + TASK TREE ═══ -->
+    <div class="mid-grid fade-up delay-3">
+      <!-- Financial Dashboard -->
+      <div class="card card-pad">
+        <div class="card-hd">
+          <div class="card-title">Financial Overview</div>
+          <span class="text-sm text-muted text-mono">Budget: $1.67M</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <!-- Budget bars -->
+          <div>
+            <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:12px">Allocation</div>
+            <div class="budget-row">
+              <div class="budget-label">Engineering</div>
+              <div class="budget-track"><div class="budget-fill" style="width:78%;background:#3b82f6"></div></div>
+              <div class="budget-amount">$780K</div>
+            </div>
+            <div class="budget-row">
+              <div class="budget-label">Design</div>
+              <div class="budget-track"><div class="budget-fill" style="width:26%;background:#8b5cf6"></div></div>
+              <div class="budget-amount">$260K</div>
+            </div>
+            <div class="budget-row">
+              <div class="budget-label">QA / Testing</div>
+              <div class="budget-track"><div class="budget-fill" style="width:17%;background:#10b981"></div></div>
+              <div class="budget-amount">$170K</div>
+            </div>
+            <div class="budget-row">
+              <div class="budget-label">Infrastructure</div>
+              <div class="budget-track"><div class="budget-fill" style="width:16%;background:#f59e0b"></div></div>
+              <div class="budget-amount">$160K</div>
+            </div>
+            <div class="budget-row">
+              <div class="budget-label">Contingency</div>
+              <div class="budget-track"><div class="budget-fill" style="width:30%;background:#ef4444"></div></div>
+              <div class="budget-amount">$300K</div>
+            </div>
+            <div style="height:1px;background:var(--border);margin:14px 0"></div>
+            <div class="budget-row" style="margin-bottom:0">
+              <div class="budget-label" style="font-weight:600;color:var(--ink)">Spent (74%)</div>
+              <div class="budget-track"><div class="budget-fill" style="width:74%;background:var(--accent)"></div></div>
+              <div class="budget-amount" style="font-weight:600;color:var(--ink)">$1.24M</div>
+            </div>
+          </div>
+          <!-- Charts column -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div>
+              <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:8px">Budget vs Actual</div>
+              <div class="chart-wrap" style="height:110px">
+                <canvas id="budgetBar"></canvas>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:8px">Cost Trend</div>
+              <div class="chart-wrap" style="height:90px">
+                <canvas id="costLine"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Tree -->
+      <div class="card card-pad">
+        <div class="card-hd">
+          <div class="card-title">Task Hierarchy</div>
+          <span class="text-sm text-muted text-mono">126 tasks total</span>
+        </div>
+        <div class="task-tree" id="taskTree">
+
+          <!-- Phase 1 -->
+          <div class="task-row phase" onclick="togglePhase('p1')">
+            <div class="expand-btn open" id="btn-p1">▶</div>
+            <div style="width:8px;height:8px;border-radius:2px;background:#22c55e;flex-shrink:0"></div>
+            <div class="task-name" style="font-size:12px;font-weight:600">Phase 1 — Foundation</div>
+            <span class="status-pill s-done">Done</span>
+            <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:100%;background:#22c55e"></div></div></div>
+          </div>
+          <div id="p1" class="task-children">
+            <div class="task-row task">
+              <div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name">System Architecture Design</div>
+              <div class="task-owner"><div class="owner-avatar" style="background:#3b82f6;width:18px;height:18px;font-size:8px">AK</div></div>
+              <span class="status-pill s-done" style="font-size:9px">Done</span>
+              <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:100%;background:#22c55e"></div></div></div>
+            </div>
+            <div class="task-row subtask" style="opacity:.8">
+              <div style="width:4px;height:4px;border-radius:50%;background:#22c55e;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name" style="font-size:11px;color:var(--ink2)">Define microservice boundaries</div>
+              <span class="status-pill s-done" style="font-size:9px;padding:1px 6px">Done</span>
+            </div>
+            <div class="task-row subtask" style="opacity:.8">
+              <div style="width:4px;height:4px;border-radius:50%;background:#22c55e;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name" style="font-size:11px;color:var(--ink2)">Choose tech stack</div>
+              <span class="status-pill s-done" style="font-size:9px;padding:1px 6px">Done</span>
+            </div>
+            <div class="task-row task">
+              <div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name">Database Schema Design</div>
+              <div class="task-owner"><div class="owner-avatar" style="background:#8b5cf6;width:18px;height:18px;font-size:8px">SP</div></div>
+              <span class="status-pill s-done" style="font-size:9px">Done</span>
+              <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:100%;background:#22c55e"></div></div></div>
+            </div>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="task-row phase" onclick="togglePhase('p2')">
+            <div class="expand-btn open" id="btn-p2">▶</div>
+            <div style="width:8px;height:8px;border-radius:2px;background:#3b82f6;flex-shrink:0"></div>
+            <div class="task-name" style="font-size:12px;font-weight:600">Phase 2 — Backend Core</div>
+            <span class="status-pill s-prog">62%</span>
+            <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:62%;background:#3b82f6"></div></div></div>
+          </div>
+          <div id="p2" class="task-children">
+            <div class="task-row task">
+              <div style="width:6px;height:6px;border-radius:50%;background:#3b82f6;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name">API Gateway Setup</div>
+              <div class="task-owner"><div class="owner-avatar" style="background:#f59e0b;width:18px;height:18px;font-size:8px">MR</div></div>
+              <span class="status-pill s-prog" style="font-size:9px">70%</span>
+              <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:70%;background:#3b82f6"></div></div></div>
+            </div>
+            <div class="task-row subtask" style="opacity:.85">
+              <div style="width:4px;height:4px;border-radius:50%;background:#f59e0b;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name" style="font-size:11px;color:var(--ink2)">Route configuration</div>
+              <span class="status-pill s-done" style="font-size:9px;padding:1px 6px">Done</span>
+            </div>
+            <div class="task-row subtask" style="opacity:.85">
+              <div style="width:4px;height:4px;border-radius:50%;background:#f59e0b;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name" style="font-size:11px;color:var(--ink2)">Rate limiting middleware</div>
+              <span class="status-pill s-prog" style="font-size:9px;padding:1px 6px">Active</span>
+            </div>
+            <div class="task-row task">
+              <div style="width:6px;height:6px;border-radius:50%;background:#ef4444;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name">Auth & Permissions</div>
+              <div class="task-owner"><div class="owner-avatar" style="background:#ef4444;width:18px;height:18px;font-size:8px">TL</div></div>
+              <span class="status-pill s-blocked" style="font-size:9px">Blocked</span>
+              <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:45%;background:#ef4444"></div></div></div>
+            </div>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="task-row phase" onclick="togglePhase('p3')">
+            <div class="expand-btn" id="btn-p3">▶</div>
+            <div style="width:8px;height:8px;border-radius:2px;background:#8b5cf6;flex-shrink:0"></div>
+            <div class="task-name" style="font-size:12px;font-weight:600">Phase 3 — Frontend</div>
+            <span class="status-pill s-prog">28%</span>
+            <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:28%;background:#8b5cf6"></div></div></div>
+          </div>
+          <div id="p3" class="task-children" style="display:none">
+            <div class="task-row task">
+              <div style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name">Design System Setup</div>
+              <div class="task-owner"><div class="owner-avatar" style="background:#10b981;width:18px;height:18px;font-size:8px">YC</div></div>
+              <span class="status-pill s-done" style="font-size:9px">Done</span>
+              <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:100%;background:#10b981"></div></div></div>
+            </div>
+            <div class="task-row task">
+              <div style="width:6px;height:6px;border-radius:50%;background:#8b5cf6;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name">Dashboard UI Components</div>
+              <div class="task-owner"><div class="owner-avatar" style="background:#8b5cf6;width:18px;height:18px;font-size:8px">LN</div></div>
+              <span class="status-pill s-prog" style="font-size:9px">35%</span>
+              <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:35%;background:#8b5cf6"></div></div></div>
+            </div>
+          </div>
+
+          <!-- Phase 4 -->
+          <div class="task-row phase" onclick="togglePhase('p4')">
+            <div class="expand-btn" id="btn-p4">▶</div>
+            <div style="width:8px;height:8px;border-radius:2px;background:#94a3b8;flex-shrink:0"></div>
+            <div class="task-name" style="font-size:12px;font-weight:600">Phase 4 — QA & Deploy</div>
+            <span class="status-pill s-pending">0%</span>
+            <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:0%;background:#94a3b8"></div></div></div>
+          </div>
+          <div id="p4" class="task-children" style="display:none">
+            <div class="task-row task">
+              <div style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name">Integration Testing Suite</div>
+              <div class="task-owner"><div class="owner-avatar" style="background:#6366f1;width:18px;height:18px;font-size:8px">JP</div></div>
+              <span class="status-pill s-pending" style="font-size:9px">Pending</span>
+              <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:0%;background:#94a3b8"></div></div></div>
+            </div>
+            <div class="task-row task">
+              <div style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0;margin-left:4px"></div>
+              <div class="task-name">Production Deployment</div>
+              <div class="task-owner"><div class="owner-avatar" style="background:#1a3a5c;width:18px;height:18px;font-size:8px">RK</div></div>
+              <span class="status-pill s-pending" style="font-size:9px">Pending</span>
+              <div class="task-prog"><div class="prog-track prog-sm"><div class="prog-fill" style="width:0%;background:#94a3b8"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TEAM + ANALYTICS ═══ -->
+    <div class="mid-grid-3 fade-up delay-4">
+      <!-- Team workload -->
+      <div class="card card-pad">
+        <div class="card-hd">
+          <div class="card-title">Team Workload</div>
+          <span class="text-sm text-muted text-mono">8 members</span>
+        </div>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-card-top">
+              <div class="owner-avatar" style="background:#3b82f6;width:28px;height:28px;font-size:11px">AK</div>
+              <div><div class="team-name">Aryan Kumar</div><div class="team-role">Lead Eng.</div></div>
+            </div>
+            <div class="prog-track prog-sm" style="margin-bottom:6px"><div class="prog-fill" style="width:85%;background:#3b82f6"></div></div>
+            <div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace">85% load · 7 tasks</div>
+          </div>
+          <div class="team-card">
+            <div class="team-card-top">
+              <div class="owner-avatar" style="background:#8b5cf6;width:28px;height:28px;font-size:11px">SP</div>
+              <div><div class="team-name">Sara Park</div><div class="team-role">Data Eng.</div></div>
+            </div>
+            <div class="prog-track prog-sm" style="margin-bottom:6px"><div class="prog-fill" style="width:60%;background:#8b5cf6"></div></div>
+            <div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace">60% load · 5 tasks</div>
+          </div>
+          <div class="team-card">
+            <div class="team-card-top">
+              <div class="owner-avatar" style="background:#f59e0b;width:28px;height:28px;font-size:11px">MR</div>
+              <div><div class="team-name">Marco Rossi</div><div class="team-role">Backend</div></div>
+            </div>
+            <div class="prog-track prog-sm" style="margin-bottom:6px"><div class="prog-fill" style="width:92%;background:#f59e0b"></div></div>
+            <div style="font-size:10px;color:var(--yellow);font-family:'DM Mono',monospace">92% load · 9 tasks ⚠</div>
+          </div>
+          <div class="team-card">
+            <div class="team-card-top">
+              <div class="owner-avatar" style="background:#ef4444;width:28px;height:28px;font-size:11px">TL</div>
+              <div><div class="team-name">Tina Lee</div><div class="team-role">Security</div></div>
+            </div>
+            <div class="prog-track prog-sm" style="margin-bottom:6px"><div class="prog-fill" style="width:45%;background:#ef4444"></div></div>
+            <div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace">45% load · 4 tasks</div>
+          </div>
+          <div class="team-card">
+            <div class="team-card-top">
+              <div class="owner-avatar" style="background:#10b981;width:28px;height:28px;font-size:11px">YC</div>
+              <div><div class="team-name">Yuki Chen</div><div class="team-role">UI Lead</div></div>
+            </div>
+            <div class="prog-track prog-sm" style="margin-bottom:6px"><div class="prog-fill" style="width:70%;background:#10b981"></div></div>
+            <div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace">70% load · 6 tasks</div>
+          </div>
+          <div class="team-card">
+            <div class="team-card-top">
+              <div class="owner-avatar" style="background:#6366f1;width:28px;height:28px;font-size:11px">JP</div>
+              <div><div class="team-name">James Patel</div><div class="team-role">QA Lead</div></div>
+            </div>
+            <div class="prog-track prog-sm" style="margin-bottom:6px"><div class="prog-fill" style="width:30%;background:#6366f1"></div></div>
+            <div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace">30% load · 3 tasks</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task completion trend -->
+      <div class="card card-pad">
+        <div class="card-hd">
+          <div class="card-title">Completion Trend</div>
+          <span class="text-sm text-muted text-mono">Weekly</span>
+        </div>
+        <div class="chart-wrap" style="height:160px">
+          <canvas id="completionChart"></canvas>
+        </div>
+        <div style="margin-top:14px">
+          <div class="delay-row">
+            <div class="delay-label">Architecture</div>
+            <div class="delay-bar-wrap">
+              <div class="delay-planned" style="width:100%"></div>
+              <div class="delay-actual" style="width:100%"></div>
+            </div>
+            <div class="delay-num" style="color:var(--green)">0d</div>
+          </div>
+          <div class="delay-row">
+            <div class="delay-label">API Gateway</div>
+            <div class="delay-bar-wrap">
+              <div class="delay-planned" style="width:80%"></div>
+              <div class="delay-actual" style="width:95%"></div>
+            </div>
+            <div class="delay-num" style="color:var(--yellow)">+4d</div>
+          </div>
+          <div class="delay-row">
+            <div class="delay-label">Auth Module</div>
+            <div class="delay-bar-wrap">
+              <div class="delay-planned" style="width:70%"></div>
+              <div class="delay-actual" style="width:45%"></div>
+            </div>
+            <div class="delay-num" style="color:var(--red)">+11d</div>
+          </div>
+          <div class="delay-row">
+            <div class="delay-label">Frontend</div>
+            <div class="delay-bar-wrap">
+              <div class="delay-planned" style="width:50%"></div>
+              <div class="delay-actual" style="width:28%"></div>
+            </div>
+            <div class="delay-num" style="color:var(--yellow)">+6d</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:var(--ink3);font-family:'DM Mono',monospace;margin-top:8px;display:flex;gap:12px">
+          <span><span style="display:inline-block;width:10px;height:5px;background:#bfdbfe;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Planned</span>
+          <span><span style="display:inline-block;width:10px;height:5px;background:#3b82f6;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Actual</span>
+        </div>
+      </div>
+
+      <!-- Sprint Health & Velocity -->
+      <div class="card card-pad">
+        <div class="card-hd">
+          <div class="card-title">Sprint Health</div>
+          <span class="status-pill s-prog" style="font-size:9px">Sprint 7</span>
+        </div>
+
+        <!-- Velocity ring -->
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <div style="position:relative;width:64px;height:64px;flex-shrink:0">
+            <svg viewBox="0 0 64 64" style="width:64px;height:64px;transform:rotate(-90deg)">
+              <circle cx="32" cy="32" r="26" fill="none" stroke="var(--bg)" stroke-width="8"/>
+              <circle cx="32" cy="32" r="26" fill="none" stroke="#3b82f6" stroke-width="8"
+                stroke-dasharray="163.4" stroke-dashoffset="52" stroke-linecap="round"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--ink);line-height:1">68%</div>
+              <div style="font-size:8px;color:var(--ink3)">velocity</div>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:4px">Team Velocity</div>
+            <div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:8px">84 pts done · 126 pts planned</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span class="status-pill s-done" style="font-size:9px">↑ +12 pts</span>
+              <span style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;padding:2px 0">vs Sprint 6</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sprint metrics -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px">
+          <div class="sprint-metric-box" style="background:var(--green-bg);border-radius:6px;padding:8px 10px">
+            <div style="font-size:18px;font-weight:700;font-family:'Fraunces',serif;color:var(--green)">14</div>
+            <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--green);font-family:'DM Mono',monospace">Closed this wk</div>
+          </div>
+          <div class="sprint-metric-box" style="background:var(--blue-bg);border-radius:6px;padding:8px 10px">
+            <div style="font-size:18px;font-weight:700;font-family:'Fraunces',serif;color:var(--blue)">5</div>
+            <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--blue);font-family:'DM Mono',monospace">Added this wk</div>
+          </div>
+          <div class="sprint-metric-box" style="background:var(--yellow-bg);border-radius:6px;padding:8px 10px">
+            <div style="font-size:18px;font-weight:700;font-family:'Fraunces',serif;color:var(--yellow)">3</div>
+            <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);font-family:'DM Mono',monospace">Carry-overs</div>
+          </div>
+          <div class="sprint-metric-box" style="background:var(--purple-bg);border-radius:6px;padding:8px 10px">
+            <div style="font-size:18px;font-weight:700;font-family:'Fraunces',serif;color:var(--purple)">2</div>
+            <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--purple);font-family:'DM Mono',monospace">In review</div>
+          </div>
+        </div>
+
+        <!-- Phase distribution (mini pie) -->
+        <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:8px">Phase Distribution</div>
+        <div style="display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:center">
+          <div class="chart-wrap" style="height:72px">
+            <canvas id="pieChart"></canvas>
+          </div>
+          <div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#22c55e"></div><div class="legend-label">Foundation</div><div class="legend-val">100%</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div><div class="legend-label">Backend</div><div class="legend-val">62%</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#8b5cf6"></div><div class="legend-label">Frontend</div><div class="legend-val">28%</div></div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#e2e8f0"></div><div class="legend-label">QA/Deploy</div><div class="legend-val">0%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <div style="height:40px"></div>
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── Task Tree Toggle ──
+function togglePhase(id) {
+  const el = document.getElementById(id);
+  const btn = document.getElementById('btn-' + id);
+  if (!el) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'flex';
+  el.style.flexDirection = 'column';
+  btn.classList.toggle('open', !isOpen);
+}
+['p1','p2'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = 'flex'; el.style.flexDirection = 'column'; }
+});
+
+// ── Sidebar Navigation ──
+function setActiveNav(el, label) {
+  document.querySelectorAll('.sb-nav .sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  showToast('📂 Navigating to ' + label,'info');
+}
+function setActiveProject(el, name) {
+  document.querySelectorAll('.sb-nav .sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  showToast('🔀 Switched to ' + name,'success');
+}
+
+// ── Gantt filter ──
+let activeGanttFilter = null;
+function filterGantt(type, el) {
+  const pills = document.querySelectorAll('.gantt-table .status-pill');
+  const rows = document.querySelectorAll('.gantt-table tbody tr');
+  if (activeGanttFilter === type) {
+    activeGanttFilter = null;
+    el.style.outline = '';
+    rows.forEach(r => r.style.opacity = '1');
+    showToast('✅ Filter cleared','info');
+    return;
+  }
+  activeGanttFilter = type;
+  document.querySelectorAll('.card-hd .status-pill').forEach(p => p.style.outline = '');
+  el.style.outline = '2px solid var(--accent)';
+  const classMap = { done: 's-done', prog: 's-prog', pending: 's-pending' };
+  rows.forEach(r => {
+    const pill = r.querySelector('.status-pill');
+    if (!pill) { r.style.opacity = '1'; return; }
+    r.style.opacity = pill.classList.contains(classMap[type]) ? '1' : '0.25';
+  });
+  showToast('🔍 Showing ' + type + ' tasks','info');
+}
+
+// ── Toast System ──
+function showToast(msg, type='info') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;';
+    document.body.appendChild(container);
+  }
+  const t = document.createElement('div');
+  const colors = { info:'#1a3a5c', success:'#1a6b45', warning:'#7a5c0a', error:'#8b1f1f' };
+  const bgs = { info:'#e8eef5', success:'#e6f3ec', warning:'#fdf3d8', error:'#fce8e8' };
+  t.style.cssText = `background:${bgs[type]};color:${colors[type]};border:1px solid ${colors[type]}22;
+    padding:10px 16px;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);animation:slideIn .2s ease;max-width:280px;`;
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ── Share Modal ──
+function openShareModal() {
+  openModal('Share Dashboard',`
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;color:var(--ink3);margin-bottom:6px;font-family:'DM Mono',monospace">Share link</div>
+      <div style="display:flex;gap:8px">
+        <input value="https://zarklyx.io/dashboard/atlas-q4" readonly
+          style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--ink2);outline:none"/>
+        <button onclick="navigator.clipboard.writeText('https://zarklyx.io/dashboard/atlas-q4');showToast('🔗 Link copied!','success')"
+          style="padding:7px 12px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--ink2)">Copy</button>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;color:var(--ink3);margin-bottom:6px;font-family:'DM Mono',monospace">Invite by email</div>
+      <input placeholder="colleague@company.com" type="email"
+        style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);outline:none"/>
+    </div>
+    <div style="display:flex;gap:8px">
+      <select style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink2);outline:none">
+        <option>Can view</option><option>Can comment</option><option>Can edit</option>
+      </select>
+      <button onclick="showToast('✉️ Invite sent!','success');closeModal()"
+        style="padding:7px 16px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500">Send</button>
+    </div>
+  `);
+}
+
+// ── New Task Modal ──
+function openNewTaskModal() {
+  openModal('Create New Task',`
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-family:'DM Mono',monospace">Task title *</div>
+        <input id="nt-title" placeholder="e.g. Implement OAuth2 flow" type="text"
+          style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);outline:none"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-family:'DM Mono',monospace">Phase</div>
+          <select style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink2);outline:none">
+            <option>Phase 1 — Foundation</option><option>Phase 2 — Backend</option>
+            <option>Phase 3 — Frontend</option><option>Phase 4 — QA & Deploy</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-family:'DM Mono',monospace">Priority</div>
+          <select style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink2);outline:none">
+            <option>High</option><option>Medium</option><option>Low</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-family:'DM Mono',monospace">Assignee</div>
+          <select style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink2);outline:none">
+            <option>Aryan Kumar</option><option>Sara Park</option><option>Marco Rossi</option>
+            <option>Tina Lee</option><option>Yuki Chen</option><option>James Patel</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-family:'DM Mono',monospace">Due date</div>
+          <input type="date" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink2);outline:none"/>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:5px;font-family:'DM Mono',monospace">Description</div>
+        <textarea placeholder="Describe the task…" rows="3"
+          style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);outline:none;resize:vertical"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
+        <button onclick="closeModal()" style="padding:8px 16px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--ink2)">Cancel</button>
+        <button onclick="createTask()" style="padding:8px 20px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500">Create Task</button>
+      </div>
+    </div>
+  `);
+}
+function createTask() {
+  const title = document.getElementById('nt-title')?.value.trim();
+  if (!title) { showToast('⚠ Please enter a task title','warning'); return; }
+  closeModal();
+  showToast('✅ Task "' + title + '" created!','success');
+}
+
+// ── Modal Engine ──
+function openModal(title, bodyHTML) {
+  let overlay = document.getElementById('modal-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'modal-overlay';
+    overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:9000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)';
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.2);width:460px;max-width:calc(100vw - 40px);animation:fadeUp .2s ease">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 16px;border-bottom:1px solid var(--border)">
+        <h3 style="font-family:'Fraunces',serif;font-size:16px;font-weight:500;color:var(--ink)">${title}</h3>
+        <button onclick="closeModal()" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:16px;color:var(--ink3);display:flex;align-items:center;justify-content:center">×</button>
+      </div>
+      <div style="padding:20px">${bodyHTML}</div>
+    </div>`;
+  overlay.style.display = 'flex';
+}
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+// ── Kanban card click ──
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.kan-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const title = card.querySelector('.kan-card-title')?.textContent.trim() || 'Task';
+      const assignee = card.querySelector('.kan-card-assignee')?.textContent.trim() || '—';
+      const deadline = card.querySelector('.kan-card-deadline')?.textContent.trim() || '—';
+      const priority = card.querySelector('.priority-badge')?.textContent.trim() || '—';
+      openModal('Task Details', `
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="font-size:14px;font-weight:600;color:var(--ink);line-height:1.4">${title}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="background:var(--surface2);border-radius:6px;padding:10px">
+              <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:4px">Priority</div>
+              <div style="font-size:12px;font-weight:500;color:var(--ink)">${priority}</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:6px;padding:10px">
+              <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:4px">Assignee</div>
+              <div style="font-size:12px;font-weight:500;color:var(--ink)">${assignee}</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:6px;padding:10px">
+              <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:4px">Deadline</div>
+              <div style="font-size:12px;font-weight:500;color:var(--ink)">${deadline}</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:6px;padding:10px">
+              <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:4px">Status</div>
+              <div style="font-size:12px;font-weight:500;color:var(--blue)">In Progress</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button onclick="showToast('✅ Task marked complete!','success');closeModal()" style="flex:1;padding:9px;border-radius:6px;border:none;background:var(--green-bg);color:var(--green);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500">Mark Complete</button>
+            <button onclick="showToast('✏️ Opening editor…','info');closeModal()" style="flex:1;padding:9px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink2);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer">Edit Task</button>
+          </div>
+        </div>
+      `);
+    });
+  });
+
+  // Milestone items clickable
+  document.querySelectorAll('.ms-item').forEach(item => {
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', () => {
+      const name = item.querySelector('.ms-name')?.textContent || '';
+      const date = item.querySelector('.ms-date')?.textContent || '';
+      showToast('📌 ' + name + ' · ' + date, 'info');
+    });
+  });
+
+  // KPI cards clickable
+  document.querySelectorAll('.kpi-card').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+      const label = card.querySelector('.kpi-label')?.textContent || '';
+      showToast('📊 Drilling into ' + label + '…','info');
+    });
+  });
+
+  // Team cards clickable
+  document.querySelectorAll('.team-card').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+      const name = card.querySelector('.team-name')?.textContent || '';
+      const load = card.querySelector('[style*="font-size:10px"]')?.textContent || '';
+      openModal(name + ' — Workload', `
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:12px;color:var(--ink2)">${load}</div>
+          <div style="background:var(--surface2);border-radius:8px;padding:14px">
+            <div style="font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:8px">Active tasks</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${['API rate limiting middleware','Auth token integration','Service health checks'].map(t=>`<div style="font-size:12px;color:var(--ink);padding:6px 10px;background:var(--surface);border-radius:5px;border:1px solid var(--border)">${t}</div>`).join('')}
+            </div>
+          </div>
+          <button onclick="showToast('🔄 Rebalancing tasks…','info');closeModal()" style="padding:9px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500">Rebalance Workload</button>
+        </div>
+      `);
+    });
+  });
+});
+
+// ── Toast slide-in animation ──
+const toastStyle = document.createElement('style');
+toastStyle.textContent = '@keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }';
+document.head.appendChild(toastStyle);
+
+// ── Charts ──
+const MONO = "'DM Mono', monospace";
+const gridColor = 'rgba(30,28,24,0.06)';
+const tickColor = '#8a8782';
+
+new Chart(document.getElementById('budgetBar'), {
+  type: 'bar',
+  data: {
+    labels: ['Eng', 'Design', 'QA', 'Infra', 'Cont.'],
+    datasets: [
+      { label: 'Budget', data: [780, 260, 170, 160, 300], backgroundColor: 'rgba(59,130,246,0.18)', borderRadius: 3, borderSkipped: false },
+      { label: 'Actual', data: [620, 190, 80, 95, 255], backgroundColor: '#3b82f6', borderRadius: 3, borderSkipped: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { bodyFont: { family: MONO }, titleFont: { family: MONO } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: tickColor, font: { family: MONO, size: 9 } } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: MONO, size: 9 }, callback: v => '$' + v + 'K' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('costLine'), {
+  type: 'line',
+  data: {
+    labels: ['Oct W1','W2','W3','W4','Nov W1','W2','W3'],
+    datasets: [{
+      data: [120, 280, 460, 620, 820, 1040, 1240],
+      borderColor: '#1a3a5c', backgroundColor: 'rgba(26,58,92,0.08)',
+      fill: true, tension: 0.4, borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#1a3a5c'
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: tickColor, font: { family: MONO, size: 8 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 4 } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: MONO, size: 9 }, callback: v => '$' + v + 'K' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('completionChart'), {
+  type: 'bar',
+  data: {
+    labels: ['W41','W42','W43','W44','W45','W46','W47'],
+    datasets: [
+      { label: 'Completed', data: [8, 12, 10, 14, 11, 15, 14], backgroundColor: '#1a3a5c', borderRadius: 4, borderSkipped: false },
+      { label: 'Added', data: [5, 8, 7, 6, 9, 7, 5], backgroundColor: 'rgba(26,58,92,0.15)', borderRadius: 4, borderSkipped: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: tickColor, font: { family: MONO, size: 9 } } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: MONO, size: 9 } } }
+    }
+  }
+});
+
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Foundation','Backend','Frontend','QA/Deploy'],
+    datasets: [{
+      data: [100, 62, 28, 0],
+      backgroundColor: ['#22c55e','#3b82f6','#8b5cf6','#e2e8f0'],
+      borderWidth: 2, borderColor: '#ffffff'
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: { legend: { display: false }, tooltip: { bodyFont: { family: MONO }, titleFont: { family: MONO } } }
+  }
+});
+</script>
+</body>
+</html>

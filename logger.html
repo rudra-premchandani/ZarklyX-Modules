@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZarklyX – Logger Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --teal:#0d9488;--teal-light:#14b8a6;--teal-pale:#ccfbf1;--teal-dark:#0f766e;
+  --slate-900:#0f172a;--slate-800:#1e293b;--slate-700:#334155;--slate-500:#64748b;
+  --slate-300:#cbd5e1;--slate-100:#f1f5f9;--slate-50:#f8fafc;--white:#ffffff;
+  --amber:#f59e0b;--rose:#f43f5e;--violet:#7c3aed;--emerald:#10b981;--blue:#3b82f6;
+  --shadow-card:0 4px 24px rgba(15,118,110,0.08),0 1px 4px rgba(0,0,0,0.06);
+  --shadow-hover:0 12px 40px rgba(15,118,110,0.15),0 4px 12px rgba(0,0,0,0.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--slate-50);color:var(--slate-800);overflow-x:hidden;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(13,148,136,0.1);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--teal-dark);letter-spacing:-0.5px;}
+.nav-logo span{color:var(--slate-800);}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-size:0.875rem;font-weight:500;color:var(--slate-500);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--teal);}
+.nav-cta{display:flex;gap:0.75rem;}
+.btn-outline{padding:0.5rem 1.25rem;border-radius:8px;border:1.5px solid var(--teal);color:var(--teal);font-size:0.875rem;font-weight:600;cursor:pointer;background:transparent;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.btn-outline:hover{background:var(--teal-pale);}
+.btn-primary{padding:0.5rem 1.25rem;border-radius:8px;border:none;background:var(--teal);color:white;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.btn-primary:hover{background:var(--teal-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,148,136,0.3);}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0f172a 0%,#134e4a 60%,#0d9488 100%);padding:5rem 2rem 3rem;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(20,184,166,0.25) 0%,transparent 70%);}
+.hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(13,148,136,0.2);border:1px solid rgba(20,184,166,0.4);color:var(--teal-light);font-size:0.78rem;font-weight:600;padding:0.35rem 1rem;border-radius:100px;margin-bottom:1.5rem;letter-spacing:0.05em;text-transform:uppercase;position:relative;z-index:1;}
+.hero-badge::before{content:'●';font-size:0.5rem;}
+.hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.1;color:white;margin-bottom:1.25rem;position:relative;z-index:1;letter-spacing:-1.5px;}
+.hero h1 em{color:var(--teal-light);font-style:normal;}
+.hero-desc{font-size:1.1rem;color:rgba(255,255,255,0.72);max-width:640px;margin:0 auto 2.5rem;line-height:1.7;position:relative;z-index:1;}
+.hero-cta{display:flex;gap:1rem;justify-content:center;margin-bottom:3.5rem;position:relative;z-index:1;}
+.hero-btn-primary{padding:0.85rem 2rem;border-radius:10px;background:var(--teal);color:white;font-weight:700;font-size:0.95rem;border:none;cursor:pointer;transition:all 0.25s;font-family:'DM Sans',sans-serif;box-shadow:0 8px 24px rgba(13,148,136,0.4);}
+.hero-btn-primary:hover{background:var(--teal-dark);transform:translateY(-2px);}
+.hero-btn-ghost{padding:0.85rem 2rem;border-radius:10px;background:rgba(255,255,255,0.1);color:white;font-weight:600;font-size:0.95rem;border:1px solid rgba(255,255,255,0.2);cursor:pointer;transition:all 0.25s;font-family:'DM Sans',sans-serif;backdrop-filter:blur(8px);}
+.hero-btn-ghost:hover{background:rgba(255,255,255,0.18);}
+.hero-stats{display:flex;justify-content:center;gap:3rem;position:relative;z-index:1;}
+.hero-stat{text-align:center;}
+.hero-stat strong{display:block;font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:800;color:white;}
+.hero-stat span{font-size:0.8rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.05em;}
+
+/* DASHBOARD */
+.dashboard-section{padding:0 1.5rem 1rem;margin-top:-1px;background:linear-gradient(180deg,#134e4a 0%,var(--slate-50) 280px);}
+.dashboard-wrapper{max-width:1320px;margin:0 auto;background:var(--white);border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,0.18),0 0 0 1px rgba(13,148,136,0.1);overflow:visible;}
+.db-header{background:var(--slate-900);padding:0.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-radius:20px 20px 0 0;}
+.db-header-left{display:flex;align-items:center;gap:1rem;}
+.db-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--teal-light);}
+.db-nav{display:flex;gap:0.25rem;}
+.db-nav-item{padding:0.35rem 0.9rem;border-radius:6px;font-size:0.78rem;font-weight:500;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.2s;}
+.db-nav-item:hover,.db-nav-item.active{background:rgba(13,148,136,0.2);color:var(--teal-light);}
+.db-header-right{display:flex;align-items:center;gap:0.75rem;}
+.db-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;}
+.db-badge{padding:0.3rem 0.8rem;border-radius:6px;background:rgba(13,148,136,0.15);border:1px solid rgba(20,184,166,0.3);color:var(--teal-light);font-size:0.75rem;font-weight:600;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(1.3);}}
+
+.db-body{display:flex;min-height:640px;height:auto;overflow:hidden;border-radius:0 0 20px 20px;}
+
+/* SIDEBAR */
+.db-sidebar{width:200px;min-width:200px;flex-shrink:0;background:var(--slate-800);padding:1rem 0;display:flex;flex-direction:column;gap:0.25rem;}
+.db-side-item{display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1.25rem;font-size:0.8rem;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.2s;border-left:3px solid transparent;}
+.db-side-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);}
+.db-side-item.active{background:rgba(13,148,136,0.15);color:var(--teal-light);border-left-color:var(--teal-light);}
+.db-side-icon{font-size:1rem;width:18px;text-align:center;}
+.db-side-section{padding:1rem 1.25rem 0.35rem;font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.08em;margin-top:0.5rem;}
+.db-side-count{margin-left:auto;background:rgba(13,148,136,0.3);color:var(--teal-light);font-size:0.62rem;font-weight:700;padding:0.1rem 0.45rem;border-radius:10px;}
+
+/* MAIN */
+.db-main{flex:1;overflow-y:auto;overflow-x:hidden;padding:1.25rem;background:#f0f9f8;display:flex;flex-direction:column;gap:1.25rem;}
+.db-main::-webkit-scrollbar{width:4px;}
+.db-main::-webkit-scrollbar-thumb{background:var(--slate-300);border-radius:4px;}
+
+.db-page-title{display:flex;align-items:center;justify-content:space-between;}
+.db-page-title h2{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--slate-800);}
+.db-page-title p{font-size:0.75rem;color:var(--slate-500);margin-top:2px;}
+.db-actions{display:flex;gap:0.6rem;flex-wrap:wrap;}
+.db-action-btn{padding:0.5rem 1rem;border-radius:8px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;border:none;}
+.db-action-btn.primary{background:var(--teal);color:white;}
+.db-action-btn.primary:hover{background:var(--teal-dark);transform:translateY(-1px);}
+.db-action-btn.secondary{background:white;color:var(--slate-700);border:1px solid var(--slate-300);}
+.db-action-btn.secondary:hover{border-color:var(--teal);color:var(--teal);}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.kpi-card{background:var(--white);border-radius:14px;padding:1.1rem;box-shadow:var(--shadow-card);border:1px solid rgba(255,255,255,0.8);transition:all 0.25s;cursor:pointer;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+.kpi-card.teal::before{background:linear-gradient(90deg,var(--teal),var(--teal-light));}
+.kpi-card.amber::before{background:linear-gradient(90deg,var(--amber),#fbbf24);}
+.kpi-card.violet::before{background:linear-gradient(90deg,var(--violet),#a78bfa);}
+.kpi-card.emerald::before{background:linear-gradient(90deg,var(--emerald),#34d399);}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover);}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;}
+.kpi-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.95rem;}
+.kpi-icon.teal{background:#ccfbf1;}.kpi-icon.amber{background:#fef3c7;}.kpi-icon.violet{background:#ede9fe;}.kpi-icon.emerald{background:#d1fae5;}
+.kpi-change{font-size:0.65rem;font-weight:600;padding:0.15rem 0.4rem;border-radius:5px;}
+.kpi-change.up{background:#d1fae5;color:#065f46;}.kpi-change.down{background:#ffe4e6;color:#9f1239;}
+.kpi-value{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--slate-800);line-height:1;}
+.kpi-label{font-size:0.68rem;color:var(--slate-500);font-weight:500;margin-top:0.3rem;}
+@keyframes countUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.kpi-value{animation:countUp 0.5s ease backwards;}
+.kpi-card:nth-child(1) .kpi-value{animation-delay:0.1s;}.kpi-card:nth-child(2) .kpi-value{animation-delay:0.2s;}
+.kpi-card:nth-child(3) .kpi-value{animation-delay:0.3s;}.kpi-card:nth-child(4) .kpi-value{animation-delay:0.4s;}
+
+/* SECTION CARDS */
+.section-card{background:var(--white);border-radius:14px;padding:1.1rem;box-shadow:var(--shadow-card);}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.9rem;}
+.section-title{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:var(--slate-800);}
+.section-subtitle{font-size:0.7rem;color:var(--slate-500);margin-top:2px;}
+.view-all{font-size:0.72rem;color:var(--teal);font-weight:600;cursor:pointer;}
+.view-all:hover{text-decoration:underline;}
+
+/* TABLES */
+.log-table{width:100%;border-collapse:collapse;}
+.log-table th{font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em;padding:0 0.6rem 0.55rem;text-align:left;border-bottom:1px solid var(--slate-100);}
+.log-table td{font-size:0.73rem;color:var(--slate-700);padding:0.55rem 0.6rem;border-bottom:1px solid var(--slate-100);}
+.log-table tr:last-child td{border-bottom:none;}
+.log-table tr:hover td{background:#f0fdfa;cursor:pointer;}
+
+/* BADGES */
+.action-badge{display:inline-flex;padding:0.2rem 0.6rem;border-radius:100px;font-size:0.62rem;font-weight:700;letter-spacing:0.03em;}
+.action-create{background:#d1fae5;color:#065f46;}
+.action-update{background:#dbeafe;color:#1e40af;}
+.action-delete{background:#ffe4e6;color:#9f1239;}
+.status-badge{display:inline-flex;padding:0.15rem 0.5rem;border-radius:100px;font-size:0.62rem;font-weight:600;}
+.s-active{background:#d1fae5;color:#065f46;}
+.s-idle{background:#fef3c7;color:#92400e;}
+.s-offline{background:var(--slate-100);color:var(--slate-500);}
+.s-high{background:#ffe4e6;color:#9f1239;}
+.s-medium{background:#fef3c7;color:#92400e;}
+.s-low{background:#d1fae5;color:#065f46;}
+
+/* TWO COLUMN LAYOUT */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.three-col{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:1rem;}
+
+/* CHARTS */
+.chart-card{background:var(--white);border-radius:14px;padding:1.1rem;box-shadow:var(--shadow-card);}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.chart-title{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;color:var(--slate-800);}
+.chart-subtitle{font-size:0.7rem;color:var(--slate-500);margin-top:2px;}
+.chart-filter{display:flex;gap:0.3rem;}
+.chart-filter-btn{padding:0.25rem 0.6rem;border-radius:6px;font-size:0.68rem;font-weight:600;border:1px solid var(--slate-300);background:transparent;cursor:pointer;color:var(--slate-500);transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.chart-filter-btn.active{background:var(--teal);color:white;border-color:var(--teal);}
+.chart-canvas-wrap{height:150px;position:relative;}
+.donut-legend{display:flex;flex-direction:column;gap:0.4rem;margin-top:0.65rem;}
+.legend-item{display:flex;align-items:center;justify-content:space-between;font-size:0.68rem;}
+.legend-dot{width:7px;height:7px;border-radius:50%;margin-right:0.4rem;}
+.legend-label{display:flex;align-items:center;color:var(--slate-600);}
+.legend-val{color:var(--slate-800);font-weight:600;}
+
+/* LIVE FEED */
+.live-feed{display:flex;flex-direction:column;gap:0.5rem;max-height:260px;overflow-y:auto;}
+.live-feed::-webkit-scrollbar{width:3px;}
+.live-feed::-webkit-scrollbar-thumb{background:var(--slate-300);border-radius:4px;}
+.feed-item{display:flex;align-items:flex-start;gap:0.65rem;padding:0.6rem 0.75rem;background:var(--slate-50);border-radius:10px;border:1px solid var(--slate-100);transition:all 0.2s;cursor:pointer;}
+.feed-item:hover{background:white;border-color:var(--teal-light);box-shadow:var(--shadow-card);}
+.feed-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.feed-text{flex:1;}
+.feed-title{font-size:0.75rem;font-weight:600;color:var(--slate-800);margin-bottom:0.15rem;}
+.feed-meta{font-size:0.65rem;color:var(--slate-400);}
+.feed-time{font-size:0.62rem;color:var(--slate-400);white-space:nowrap;flex-shrink:0;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:20px;width:90%;max-width:580px;max-height:88vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,0.25);}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.modal{animation:slideUp 0.25s ease;}
+.modal-head{padding:1.5rem 1.5rem 0;display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;background:white;z-index:1;border-bottom:1px solid var(--slate-100);padding-bottom:1rem;}
+.modal-head h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--slate-800);}
+.modal-head p{font-size:0.8rem;color:var(--slate-500);margin-top:4px;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:none;background:var(--slate-100);cursor:pointer;font-size:1rem;color:var(--slate-500);transition:all 0.2s;flex-shrink:0;}
+.modal-close:hover{background:var(--slate-200);}
+.modal-body{padding:1.25rem 1.5rem 1.5rem;}
+.modal-info-row{display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--slate-100);font-size:0.8rem;}
+.modal-info-row:last-child{border-bottom:none;}
+.modal-info-label{color:var(--slate-500);font-weight:500;}
+.modal-info-value{color:var(--slate-800);font-weight:600;}
+.detail-block{background:var(--slate-50);border-radius:10px;padding:0.85rem;border:1px solid var(--slate-200);margin-bottom:0.75rem;}
+.detail-block h5{font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700;color:var(--slate-800);margin-bottom:0.5rem;}
+.detail-block p{font-size:0.75rem;color:var(--slate-600);line-height:1.55;}
+.mono{font-family:monospace;font-size:0.72rem;background:var(--slate-100);padding:0.4rem 0.65rem;border-radius:6px;color:var(--slate-700);word-break:break-all;}
+
+/* LANDING */
+.section{padding:6rem 2rem;max-width:1100px;margin:0 auto;}
+.section-label{display:inline-block;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--teal);background:var(--teal-pale);padding:0.35rem 1rem;border-radius:100px;margin-bottom:1rem;}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;color:var(--slate-900);line-height:1.15;letter-spacing:-0.75px;margin-bottom:1.25rem;}
+.section-title em{color:var(--teal);font-style:normal;}
+.section-intro{font-size:1.05rem;color:var(--slate-500);line-height:1.8;max-width:720px;}
+.content-paras{margin-top:3.5rem;max-width:820px;display:flex;flex-direction:column;gap:2rem;}
+.content-paras h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;}
+.content-paras p{font-size:1rem;color:var(--slate-600);line-height:1.85;}
+
+/* STEPS */
+.steps-section{background:var(--slate-900);padding:6rem 2rem;}
+.steps-inner{max-width:1100px;margin:0 auto;}
+.steps-section .section-label{background:rgba(13,148,136,0.2);color:var(--teal-light);}
+.steps-section .section-title{color:white;}
+.steps-section .section-intro{color:rgba(255,255,255,0.6);}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3.5rem;position:relative;}
+.steps-grid::before{content:'';position:absolute;top:36px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,var(--teal),var(--teal-light));z-index:0;}
+.step-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.5rem 1.1rem;text-align:center;position:relative;z-index:1;transition:all 0.25s;backdrop-filter:blur(10px);}
+.step-card:hover{background:rgba(13,148,136,0.15);border-color:rgba(20,184,166,0.4);transform:translateY(-4px);}
+.step-num{width:48px;height:48px;border-radius:50%;background:var(--teal);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 20px rgba(13,148,136,0.4);}
+.step-card h4{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700;color:white;margin-bottom:0.6rem;}
+.step-card p{font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.65;}
+
+/* SYSTEM / ACTIVITY SECTIONS */
+.logger-section{padding:6rem 2rem;background:white;}
+.logger-inner{max-width:1100px;margin:0 auto;}
+.activity-section{padding:6rem 2rem;background:var(--slate-50);}
+.activity-inner{max-width:1100px;margin:0 auto;}
+.logger-paras,.activity-paras{margin-top:3.5rem;max-width:820px;display:flex;flex-direction:column;gap:2rem;}
+.logger-paras h3,.activity-paras h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--slate-800);margin-bottom:0.65rem;}
+.logger-paras p,.activity-paras p{font-size:1rem;color:var(--slate-600);line-height:1.85;}
+
+/* WHY */
+.why-section{padding:6rem 2rem;background:linear-gradient(135deg,#0f172a 0%,#134e4a 100%);}
+.why-inner{max-width:1100px;margin:0 auto;}
+.why-section .section-label{background:rgba(13,148,136,0.25);color:var(--teal-light);}
+.why-section .section-title{color:white;}
+.why-section .section-intro{color:rgba(255,255,255,0.6);}
+.why-paras{margin-top:3.5rem;max-width:820px;display:flex;flex-direction:column;gap:2rem;}
+.why-paras h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:white;margin-bottom:0.65rem;}
+.why-paras p{font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.85;}
+
+/* CTA */
+.cta-section{padding:5rem 2rem;text-align:center;background:white;}
+.cta-inner{max-width:640px;margin:0 auto;}
+.cta-inner h2{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--slate-900);margin-bottom:1rem;letter-spacing:-0.75px;}
+.cta-inner p{color:var(--slate-500);font-size:1rem;line-height:1.7;margin-bottom:2rem;}
+.cta-btns{display:flex;gap:1rem;justify-content:center;}
+
+/* FOOTER */
+footer{background:var(--slate-900);padding:2.5rem 2rem;}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.footer-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--teal-light);}
+.footer-credits{display:flex;gap:2rem;}
+.footer-credit{text-align:center;}
+.footer-credit-role{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:0.2rem;}
+.footer-credit-name{font-size:0.82rem;font-weight:600;color:var(--teal-light);}
+.footer-copy{font-size:0.75rem;color:rgba(255,255,255,0.3);}
+
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .two-col,.three-col{grid-template-columns:1fr;}
+  .steps-grid{grid-template-columns:repeat(2,1fr);}
+  .steps-grid::before{display:none;}
+  .footer-inner{flex-direction:column;text-align:center;}
+  .footer-credits{justify-content:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Zarkly<span>X</span></div>
+  <ul class="nav-links">
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#what">Overview</a></li>
+    <li><a href="#system">System Logger</a></li>
+    <li><a href="#activity">Activity Logger</a></li>
+  </ul>
+  <div class="nav-cta">
+    <button class="btn-outline">Sign In</button>
+    <button class="btn-primary">Start Free Trial</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Logger Module</div>
+  <h1>Complete visibility into<br><em>every system action.</em></h1>
+  <p class="hero-desc">ZarklyX Logger gives you a full audit trail of every internal operation and every user action — from data changes to mouse movements — all in one real-time monitoring dashboard.</p>
+  <div class="hero-cta">
+    <button class="hero-btn-primary">Start Free Trial →</button>
+    <button class="hero-btn-ghost" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">View Live Dashboard</button>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>100%</strong><span>Operations Logged</span></div>
+    <div class="hero-stat"><strong>Real-Time</strong><span>Activity Tracking</span></div>
+    <div class="hero-stat"><strong>Zero</strong><span>Missed Events</span></div>
+    <div class="hero-stat"><strong>Full</strong><span>Audit Trail</span></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<div class="dashboard-section" id="dashboard">
+  <div class="dashboard-wrapper">
+
+    <div class="db-header">
+      <div class="db-header-left">
+        <div class="db-logo">ZarklyX</div>
+        <div class="db-nav">
+          <div class="db-nav-item active" onclick="switchView('overview',this)">Overview</div>
+          <div class="db-nav-item" onclick="switchView('system',this)">System Logs</div>
+          <div class="db-nav-item" onclick="switchView('activity',this)">Activity</div>
+          <div class="db-nav-item" onclick="switchView('realtime',this)">Live Feed</div>
+        </div>
+      </div>
+      <div class="db-header-right">
+        <div class="live-dot"></div>
+        <div class="db-badge">Live · March 2026</div>
+        <div class="db-avatar">AK</div>
+      </div>
+    </div>
+
+    <div class="db-body">
+      <div class="db-sidebar">
+        <div class="db-side-section">Logger</div>
+        <div class="db-side-item active" data-view="overview" onclick="switchView('overview',this)"><span class="db-side-icon">📊</span>Overview</div>
+        <div class="db-side-section">System</div>
+        <div class="db-side-item" data-view="system" onclick="switchView('system',this)"><span class="db-side-icon">⚙️</span>System Logs <span class="db-side-count">142</span></div>
+        <div class="db-side-item" data-view="create" onclick="switchView('create',this)"><span class="db-side-icon">➕</span>Create Logs <span class="db-side-count">58</span></div>
+        <div class="db-side-item" data-view="update" onclick="switchView('update',this)"><span class="db-side-icon">✏️</span>Update Logs <span class="db-side-count">61</span></div>
+        <div class="db-side-item" data-view="delete" onclick="switchView('delete',this)"><span class="db-side-icon">🗑️</span>Delete Logs <span class="db-side-count">23</span></div>
+        <div class="db-side-section">Activity</div>
+        <div class="db-side-item" data-view="activity" onclick="switchView('activity',this)"><span class="db-side-icon">👤</span>User Activity <span class="db-side-count">18</span></div>
+        <div class="db-side-item" data-view="sessions" onclick="switchView('sessions',this)"><span class="db-side-icon">🔐</span>Sessions <span class="db-side-count">7</span></div>
+        <div class="db-side-section">Monitor</div>
+        <div class="db-side-item" data-view="realtime" onclick="switchView('realtime',this)"><span class="db-side-icon">📡</span>Live Feed</div>
+      </div>
+
+      <div class="db-main" id="db-main">
+        <!-- Loaded by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-log" onclick="if(event.target===this)closeModal('log')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 id="modal-log-title">System Log Detail</h3><p id="modal-log-sub">Full record of this operation</p></div>
+      <button class="modal-close" onclick="closeModal('log')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-log-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-user" onclick="if(event.target===this)closeModal('user')">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 id="modal-user-title">User Session History</h3><p id="modal-user-sub">Full activity breakdown</p></div>
+      <button class="modal-close" onclick="closeModal('user')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-user-body"></div>
+  </div>
+</div>
+
+<!-- LANDING -->
+
+<!-- WHAT IS LOGGER -->
+<section id="what">
+  <div class="section">
+    <span class="section-label">What is Logger</span>
+    <h2 class="section-title">Complete visibility into<br><em>every operation and action</em></h2>
+    <p class="section-intro">ZarklyX Logger is a dual-layer monitoring system that tracks both internal software operations and individual user behaviour — giving you a complete, unbroken record of everything that happens inside your platform.</p>
+    <div class="content-paras">
+      <div>
+        <h3>Two Layers of Complete Monitoring</h3>
+        <p>The ZarklyX Logger module operates on two distinct but complementary layers. The System Logger tracks every internal operation performed within the software — every time someone interacts with the data, a log is created. The Activity Logger tracks user behaviour from the moment they log in, monitoring how a person actually uses the interface. Together, these two layers provide a complete, real-time audit of everything happening inside your platform at any given moment.</p>
+      </div>
+      <div>
+        <h3>A Record You Can Always Trust</h3>
+        <p>Every log entry is timestamped, attributed to a specific user, and preserved in full. Whether you need to investigate a data change, review a user's session, verify a deletion, or audit system activity for compliance purposes, the ZarklyX Logger gives you an accurate, tamper-evident record that you can rely on completely.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="steps-section">
+  <div class="steps-inner">
+    <span class="section-label">How the Logger Works</span>
+    <h2 class="section-title">Automatic logging from<br><em style="color:var(--teal-light)">every interaction</em></h2>
+    <p class="section-intro">No manual entries, no configuration required. Every operation and every user action is captured automatically the moment it occurs.</p>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">1</div><h4>User Interacts with Data</h4><p>The moment any user creates, updates, or deletes information within the platform, the System Logger captures the operation instantly and writes a permanent record.</p></div>
+      <div class="step-card"><div class="step-num">2</div><h4>Session Tracking Begins</h4><p>From the moment a user logs in, the Activity Logger begins monitoring their session — recording login time, mouse movements, key presses, and general activity throughout.</p></div>
+      <div class="step-card"><div class="step-num">3</div><h4>Every Event Is Timestamped</h4><p>Every log entry — whether a data change or a user action — is attributed to the responsible user, stamped with an exact timestamp, and stored with the full details of the event.</p></div>
+      <div class="step-card"><div class="step-num">4</div><h4>Real-Time Audit Trail</h4><p>All logs are immediately available in the dashboard as a live, searchable audit trail — enabling instant review of any operation, session, or change at any time.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM LOGGER -->
+<section class="logger-section" id="system">
+  <div class="logger-inner">
+    <span class="section-label">System Logger</span>
+    <h2 class="section-title">Every data operation,<br><em>permanently recorded</em></h2>
+    <p class="section-intro">The System Logger tracks internal operations performed within the software. Every time someone interacts with the data, a log is created.</p>
+    <div class="logger-paras">
+      <div>
+        <h3>What the System Logger Records</h3>
+        <p>The System Logger tracks every internal operation performed within the software. Every time someone interacts with the data, a log is created automatically. When new information is added to the system, a Create log is generated. When existing information is changed in any way, an Update log is recorded. When information is removed from the system, a Delete log is written. Each of these log entries captures exactly what data was affected, which user performed the action, and the precise timestamp at which the operation occurred.</p>
+      </div>
+      <div>
+        <h3>Why System Logging Matters</h3>
+        <p>System logs are the foundation of data accountability. They answer the fundamental questions any platform must be able to answer: what changed, who changed it, and when. Whether used for internal review, compliance auditing, debugging, or dispute resolution, the System Logger ensures that no operation goes unrecorded and no change is ever untraceable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIVITY LOGGER -->
+<section class="activity-section" id="activity">
+  <div class="activity-inner">
+    <span class="section-label">Activity Logger</span>
+    <h2 class="section-title">Every user session,<br><em>fully visible</em></h2>
+    <p class="section-intro">The Activity Logger tracks user behaviour from the moment they log in, monitoring how a person actually uses the interface.</p>
+    <div class="activity-paras">
+      <div>
+        <h3>What the Activity Logger Tracks</h3>
+        <p>The Activity Logger monitors how a person actually uses the interface throughout their session. It records Login and Logout times, capturing exactly when a user starts and ends their session. It tracks Mouse Movements, recording where the user moves their cursor on the screen during their session. It logs Key Presses, capturing any typing or keyboard activity that takes place. It also monitors General Activity, providing an overall record of what the user is doing while they are active on the platform.</p>
+      </div>
+      <div>
+        <h3>Session-Level Transparency</h3>
+        <p>Activity logging provides session-level transparency that goes beyond simple login records. By capturing mouse movements, key presses, and general activity patterns, the Activity Logger gives administrators a complete picture of how the platform is being used — enabling productivity analysis, security monitoring, and behavioural auditing without requiring any action from the user being monitored.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why-section">
+  <div class="why-inner">
+    <span class="section-label">Why ZarklyX Logger</span>
+    <h2 class="section-title">Total transparency,<br><em style="color:var(--teal-light)">zero blind spots</em></h2>
+    <p class="section-intro">ZarklyX Logger is built for platforms that need complete operational visibility and user accountability at every level.</p>
+    <div class="why-paras">
+      <div>
+        <h3>Automatic and Always On</h3>
+        <p>The Logger module runs automatically from the moment the platform is active. There is no manual configuration, no opt-in required, and no gaps in coverage. Every Create, Update, and Delete operation is logged the moment it occurs. Every user session is tracked from login to logout without requiring any action from administrators or users.</p>
+      </div>
+      <div>
+        <h3>Complete Audit Trail for Compliance and Security</h3>
+        <p>Both the System Logger and the Activity Logger contribute to a comprehensive audit trail that satisfies the requirements of compliance reviews, internal investigations, and security audits. Every entry is timestamped, attributed to a named user, and stored in a permanent, searchable record — giving you the documentation you need whenever you need it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to see everything<br>that happens in your platform?</h2>
+    <p>Start logging every system operation and user action automatically with ZarklyX Logger — complete visibility from day one.</p>
+    <div class="cta-btns">
+      <button class="btn-primary" style="padding:0.9rem 2.5rem;font-size:1rem;">Start Free Trial →</button>
+      <button class="btn-outline" style="padding:0.9rem 2rem;font-size:1rem;">Book a Demo</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">Zarkly<span style="color:white">X</span></div>
+    <div class="footer-credits">
+      <div class="footer-credit">
+        <div class="footer-credit-role">Backend</div>
+        <div class="footer-credit-name">Mr. Krupal</div>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 ZarklyX. Logger Module.</div>
+  </div>
+</footer>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+const SYSTEM_LOGS = [
+  {id:'LOG-4821',action:'Create',data:'Product Record #PR-1048',user:'Rahul Kumar',role:'Admin',time:'10:42:18',date:'16 Mar 2026',details:'New product record created with 14 fields. Category: Electronics. Initial stock: 250 units.'},
+  {id:'LOG-4820',action:'Update',data:'Invoice #INV-2026-112',user:'Priya Sharma',role:'Manager',time:'10:38:05',date:'16 Mar 2026',details:'Invoice total updated from ₹3,40,000 to ₹3,45,000. GST rate adjusted from 12% to 18%.'},
+  {id:'LOG-4819',action:'Delete',data:'Draft Token TK-1019',user:'Arjun Mehta',role:'Editor',time:'10:31:44',date:'16 Mar 2026',details:'Draft token permanently deleted. Token had no active work or client assignment.'},
+  {id:'LOG-4818',action:'Create',data:'Client Record: TechVision Pvt',user:'Sneha Joshi',role:'Manager',time:'10:28:11',date:'16 Mar 2026',details:'New client profile created. Contact: contact@techvision.in. Category: Technology.'},
+  {id:'LOG-4817',action:'Update',data:'User Permissions — Arjun Mehta',user:'Rahul Kumar',role:'Admin',time:'10:19:57',date:'16 Mar 2026',details:'User role changed from Viewer to Editor. Module access expanded to include Finance.'},
+  {id:'LOG-4816',action:'Delete',data:'Purchase Order PO-2026-039',user:'Priya Sharma',role:'Manager',time:'09:58:22',date:'16 Mar 2026',details:'Purchase order cancelled and deleted. Vendor: Office Mart. Value: ₹28,400.'},
+  {id:'LOG-4815',action:'Create',data:'Invoice #INV-2026-113',user:'Sneha Joshi',role:'Manager',time:'09:44:08',date:'16 Mar 2026',details:'New invoice raised for Nexus Retail Ltd. Amount: ₹2,18,000. Due: 15 Apr 2026.'},
+  {id:'LOG-4814',action:'Update',data:'Token TK-1034 Stage',user:'Arjun Mehta',role:'Editor',time:'09:32:16',date:'16 Mar 2026',details:'Token stage changed from Processing to Review. Assigned reviewer: Rahul Kumar.'},
+];
+
+const USERS = [
+  {id:'USR-01',name:'Rahul Kumar',email:'rahul@zarklyx.com',role:'Admin',login:'09:05:12',logout:'—',mouse:'High',keys:'High',status:'active',color:'#0d9488',initials:'RK',
+   sessions:[{date:'16 Mar',login:'09:05:12',logout:'Active',duration:'1h 42m',mouse:'High',keys:'High',pages:28},{date:'15 Mar',login:'09:12:04',logout:'18:30:45',duration:'9h 18m',mouse:'High',keys:'High',pages:142}]},
+  {id:'USR-02',name:'Priya Sharma',email:'priya@zarklyx.com',role:'Manager',login:'09:22:38',logout:'—',mouse:'Medium',keys:'High',status:'active',color:'#7c3aed',initials:'PS',
+   sessions:[{date:'16 Mar',login:'09:22:38',logout:'Active',duration:'1h 24m',mouse:'Medium',keys:'High',pages:19},{date:'15 Mar',login:'10:05:12',logout:'17:45:00',duration:'7h 40m',mouse:'Medium',keys:'Medium',pages:88}]},
+  {id:'USR-03',name:'Arjun Mehta',email:'arjun@zarklyx.com',role:'Editor',login:'09:48:15',logout:'—',mouse:'Low',keys:'Medium',status:'active',color:'#f59e0b',initials:'AM',
+   sessions:[{date:'16 Mar',login:'09:48:15',logout:'Active',duration:'58m',mouse:'Low',keys:'Medium',pages:12},{date:'15 Mar',login:'11:20:00',logout:'16:30:00',duration:'5h 10m',mouse:'Medium',keys:'Low',pages:44}]},
+  {id:'USR-04',name:'Sneha Joshi',email:'sneha@zarklyx.com',role:'Manager',login:'10:05:44',logout:'—',mouse:'High',keys:'Medium',status:'active',color:'#f43f5e',initials:'SJ',
+   sessions:[{date:'16 Mar',login:'10:05:44',logout:'Active',duration:'41m',mouse:'High',keys:'Medium',pages:9},{date:'15 Mar',login:'09:30:00',logout:'17:00:00',duration:'7h 30m',mouse:'High',keys:'High',pages:116}]},
+  {id:'USR-05',name:'Dev Patel',email:'dev@zarklyx.com',role:'Viewer',login:'08:30:00',logout:'09:14:22',mouse:'Low',keys:'Low',status:'offline',color:'#64748b',initials:'DP',
+   sessions:[{date:'16 Mar',login:'08:30:00',logout:'09:14:22',duration:'44m',mouse:'Low',keys:'Low',pages:6},{date:'15 Mar',login:'14:00:00',logout:'15:45:00',duration:'1h 45m',mouse:'Low',keys:'Low',pages:8}]},
+  {id:'USR-06',name:'Meera Nair',email:'meera@zarklyx.com',role:'Editor',login:'10:15:00',logout:'10:44:30',mouse:'Medium',keys:'Medium',status:'idle',color:'#10b981',initials:'MN',
+   sessions:[{date:'16 Mar',login:'10:15:00',logout:'10:44:30',duration:'29m',mouse:'Medium',keys:'Medium',pages:7}]},
+];
+
+const LIVE_EVENTS = [
+  {type:'login',color:'#10b981',title:'Rahul Kumar logged in',meta:'Admin · 192.168.1.42',time:'Just now'},
+  {type:'create',color:'#3b82f6',title:'Invoice INV-2026-113 created',meta:'by Sneha Joshi',time:'2m ago'},
+  {type:'update',color:'#f59e0b',title:'Token TK-1034 moved to Review',meta:'by Arjun Mehta',time:'3m ago'},
+  {type:'login',color:'#10b981',title:'Priya Sharma logged in',meta:'Manager · 192.168.1.18',time:'5m ago'},
+  {type:'delete',color:'#f43f5e',title:'PO-2026-039 deleted',meta:'by Priya Sharma',time:'7m ago'},
+  {type:'update',color:'#f59e0b',title:'User permissions updated',meta:'Arjun Mehta → Editor by Rahul',time:'11m ago'},
+  {type:'create',color:'#3b82f6',title:'Client TechVision Pvt created',meta:'by Sneha Joshi',time:'18m ago'},
+  {type:'logout',color:'#64748b',title:'Dev Patel logged out',meta:'Session: 44m',time:'32m ago'},
+  {type:'create',color:'#3b82f6',title:'Product Record #PR-1048 created',meta:'by Rahul Kumar',time:'44m ago'},
+  {type:'update',color:'#f59e0b',title:'Invoice INV-2026-112 updated',meta:'by Priya Sharma',time:'48m ago'},
+];
+
+// ── HELPERS ─────────────────────────────────────────────────────────────────
+function actionBadge(a){
+  const map={Create:'action-create',Update:'action-update',Delete:'action-delete'};
+  return `<span class="action-badge ${map[a]||''}">${a}</span>`;
+}
+function statusBadge(s){
+  const map={active:'s-active',idle:'s-idle',offline:'s-offline',High:'s-high',Medium:'s-medium',Low:'s-low'};
+  return `<span class="status-badge ${map[s]||''}">${s}</span>`;
+}
+function avatarHtml(u,size=22){
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${u.color};display:inline-flex;align-items:center;justify-content:center;font-size:${size*0.38}px;font-weight:700;color:white">${u.initials}</div>`;
+}
+
+// ── MODAL OPENERS ────────────────────────────────────────────────────────────
+function openLogModal(log){
+  document.getElementById('modal-log-title').textContent = log.id + ' — ' + log.action;
+  document.getElementById('modal-log-sub').textContent = log.date + ' · ' + log.time;
+  document.getElementById('modal-log-body').innerHTML = `
+    <div class="detail-block">
+      <h5>Operation Details</h5>
+      <div class="modal-info-row"><span class="modal-info-label">Log ID</span><span class="modal-info-value">${log.id}</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Action Type</span><span class="modal-info-value">${actionBadge(log.action)}</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Data Affected</span><span class="modal-info-value">${log.data}</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">User Responsible</span><span class="modal-info-value">${log.user} (${log.role})</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Timestamp</span><span class="modal-info-value">${log.date} · ${log.time}</span></div>
+    </div>
+    <div class="detail-block">
+      <h5>Change Description</h5>
+      <p>${log.details}</p>
+    </div>
+    <div class="detail-block">
+      <h5>Audit Reference</h5>
+      <div class="mono">zarklyx://audit/${log.id}?action=${log.action.toLowerCase()}&user=${log.user.replace(' ','+')}&ts=${log.date.replace(' ','')}T${log.time}</div>
+    </div>`;
+  document.getElementById('modal-log').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function openUserModal(u){
+  document.getElementById('modal-user-title').textContent = u.name + ' — Session History';
+  document.getElementById('modal-user-sub').textContent = u.email + ' · ' + u.role;
+  const rows = u.sessions.map(s=>`<tr>
+    <td>${s.date}</td><td>${s.login}</td><td>${s.logout}</td>
+    <td>${s.duration}</td><td>${statusBadge(s.mouse)}</td><td>${statusBadge(s.keys)}</td><td>${s.pages}</td>
+  </tr>`).join('');
+  document.getElementById('modal-user-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding:0.85rem;background:var(--slate-50);border-radius:10px;border:1px solid var(--slate-200)">
+      ${avatarHtml(u,40)}
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--slate-800)">${u.name}</div>
+        <div style="font-size:0.75rem;color:var(--slate-500)">${u.email} · ${u.role}</div>
+      </div>
+      <div style="margin-left:auto">${statusBadge(u.status)}</div>
+    </div>
+    <div class="detail-block">
+      <h5>Today's Session (Live)</h5>
+      <div class="modal-info-row"><span class="modal-info-label">Login Time</span><span class="modal-info-value">${u.login}</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Logout Time</span><span class="modal-info-value">${u.logout}</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Mouse Activity</span><span class="modal-info-value">${statusBadge(u.mouse)}</span></div>
+      <div class="modal-info-row"><span class="modal-info-label">Key Press Activity</span><span class="modal-info-value">${statusBadge(u.keys)}</span></div>
+    </div>
+    <div class="detail-block">
+      <h5>Full Session History</h5>
+      <table class="log-table">
+        <thead><tr><th>Date</th><th>Login</th><th>Logout</th><th>Duration</th><th>Mouse</th><th>Keys</th><th>Pages</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  document.getElementById('modal-user').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id){
+  document.getElementById('modal-'+id).classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>{m.classList.remove('open');document.body.style.overflow='';});});
+
+// ── VIEW BUILDERS ────────────────────────────────────────────────────────────
+function buildSystemLogsTable(filter){
+  const logs = filter ? SYSTEM_LOGS.filter(l=>l.action===filter) : SYSTEM_LOGS;
+  return logs.map(l=>`<tr onclick="openLogModal(SYSTEM_LOGS.find(x=>x.id==='${l.id}'))">
+    <td style="font-weight:700;color:#0d9488">${l.id}</td>
+    <td>${actionBadge(l.action)}</td>
+    <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.data}</td>
+    <td>${l.user}</td>
+    <td style="color:var(--slate-400);font-size:0.68rem">${l.time}</td>
+  </tr>`).join('');
+}
+
+function buildActivityTable(){
+  return USERS.map(u=>`<tr onclick="openUserModal(USERS.find(x=>x.id==='${u.id}'))">
+    <td><div style="display:flex;align-items:center;gap:0.5rem">${avatarHtml(u)}<span style="font-weight:600;color:var(--slate-800)">${u.name}</span></div></td>
+    <td>${u.role}</td>
+    <td style="color:var(--teal-dark);font-weight:600">${u.login}</td>
+    <td style="color:var(--slate-500)">${u.logout}</td>
+    <td>${statusBadge(u.mouse)}</td>
+    <td>${statusBadge(u.keys)}</td>
+    <td>${statusBadge(u.status)}</td>
+  </tr>`).join('');
+}
+
+function buildLiveFeed(){
+  return LIVE_EVENTS.map(e=>`<div class="feed-item">
+    <div class="feed-dot" style="background:${e.color}"></div>
+    <div class="feed-text">
+      <div class="feed-title">${e.title}</div>
+      <div class="feed-meta">${e.meta}</div>
+    </div>
+    <div class="feed-time">${e.time}</div>
+  </div>`).join('');
+}
+
+function initCharts(ids){
+  const {line,bar,donut} = ids;
+  if(document.getElementById(line)) new Chart(document.getElementById(line).getContext('2d'),{type:'line',data:{labels:['00:00','02:00','04:00','06:00','08:00','10:00'],datasets:[{label:'System Logs',data:[2,1,0,1,18,38],borderColor:'#0d9488',backgroundColor:'rgba(13,148,136,0.08)',borderWidth:2.5,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#0d9488',pointBorderColor:'#fff',pointBorderWidth:2},{label:'User Activity',data:[0,0,0,0,12,22],borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.05)',borderWidth:2,fill:true,tension:0.4,pointRadius:3,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10,family:'DM Sans'},boxWidth:10,padding:10}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#94a3b8'}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#94a3b8'}}}}});
+  if(document.getElementById(bar)) new Chart(document.getElementById(bar).getContext('2d'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Create',data:[12,18,14,22,19,8,4],backgroundColor:'#10b981',borderRadius:4,borderSkipped:false},{label:'Update',data:[18,22,16,28,24,10,6],backgroundColor:'#3b82f6',borderRadius:4,borderSkipped:false},{label:'Delete',data:[4,6,3,8,5,2,1],backgroundColor:'#f43f5e',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:10,padding:8}}},scales:{x:{grid:{display:false},stacked:true,ticks:{font:{size:10},color:'#94a3b8'}},y:{grid:{color:'rgba(0,0,0,0.04)'},stacked:true,ticks:{font:{size:10},color:'#94a3b8'}}}}});
+  if(document.getElementById(donut)) new Chart(document.getElementById(donut).getContext('2d'),{type:'doughnut',data:{labels:['Create','Update','Delete'],datasets:[{data:[58,61,23],backgroundColor:['#10b981','#3b82f6','#f43f5e'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}});
+}
+
+// ── VIEWS ────────────────────────────────────────────────────────────────────
+const VIEWS = {
+
+  overview: ()=>`
+    <div class="db-page-title">
+      <div><h2>Logger Overview</h2><p>16 Mar 2026 · All logs · Real-time monitoring active</p></div>
+      <div class="db-actions">
+        <button class="db-action-btn secondary">Export Logs</button>
+        <button class="db-action-btn primary">Download Report</button>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card teal"><div class="kpi-top"><div class="kpi-icon teal">📋</div><div class="kpi-change up">↑ 24</div></div><div class="kpi-value">142</div><div class="kpi-label">Total System Logs</div></div>
+      <div class="kpi-card violet"><div class="kpi-top"><div class="kpi-icon violet">👤</div><div class="kpi-change up">↑ 3</div></div><div class="kpi-value">18</div><div class="kpi-label">User Activities Tracked</div></div>
+      <div class="kpi-card emerald"><div class="kpi-top"><div class="kpi-icon emerald">🔐</div><div class="kpi-change up">↑ 1</div></div><div class="kpi-value">7</div><div class="kpi-label">Active Sessions</div></div>
+      <div class="kpi-card amber"><div class="kpi-top"><div class="kpi-icon amber">⚡</div><div class="kpi-change up">↑ 8</div></div><div class="kpi-value">38</div><div class="kpi-label">System Changes Today</div></div>
+    </div>
+    <div class="three-col">
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">User Activity Timeline</div><div class="chart-subtitle">System logs vs user activity today</div></div>
+        <div class="chart-filter"><button class="chart-filter-btn active">Today</button><button class="chart-filter-btn">Week</button></div></div>
+        <div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Actions Breakdown</div><div class="chart-subtitle">Create / Update / Delete</div></div></div>
+        <div class="chart-canvas-wrap" style="height:110px"><canvas id="donutChart"></canvas></div>
+        <div class="donut-legend">
+          <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#10b981"></div>Create</div><div class="legend-val">58</div></div>
+          <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#3b82f6"></div>Update</div><div class="legend-val">61</div></div>
+          <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#f43f5e"></div>Delete</div><div class="legend-val">23</div></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div><div class="section-title">Live Feed</div><div class="section-subtitle">Real-time events</div></div><span style="display:flex;align-items:center;gap:6px;font-size:0.7rem;color:#10b981;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;animation:pulse 1.5s infinite;display:inline-block"></span>Live</span></div>
+        <div class="live-feed">${buildLiveFeed()}</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">Recent System Logs</div><span class="view-all" onclick="switchView('system',document.querySelector('[data-view=system]'))">View All →</span></div>
+        <table class="log-table">
+          <thead><tr><th>Log ID</th><th>Action</th><th>Data Affected</th><th>User</th><th>Time</th></tr></thead>
+          <tbody>${buildSystemLogsTable().slice(0,250)}</tbody>
+        </table>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">Active User Sessions</div><span class="view-all" onclick="switchView('activity',document.querySelector('[data-view=activity]'))">View All →</span></div>
+        <table class="log-table">
+          <thead><tr><th>User</th><th>Role</th><th>Login</th><th>Mouse</th><th>Keys</th><th>Status</th></tr></thead>
+          <tbody>${USERS.filter(u=>u.status!=='offline').map(u=>`<tr onclick="openUserModal(USERS.find(x=>x.id==='${u.id}'))">
+            <td><div style="display:flex;align-items:center;gap:0.5rem">${avatarHtml(u)}<span style="font-weight:600">${u.name}</span></div></td>
+            <td>${u.role}</td><td style="color:var(--teal-dark);font-weight:600">${u.login}</td>
+            <td>${statusBadge(u.mouse)}</td><td>${statusBadge(u.keys)}</td><td>${statusBadge(u.status)}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`,
+
+  system: (filter)=>`
+    <div class="db-page-title">
+      <div><h2>${filter?filter+' Logs':'System Logger'}</h2><p>${filter?SYSTEM_LOGS.filter(l=>l.action===filter).length+' entries':SYSTEM_LOGS.length+' total entries'} · Click any row for details</p></div>
+      <div class="db-actions"><button class="db-action-btn secondary">Filter</button><button class="db-action-btn primary">Export CSV</button></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card teal"><div class="kpi-top"><div class="kpi-icon teal">📋</div></div><div class="kpi-value">142</div><div class="kpi-label">Total Logs</div></div>
+      <div class="kpi-card emerald"><div class="kpi-top"><div class="kpi-icon emerald">➕</div></div><div class="kpi-value">58</div><div class="kpi-label">Create Operations</div></div>
+      <div class="kpi-card amber"><div class="kpi-top"><div class="kpi-icon amber">✏️</div></div><div class="kpi-value">61</div><div class="kpi-label">Update Operations</div></div>
+      <div class="kpi-card violet"><div class="kpi-top"><div class="kpi-icon violet">🗑️</div></div><div class="kpi-value">23</div><div class="kpi-label">Delete Operations</div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-header">
+        <div><div class="section-title">${filter?filter+' Log Entries':'All System Log Entries'}</div><div class="section-subtitle">Click any row to view full details</div></div>
+        <div style="display:flex;gap:0.5rem">
+          ${['','Create','Update','Delete'].map(f=>`<button class="db-action-btn ${filter===f||(!filter&&!f)?'primary':'secondary'}" style="font-size:0.7rem;padding:0.35rem 0.75rem" onclick="switchView(${f?"'"+f.toLowerCase()+"'":"'system'"},document.querySelector('[data-view=${f?f.toLowerCase():'system'}]'))">${f||'All'}</button>`).join('')}
+        </div>
+      </div>
+      <table class="log-table">
+        <thead><tr><th>Log ID</th><th>Action Type</th><th>Data Affected</th><th>User Responsible</th><th>Timestamp</th></tr></thead>
+        <tbody>${buildSystemLogsTable(filter)}</tbody>
+      </table>
+    </div>
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Session Activity Distribution</div><div class="chart-subtitle">Create / Update / Delete — last 7 days</div></div></div>
+        <div class="chart-canvas-wrap"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Actions Breakdown</div><div class="chart-subtitle">By operation type</div></div></div>
+        <div class="chart-canvas-wrap" style="height:110px"><canvas id="donutChart2"></canvas></div>
+        <div class="donut-legend">
+          <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#10b981"></div>Create</div><div class="legend-val">58</div></div>
+          <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#3b82f6"></div>Update</div><div class="legend-val">61</div></div>
+          <div class="legend-item"><div class="legend-label"><div class="legend-dot" style="background:#f43f5e"></div>Delete</div><div class="legend-val">23</div></div>
+        </div>
+      </div>
+    </div>`,
+
+  activity: ()=>`
+    <div class="db-page-title">
+      <div><h2>Activity Logger</h2><p>18 users tracked · Click any user to view session history</p></div>
+      <div class="db-actions"><button class="db-action-btn secondary">Export</button><button class="db-action-btn primary">Live Snapshot</button></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card teal"><div class="kpi-top"><div class="kpi-icon teal">👥</div><div class="kpi-change up">↑ 2</div></div><div class="kpi-value">18</div><div class="kpi-label">Users Tracked</div></div>
+      <div class="kpi-card emerald"><div class="kpi-top"><div class="kpi-icon emerald">🟢</div></div><div class="kpi-value">4</div><div class="kpi-label">Active Now</div></div>
+      <div class="kpi-card amber"><div class="kpi-top"><div class="kpi-icon amber">⏸</div></div><div class="kpi-value">1</div><div class="kpi-label">Idle</div></div>
+      <div class="kpi-card violet"><div class="kpi-top"><div class="kpi-icon violet">⚫</div></div><div class="kpi-value">1</div><div class="kpi-label">Offline</div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><div><div class="section-title">User Activity Feed</div><div class="section-subtitle">Login · Logout · Mouse · Keys · Status · Click user for full history</div></div></div>
+      <table class="log-table">
+        <thead><tr><th>User</th><th>Role</th><th>Login Time</th><th>Logout Time</th><th>Mouse Activity</th><th>Key Presses</th><th>Status</th></tr></thead>
+        <tbody>${buildActivityTable()}</tbody>
+      </table>
+    </div>
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">User Activity Timeline</div><div class="chart-subtitle">System vs user activity today</div></div></div>
+        <div class="chart-canvas-wrap"><canvas id="lineChart2"></canvas></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">Live Event Feed</div><span style="display:flex;align-items:center;gap:6px;font-size:0.7rem;color:#10b981;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;animation:pulse 1.5s infinite;display:inline-block"></span>Live</span></div>
+        <div class="live-feed">${buildLiveFeed().slice(0,500)}</div>
+      </div>
+    </div>`,
+
+  sessions: ()=>`
+    <div class="db-page-title">
+      <div><h2>Active Sessions</h2><p>7 active sessions · Real-time tracking</p></div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><div class="section-title">Current Sessions</div></div>
+      <table class="log-table">
+        <thead><tr><th>User</th><th>Role</th><th>Login Time</th><th>Duration</th><th>Mouse</th><th>Keys</th><th>Status</th></tr></thead>
+        <tbody>${USERS.map(u=>`<tr onclick="openUserModal(USERS.find(x=>x.id==='${u.id}'))">
+          <td><div style="display:flex;align-items:center;gap:0.5rem">${avatarHtml(u)}<span style="font-weight:600">${u.name}</span></div></td>
+          <td>${u.role}</td><td>${u.login}</td><td>${u.status==='active'?'<span style="color:#059669;font-weight:600">Active</span>':u.logout}</td>
+          <td>${statusBadge(u.mouse)}</td><td>${statusBadge(u.keys)}</td><td>${statusBadge(u.status)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`,
+
+  realtime: ()=>`
+    <div class="db-page-title">
+      <div><h2>Live Monitoring Feed</h2><p>Real-time events · Auto-updating</p></div>
+      <div class="db-actions"><button class="db-action-btn secondary">Pause Feed</button><button class="db-action-btn primary">Clear Log</button></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card teal"><div class="kpi-top"><div class="kpi-icon teal">📡</div><div class="kpi-change up">Live</div></div><div class="kpi-value">142</div><div class="kpi-label">Total Events Today</div></div>
+      <div class="kpi-card emerald"><div class="kpi-top"><div class="kpi-icon emerald">🔐</div></div><div class="kpi-value">7</div><div class="kpi-label">Active Sessions</div></div>
+      <div class="kpi-card amber"><div class="kpi-top"><div class="kpi-icon amber">⚡</div></div><div class="kpi-value">38</div><div class="kpi-label">Changes Today</div></div>
+      <div class="kpi-card violet"><div class="kpi-top"><div class="kpi-icon violet">👤</div></div><div class="kpi-value">4</div><div class="kpi-label">Users Online</div></div>
+    </div>
+    <div class="two-col">
+      <div class="section-card">
+        <div class="section-header"><div><div class="section-title">All Events — Live</div><div class="section-subtitle">Login · Logout · Data changes · User activity</div></div><span style="display:flex;align-items:center;gap:6px;font-size:0.7rem;color:#10b981;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;animation:pulse 1.5s infinite;display:inline-block"></span>Live</span></div>
+        <div class="live-feed" style="max-height:360px">${buildLiveFeed()}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Activity Timeline</div><div class="chart-subtitle">Events over time today</div></div></div>
+        <div class="chart-canvas-wrap"><canvas id="lineChart3"></canvas></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><div class="section-title">Recent System Changes</div></div>
+      <table class="log-table">
+        <thead><tr><th>Log ID</th><th>Action</th><th>Data</th><th>User</th><th>Time</th></tr></thead>
+        <tbody>${buildSystemLogsTable()}</tbody>
+      </table>
+    </div>`,
+};
+
+// ── SWITCH VIEW ──────────────────────────────────────────────────────────────
+function switchView(view, el){
+  // Sidebar active state
+  document.querySelectorAll('.db-side-item').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll('.db-nav-item').forEach(i=>i.classList.remove('active'));
+  if(el){
+    el.classList.add('active');
+    // Also activate matching nav item
+    const navMap={overview:0,system:1,create:1,update:1,delete:1,activity:2,sessions:2,realtime:3};
+    const navItems=document.querySelectorAll('.db-nav-item');
+    if(navMap[view]!==undefined) navItems[navMap[view]]?.classList.add('active');
+  }
+
+  const main=document.getElementById('db-main');
+  const filterMap={create:'Create',update:'Update',delete:'Delete'};
+  const sysFilter=filterMap[view];
+
+  if(view==='system'||sysFilter){
+    main.innerHTML=VIEWS.system(sysFilter||null);
+    initCharts({bar:'barChart',donut:'donutChart2'});
+  } else if(VIEWS[view]){
+    main.innerHTML=VIEWS[view]();
+    if(view==='overview') initCharts({line:'lineChart',donut:'donutChart'});
+    else if(view==='activity') initCharts({line:'lineChart2'});
+    else if(view==='realtime') initCharts({line:'lineChart3'});
+  }
+
+  document.querySelectorAll('.chart-filter-btn').forEach(b=>b.addEventListener('click',function(){
+    this.closest('.chart-filter').querySelectorAll('.chart-filter-btn').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+  }));
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+switchView('overview', document.querySelector('[data-view="overview"]'));
+</script>
+</body>
+</html>
