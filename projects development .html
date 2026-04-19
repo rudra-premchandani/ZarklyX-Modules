@@ -8,38 +8,56 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root {
-  --bg: #f4f3f0;
-  --surface: #ffffff;
-  --surface2: #f9f8f6;
-  --border: rgba(30,28,24,0.10);
-  --border-strong: rgba(30,28,24,0.18);
-  --ink: #1a1916;
-  --ink2: #4a4843;
-  --ink3: #8a8782;
-  --accent: #1a3a5c;
-  --accent-light: #e8eef5;
-  --green: #1a6b45;
-  --green-bg: #e6f3ec;
-  --yellow: #7a5c0a;
-  --yellow-bg: #fdf3d8;
-  --red: #8b1f1f;
-  --red-bg: #fce8e8;
-  --blue: #1c4fa0;
-  --blue-bg: #e8effc;
-  --purple: #4a2580;
-  --purple-bg: #f0ebfb;
-  --tag-h: #6b1a1a; --tag-h-bg: #fce8e8;
-  --tag-m: #5c4a0a; --tag-m-bg: #fdf3d8;
-  --tag-l: #1a4a1a; --tag-l-bg: #e6f3e6;
-  --radius: 8px;
-  --radius-lg: 12px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  /* Core Backgrounds */
+  --bg: #e9f2f2;           /* The soft mint-grey main background */
+  --sidebar: #1e293b;      /* Deep navy sidebar (ZarklyX Logger) */
+  --surface: #ffffff;      /* Clean white cards (Activity Feed / Stats) */
+  --surface2: #f8fafc;     /* Very light grey for list item backgrounds */
+  
+  /* Borders & Dividers */
+  --border: #e2e8f0;       /* Soft border for cards */
+  --border-strong: #cbd5e1;
+
+  /* Typography */
+  --ink: #0f172a;          /* Main headings (Activity Logger) */
+  --ink2: #64748b;         /* Secondary text and labels */
+  --ink3: #94a3b8;         /* Muted meta-data */
+
+  /* The Brand Accents */
+  --accent: #033631;       /* The "Live Snapshot" Teal button */
+  --accent-hover: #0d9488;
+  --accent-light: #f0fdfa; /* Subtle teal highlights */
+  
+  /* Status/Category Colors (Seen in top cards) */
+  --green: #22c55e;        /* Active Now card */
+  --green-bg: #f0fdf4;
+  --purple: #a855f7;       /* Users Tracked card */
+  --purple-bg: #faf5ff;
+  --yellow: #eab308;       /* Idle Users card */
+  --yellow-bg: #fefce8;
+  --red: #ef4444;          /* Offline Users card */
+  --red-bg: #fef2f2;
+  --blue: #3b82f6;         /* Activity Logs card */
+  --blue-bg: #eff6ff;
+
+  /* Specific UI Elements */
+  --tag-active: #22c55e;
+  --tag-active-bg: #dcfce7;
+  
+  /* Dimensions & Shadows */
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow: 0 8px 24px rgba(23, 55, 80, 0.06);
+  --shadow-md: 0 14px 30px rgba(23, 55, 80, 0.10);
+
+  /* Sidebar Specifics */
+  --sidebar-active-bg: rgba(20, 184, 166, 0.15); /* The teal highlight on "Activity Logger" */
+  --sidebar-active-text: #2dd4bf;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
+  background: #eaf3f3;
   color: var(--ink);
   font-size: 13px;
   line-height: 1.5;
@@ -48,10 +66,54 @@ body {
 h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
 .mono { font-family: 'DM Mono', monospace; }
 
+/* ── Global top nav (accounting style) ── */
+.global-nav {
+  height: 44px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  color: rgba(255,255,255,0.8);
+}
+.global-left { display: flex; align-items: center; gap: 16px; }
+.global-brand {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  color: #2dd4bf;
+  letter-spacing: -0.2px;
+}
+.global-tabs { display: flex; align-items: center; gap: 6px; }
+.global-tab {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.62);
+  background: transparent;
+}
+.global-tab.active { background: rgba(20,184,166,0.18); color: #5eead4; }
+.global-right { display: flex; align-items: center; gap: 10px; }
+.month-pill {
+  border: 1px solid rgba(45,212,191,0.4);
+  background: rgba(20,184,166,0.15);
+  color: #99f6e4;
+  border-radius: 7px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+}
+.user-chip {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, #14b8a6, #0f766e);
+  color: #fff; font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+
 /* ── Layout ── */
-.shell { display: flex; min-height: 100vh; }
+.shell { display: flex; min-height: calc(100vh - 44px); }
 .sidebar {
-  width: 220px; min-height: 100vh; background: var(--accent);
+  width: 210px; min-height: calc(100vh - 44px); background: #1e293b;
   display: flex; flex-direction: column; position: sticky; top: 0; flex-shrink: 0;
 }
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -86,12 +148,12 @@ h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
 
 /* ── Topbar ── */
 .topbar {
-  height: 56px; background: var(--surface); border-bottom: 1px solid var(--border);
+  height: 64px; background: #f0f9f8; border-bottom: 1px solid var(--border);
   display: flex; align-items: center; padding: 0 28px; gap: 16px;
   position: sticky; top: 0; z-index: 100;
 }
-.topbar-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; flex: 1; color: var(--ink); }
-.topbar-title span { color: var(--ink3); font-weight: 300; }
+.topbar-title { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; flex: 1; color: #0f172a; line-height: 1.1; }
+.topbar-title span { color: #64748b; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 400; display: block; margin-top: 2px; }
 .health-badge {
   display: flex; align-items: center; gap: 6px;
   padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; font-family: 'DM Mono', monospace;
@@ -114,7 +176,7 @@ h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
 .topbar-btn.primary:hover { background: #142e4a; }
 
 /* ── Content ── */
-.content { padding: 24px 28px; flex: 1; overflow-y: auto; }
+.content { padding: 20px 24px; flex: 1; overflow-y: auto; background: #f0f9f8; }
 
 /* ── Section header ── */
 .section-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -308,6 +370,22 @@ h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
 </style>
 </head>
 <body>
+<div class="global-nav">
+  <div class="global-left">
+    <div class="global-brand">ZarklyX</div>
+    <div class="global-tabs">
+      <div class="global-tab">Accounting</div>
+      <div class="global-tab">Finance</div>
+      <div class="global-tab active">Projects</div>
+      <div class="global-tab">Reports</div>
+      <div class="global-tab">Settings</div>
+    </div>
+  </div>
+  <div class="global-right">
+    <div class="month-pill">March 2026</div>
+    <div class="user-chip">SA</div>
+  </div>
+</div>
 <div class="shell">
 
 <!-- ════ SIDEBAR ════ -->
@@ -377,15 +455,16 @@ h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
 <div class="main">
   <!-- Topbar -->
   <header class="topbar">
-    <div class="topbar-title">Atlas Platform <span>/ Q4 Delivery Sprint</span></div>
+    <div class="topbar-title">Project Development Dashboard <span>March 2026 · Atlas Platform · 148 active tasks</span></div>
     <div class="health-badge yellow">
       <div class="health-dot"></div>
       At Risk
     </div>
     <div style="display:flex;gap:8px">
-      <button class="topbar-btn" onclick="showToast('📄 Exporting dashboard as PDF…','info')">Export PDF</button>
-      <button class="topbar-btn" onclick="openShareModal()">Share</button>
-      <button class="topbar-btn primary" onclick="openNewTaskModal()">+ New Task</button>
+      <button class="topbar-btn" onclick="showToast('📄 Downloading development report…','info')">Download Report</button>
+      <button class="topbar-btn" onclick="openShareModal()">Assign Team</button>
+      <button class="topbar-btn" onclick="openNewTaskModal()">Add Milestone</button>
+      <button class="topbar-btn primary" onclick="openNewTaskModal()">Generate Sheet</button>
     </div>
   </header>
 
@@ -405,6 +484,7 @@ h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
           <span class="kpi-trend up">↑ 4.2%</span>
           <span>vs last sprint</span>
         </div>
+
       </div>
       <div class="kpi-card" style="--accent-clr:#f59e0b">
         <div class="kpi-label">Timeline Status</div>
@@ -416,6 +496,7 @@ h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
           <span class="kpi-trend dn">3 tasks late</span>
           <span>behind schedule</span>
         </div>
+
       </div>
       <div class="kpi-card" style="--accent-clr:#22c55e">
         <div class="kpi-label">Budget Utilisation</div>
@@ -427,6 +508,7 @@ h1,h2,h3,h4 { font-family: 'Fraunces', serif; font-weight: 500; }
           <span class="kpi-trend up">74% used</span>
           <span>$430K remaining</span>
         </div>
+
       </div>
       <div class="kpi-card" style="--accent-clr:#a855f7">
         <div class="kpi-label">Tasks Completed</div>

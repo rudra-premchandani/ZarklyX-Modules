@@ -24,122 +24,260 @@
   </script>
 
   <style>
+    :root {
+      --teal: #0d9488;
+      --teal-light: #14b8a6;
+      --teal-pale: #ccfbf1;
+      --teal-dark: #0f766e;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --shadow-card: 0 4px 24px rgba(15,118,110,0.08), 0 1px 4px rgba(0,0,0,0.06);
+      --shadow-hover: 0 12px 40px rgba(15,118,110,0.15), 0 4px 12px rgba(0,0,0,0.08);
+    }
+
     * { box-sizing: border-box; }
-    body { font-family: 'DM Sans', sans-serif; background: #f4f6fb; }
+    body { font-family: 'DM Sans', sans-serif; background: #f0f9f8; color: var(--slate-800); }
 
     /* ── Sidebar ── */
-    #sidebar { width:210px; min-height:100vh; background:#fff; border-right:1px solid #e8ecf4; transition:width .3s ease; flex-shrink:0; }
-    #sidebar.collapsed { width:60px; }
-    #sidebar.collapsed .nav-label, #sidebar.collapsed .logo-text { display:none; }
-    .nav-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:500; color:#5b6478; transition:background .2s,color .2s; white-space:nowrap; overflow:hidden; }
-    .nav-item:hover { background:#f0f4ff; color:#2d4deb; }
-    .nav-item.active { background:#eef1ff; color:#2d4deb; font-weight:600; }
-    .nav-icon { width:18px; height:18px; flex-shrink:0; }
+    #sidebar {
+      width: 210px; min-height: 100vh;
+      background: var(--slate-800);
+      border-right: none;
+      transition: width .3s ease; flex-shrink: 0;
+    }
+    #sidebar.collapsed { width: 60px; }
+    #sidebar.collapsed .nav-label, #sidebar.collapsed .logo-text { display: none; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0.65rem 1.25rem;
+      border-radius: 0;
+      border-left: 3px solid transparent;
+      cursor: pointer; font-size: 0.8rem; font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      transition: background .2s, color .2s, border-color .2s;
+      white-space: nowrap; overflow: hidden;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); border-left-color: transparent; }
+    .nav-item.active { background: rgba(13,148,136,0.15); color: var(--teal-light); border-left-color: var(--teal-light); font-weight: 600; }
+    .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* sidebar section label */
+    .nav-section { padding: 1rem 1.25rem 0.35rem; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.5rem; }
 
     /* ── Cards ── */
-    .card { background:#fff; border-radius:14px; border:1px solid #e8ecf4; overflow:hidden; }
-    .card:hover { box-shadow:0 4px 20px rgba(64,102,245,.08); transition:box-shadow .2s; }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      position: relative;
+    }
+    /* colored top strip */
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      border-radius: 14px 14px 0 0;
+      background: linear-gradient(90deg, var(--teal), var(--teal-light));
+    }
+    .card:hover { box-shadow: var(--shadow-hover); transition: box-shadow .2s; }
 
     /* ── Influencer Tiles ── */
-    .inf-tile { position:relative; border-radius:12px; overflow:hidden; cursor:pointer; transition:transform .2s,box-shadow .2s; }
-    .inf-tile:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.18); }
-    .inf-tile:hover .tile-hover-layer { opacity:1; }
-    .inf-tile .overlay { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(0,0,0,.72)); padding:6px 8px; }
-    .tile-hover-layer { position:absolute; inset:0; background:rgba(15,23,60,.54); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; opacity:0; transition:opacity .22s; }
-    .star-badge { position:absolute; top:7px; right:7px; background:rgba(255,255,255,.9); border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:12px; z-index:3; }
+    .inf-tile { position: relative; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+    .inf-tile:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+    .inf-tile:hover .tile-hover-layer { opacity: 1; }
+    .inf-tile .overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent,rgba(0,0,0,.72)); padding: 6px 8px; }
+    .tile-hover-layer { position: absolute; inset: 0; background: rgba(15,23,60,.54); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; opacity: 0; transition: opacity .22s; }
+    .star-badge { position: absolute; top: 7px; right: 7px; background: rgba(255,255,255,.9); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 3; }
 
     /* ── Progress bar ── */
-    .prog-track { height:6px; background:#e8ecf4; border-radius:9999px; overflow:hidden; }
-    .prog-fill   { height:100%; border-radius:9999px; background:#4066f5; transition:width .6s ease; }
+    .prog-track { height: 6px; background: var(--slate-200); border-radius: 9999px; overflow: hidden; }
+    .prog-fill   { height: 100%; border-radius: 9999px; background: var(--teal); transition: width .6s ease; }
 
     /* ── Creator cards ── */
-    .creator-card { display:flex; gap:8px; padding:8px; border-radius:10px; cursor:pointer; transition:background .2s; }
-    .creator-card:hover { background:#f0f4ff; }
+    .creator-card { display: flex; gap: 8px; padding: 8px; border-radius: 10px; cursor: pointer; transition: background .2s; }
+    .creator-card:hover { background: #f0fdfa; }
 
     /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width:5px; height:5px; }
-    ::-webkit-scrollbar-track { background:transparent; }
-    ::-webkit-scrollbar-thumb { background:#d0d7e8; border-radius:9999px; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
 
     /* ── Mobile overlay ── */
-    #overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:40; }
+    #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 40; }
 
     /* ── Tip ── */
-    .tip { position:relative; }
-    .tip:hover::after { content:attr(data-tip); position:absolute; bottom:110%; left:50%; transform:translateX(-50%); background:#1e2e89; color:#fff; font-size:11px; padding:4px 8px; border-radius:6px; white-space:nowrap; z-index:99; pointer-events:none; }
+    .tip { position: relative; }
+    .tip:hover::after { content: attr(data-tip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background: var(--slate-900); color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 6px; white-space: nowrap; z-index: 99; pointer-events: none; }
 
     /* ── Fade up ── */
-    @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
-    .fade-up { animation:fadeUp .4s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    .fade-up { animation: fadeUp .4s ease both; }
     .fade-up:nth-child(1){animation-delay:.05s}
     .fade-up:nth-child(2){animation-delay:.10s}
     .fade-up:nth-child(3){animation-delay:.15s}
     .fade-up:nth-child(4){animation-delay:.20s}
 
     /* ── Saved row ── */
-    .saved-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f0f2f7; }
-    .saved-row:last-child { border-bottom:none; }
+    .saved-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--slate-100); }
+    .saved-row:last-child { border-bottom: none; }
+
+    /* ── Section card headers ── */
+    .card-section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      color: var(--slate-800);
+    }
+    .card-section-sub { font-size: 0.7rem; color: var(--slate-500); margin-top: 2px; }
 
     /* ════════════════════════════════════
        PROFILE DRAWER
     ════════════════════════════════════ */
     #profileDrawer {
-      position:fixed; top:0; right:-440px; width:420px; height:100vh;
-      background:#fff; border-left:1px solid #e8ecf4; z-index:1000;
-      transition:right .38s cubic-bezier(.4,0,.2,1);
-      display:flex; flex-direction:column; overflow:hidden;
-      box-shadow:-8px 0 50px rgba(30,46,137,.13);
+      position: fixed; top: 0; right: -440px; width: 420px; height: 100vh;
+      background: #fff; border-left: 1px solid var(--slate-200); z-index: 1000;
+      transition: right .38s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: -8px 0 50px rgba(15,118,110,0.15);
     }
-    #profileDrawer.open { right:0; }
+    #profileDrawer.open { right: 0; }
 
     #drawerBackdrop {
-      display:none; position:fixed; inset:0; background:rgba(10,18,55,.25);
-      z-index:999; backdrop-filter:blur(2px);
+      display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.35);
+      z-index: 999; backdrop-filter: blur(3px);
     }
-    #drawerBackdrop.show { display:block; }
+    #drawerBackdrop.show { display: block; }
 
     /* Hero banner */
-    .d-hero { height:155px; position:relative; flex-shrink:0; }
+    .d-hero { height: 155px; position: relative; flex-shrink: 0; }
     .d-avatar {
-      position:absolute; bottom:-38px; left:22px;
-      width:76px; height:76px; border-radius:50%;
-      border:3.5px solid #fff; box-shadow:0 4px 18px rgba(0,0,0,.2);
-      display:flex; align-items:center; justify-content:center;
-      font-family:'Syne',sans-serif; font-size:30px; font-weight:800; color:#fff;
+      position: absolute; bottom: -38px; left: 22px;
+      width: 76px; height: 76px; border-radius: 50%;
+      border: 3.5px solid #fff; box-shadow: 0 4px 18px rgba(0,0,0,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; color: #fff;
     }
     .d-close {
-      position:absolute; top:12px; right:12px; width:30px; height:30px;
-      background:rgba(0,0,0,.25); border-radius:50%; border:none; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      transition:background .2s; backdrop-filter:blur(4px);
+      position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+      background: rgba(0,0,0,.25); border-radius: 8px; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s; backdrop-filter: blur(4px);
     }
-    .d-close:hover { background:rgba(0,0,0,.42); }
+    .d-close:hover { background: rgba(0,0,0,.42); }
 
     /* Stat pill */
-    .spill { background:#f4f6fb; border-radius:10px; padding:10px 12px; text-align:center; }
-    .spill .sv { font-size:15px; font-weight:800; color:#1e293b; line-height:1; }
-    .spill .sl { font-size:10px; color:#9ca3af; margin-top:3px; }
+    .spill { background: var(--slate-50); border-radius: 10px; padding: 10px 12px; text-align: center; border: 1px solid var(--slate-100); }
+    .spill .sv { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--slate-800); line-height: 1; }
+    .spill .sl { font-size: 10px; color: var(--slate-500); margin-top: 3px; }
 
     /* Chip */
-    .chip { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:600; background:#eef1ff; color:#2d4deb; margin:2px; }
+    .chip { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; background: var(--teal-pale); color: var(--teal-dark); margin: 2px; }
 
     /* Drawer tab */
-    .dtab { padding:9px 18px; font-size:13px; font-weight:600; color:#9ca3af; cursor:pointer; border-bottom:2.5px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
-    .dtab.active { color:#2d4deb; border-bottom-color:#2d4deb; }
+    .dtab { padding: 9px 18px; font-size: 13px; font-weight: 600; color: var(--slate-500); cursor: pointer; border-bottom: 2.5px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+    .dtab.active { color: var(--teal); border-bottom-color: var(--teal); }
 
     /* Post thumb */
-    .pthumb { border-radius:8px; overflow:hidden; aspect-ratio:1; cursor:pointer; position:relative; transition:transform .18s; }
-    .pthumb:hover { transform:scale(1.05); }
-    .pthumb .pov { position:absolute; inset:0; background:rgba(15,23,60,.48); opacity:0; transition:opacity .18s; display:flex; align-items:center; justify-content:center; }
-    .pthumb:hover .pov { opacity:1; }
+    .pthumb { border-radius: 8px; overflow: hidden; aspect-ratio: 1; cursor: pointer; position: relative; transition: transform .18s; }
+    .pthumb:hover { transform: scale(1.05); }
+    .pthumb .pov { position: absolute; inset: 0; background: rgba(15,23,60,.48); opacity: 0; transition: opacity .18s; display: flex; align-items: center; justify-content: center; }
+    .pthumb:hover .pov { opacity: 1; }
 
     /* Social btn */
-    .sbtn { display:inline-flex; align-items:center; gap:6px; padding:6px 13px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:none; transition:filter .15s; font-family:'DM Sans',sans-serif; }
-    .sbtn:hover { filter:brightness(1.12); }
+    .sbtn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: filter .15s; font-family: 'DM Sans', sans-serif; }
+    .sbtn:hover { filter: brightness(1.12); }
 
     /* Drawer slide-in animation */
-    @keyframes dIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
-    .d-anim { animation:dIn .28s ease both; }
+    @keyframes dIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .d-anim { animation: dIn .28s ease both; }
+
+    /* ── Header ── */
+    #mainHeader {
+      background: var(--slate-900) !important;
+      border-bottom: 1px solid rgba(20,184,166,0.15) !important;
+    }
+    #mainHeader input {
+      background: rgba(255,255,255,0.07) !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      color: #fff !important;
+    }
+    #mainHeader input::placeholder { color: rgba(255,255,255,0.35) !important; }
+    #mainHeader input:focus { border-color: var(--teal-light) !important; background: rgba(255,255,255,0.1) !important; }
+    #mainHeader svg { color: rgba(255,255,255,0.45) !important; }
+    #mainHeader .search-icon { color: rgba(255,255,255,0.35) !important; }
+    #mainHeader .header-btn { background: rgba(255,255,255,0.07) !important; border-radius: 10px; color: rgba(255,255,255,0.6) !important; }
+    #mainHeader .header-btn:hover { background: rgba(13,148,136,0.2) !important; }
+    #mainHeader .user-badge {
+      background: rgba(255,255,255,0.08) !important;
+      border-radius: 10px !important;
+    }
+    #mainHeader .user-badge:hover { background: rgba(13,148,136,0.15) !important; }
+    #mainHeader .user-name { color: rgba(255,255,255,0.7) !important; }
+    #mainHeader .user-caret { color: rgba(255,255,255,0.4) !important; }
+    #mainHeader .user-avatar { background: linear-gradient(135deg, var(--teal), var(--teal-dark)) !important; }
+    #mainHeader .notif-btn svg { color: rgba(255,255,255,0.6) !important; }
+
+    /* Logo in dark sidebar */
+    #sidebar .logo-text { color: var(--teal-light) !important; }
+    #sidebar .logo-icon { background: var(--teal) !important; }
+
+    /* Search/filter btn */
+    .search-btn {
+      background: var(--teal) !important;
+      color: #fff !important;
+    }
+    .search-btn:hover { background: var(--teal-dark) !important; }
+
+    /* Form inputs */
+    .filter-input, .filter-select {
+      border-color: var(--slate-300) !important;
+      background: var(--slate-50) !important;
+      color: var(--slate-800) !important;
+    }
+    .filter-input:focus, .filter-select:focus {
+      border-color: var(--teal) !important;
+      box-shadow: 0 0 0 2px rgba(13,148,136,0.1) !important;
+    }
+
+    /* Table row hover */
+    tbody tr:hover td { background: #f0fdfa; }
+
+    /* Status badge variants */
+    .badge-green  { background: #d1fae5; color: #065f46; border-radius: 100px; padding: 2px 8px; font-size: 0.62rem; font-weight: 700; }
+    .badge-amber  { background: #fef3c7; color: #92400e; border-radius: 100px; padding: 2px 8px; font-size: 0.62rem; font-weight: 700; }
+    .badge-blue   { background: #dbeafe; color: #1e40af; border-radius: 100px; padding: 2px 8px; font-size: 0.62rem; font-weight: 700; }
+
+    /* Campaign filter select */
+    #campaignFilter { border-color: var(--slate-300); color: var(--slate-700); background: white; }
+
+    /* Compare card selected */
+    .compare-selected { border-color: rgba(13,148,136,0.4) !important; background: #f0fdfa !important; }
+    .compare-check-box { background: var(--teal) !important; }
+    .theme-toggle { accent-color: var(--teal) !important; }
+
+    /* Action buttons in header/cards */
+    .btn-teal {
+      background: var(--teal); color: white; border: none;
+      padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s;
+    }
+    .btn-teal:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,148,136,0.3); }
+
+    /* Month badge in header */
+    .month-badge {
+      padding: 0.3rem 0.8rem; border-radius: 6px;
+      background: rgba(13,148,136,0.15);
+      border: 1px solid rgba(20,184,166,0.3);
+      color: var(--teal-light); font-size: 0.75rem; font-weight: 600;
+    }
   </style>
 </head>
 
@@ -183,22 +321,26 @@
 <!-- ════════════════════════════════════
      SIDEBAR
 ════════════════════════════════════ -->
-<aside id="sidebar" class="flex flex-col py-4 px-3 z-50 relative">
-  <div class="flex items-center gap-2 px-1 mb-6">
-    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0">
+<aside id="sidebar" class="flex flex-col py-4 z-50 relative">
+  <!-- Logo -->
+  <div class="flex items-center gap-2 px-5 mb-5">
+    <div class="logo-icon w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--teal)">
       <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-white" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
     </div>
-    <span class="logo-text font-display text-xl font-bold text-gray-800 tracking-tight">Zarklyx</span>
+    <span class="logo-text font-display text-xl font-bold tracking-tight" style="color:var(--teal-light);font-family:'Syne',sans-serif">Zarklyx</span>
   </div>
-  <nav class="flex flex-col gap-1 flex-1">
+
+  <div class="nav-section nav-label">Main</div>
+  <nav class="flex flex-col flex-1" style="gap:2px">
     <div class="nav-item active" onclick="setActive(this)"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span class="nav-label">Dashboard</span></div>
     <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span class="nav-label">Search Influencers</span></div>
     <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span class="nav-label">Compare Tool</span></div>
     <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a2 2 0 012 2v16l-3-2-2 2-2-2-2 2-2-2-3 2V5a2 2 0 012-2z"/></svg><span class="nav-label">Saved Profiles</span></div>
+    <div class="nav-section nav-label mt-2" style="padding-left:1.25rem;padding-top:0.75rem">Explore</div>
     <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Creator Showcase</span></div>
     <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Analytics</span></div>
   </nav>
-  <div class="nav-item mt-2" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></div>
+  <div class="nav-item" onclick="setActive(this)" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:4px;padding-top:12px"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></div>
 </aside>
 
 <!-- ════════════════════════════════════
@@ -207,26 +349,27 @@
 <main class="flex-1 flex flex-col overflow-hidden">
 
   <!-- Navbar -->
-  <header class="bg-white border-b border-gray-100 px-5 py-3 flex items-center gap-4 flex-shrink-0 z-30">
-    <button onclick="toggleSidebar()" class="p-1 rounded-md hover:bg-gray-100 lg:hidden">
-      <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  <header id="mainHeader" class="px-5 py-3 flex items-center gap-4 flex-shrink-0 z-30" style="background:var(--slate-900);border-bottom:1px solid rgba(20,184,166,0.15)">
+    <button onclick="toggleSidebar()" class="p-1.5 rounded-md lg:hidden" style="background:rgba(255,255,255,0.07)">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:rgba(255,255,255,0.6)"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <div class="flex-1 max-w-xl relative">
-      <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" placeholder="Global Search for influencers..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 transition"/>
+      <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:rgba(255,255,255,0.35)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Global Search for influencers..." class="w-full pl-9 pr-4 py-2 rounded-xl text-sm focus:outline-none transition" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#fff"/>
     </div>
     <div class="flex items-center gap-3 ml-auto">
-      <button class="relative p-2 hover:bg-gray-50 rounded-xl tip" data-tip="3 new alerts">
-        <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+      <span class="month-badge hidden sm:inline">Apr 2025</span>
+      <button class="relative p-2 rounded-xl tip" data-tip="3 new alerts" style="background:rgba(255,255,255,0.07)">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:rgba(255,255,255,0.6)"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="absolute top-1 right-1 w-2 h-2 rounded-full" style="background:#f43f5e"></span>
       </button>
-      <button class="p-2 hover:bg-gray-50 rounded-xl">
-        <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <button class="p-2 rounded-xl" style="background:rgba(255,255,255,0.07)">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:rgba(255,255,255,0.6)"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
-      <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition">
-        <div class="w-7 h-7 rounded-full bg-brand-600 flex items-center justify-center text-white text-xs font-bold">AA</div>
-        <span class="text-sm font-medium text-gray-700 hidden sm:inline">Apex Agency</span>
-        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl cursor-pointer transition" style="background:rgba(255,255,255,0.08)">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:linear-gradient(135deg,var(--teal),var(--teal-dark))">AA</div>
+        <span class="text-sm font-medium hidden sm:inline" style="color:rgba(255,255,255,0.7)">Apex Agency</span>
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="color:rgba(255,255,255,0.4)"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
     </div>
   </header>
@@ -237,28 +380,33 @@
     <!-- ROW 1 -->
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
       <div class="card p-4 xl:col-span-2 fade-up">
-        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Search Influencers</h2>
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="card-section-title">Search Influencers</div>
+            <div class="card-section-sub">Filter by niche, location, or keywords</div>
+          </div>
+        </div>
         <div class="relative mb-3">
-          <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--slate-400)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           <input id="infSearch" type="text" placeholder="Search Influencers..." oninput="filterInfluencers()"
-            class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 transition"/>
-          <button onclick="filterInfluencers()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-600 text-white text-xs font-semibold px-4 py-1.5 rounded-lg hover:bg-brand-700 transition">Search</button>
+            class="w-full pl-9 pr-24 py-2 rounded-xl text-sm focus:outline-none transition filter-input" style="border:1.5px solid var(--slate-300);background:var(--slate-50);color:var(--slate-800)"/>
+          <button onclick="filterInfluencers()" class="absolute right-2 top-1/2 -translate-y-1/2 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition" style="background:var(--teal)">Search</button>
         </div>
         <div class="flex flex-wrap gap-3 mb-4">
           <div>
-            <label class="text-xs font-medium text-gray-500 block mb-1">Keywords</label>
-            <input id="kwFilter" type="text" placeholder="Keywords" oninput="filterInfluencers()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-200 w-36 bg-white"/>
+            <label class="text-xs font-medium block mb-1" style="color:var(--slate-500)">Keywords</label>
+            <input id="kwFilter" type="text" placeholder="Keywords" oninput="filterInfluencers()" class="text-sm rounded-lg px-3 py-1.5 focus:outline-none w-36 filter-input" style="border:1.5px solid var(--slate-300);background:var(--slate-50)"/>
           </div>
           <div>
-            <label class="text-xs font-medium text-gray-500 block mb-1">Niche</label>
-            <select id="nicheFilter" onchange="filterInfluencers()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-200 bg-white">
+            <label class="text-xs font-medium block mb-1" style="color:var(--slate-500)">Niche</label>
+            <select id="nicheFilter" onchange="filterInfluencers()" class="text-sm rounded-lg px-3 py-1.5 focus:outline-none filter-select" style="border:1.5px solid var(--slate-300);background:var(--slate-50);color:var(--slate-800)">
               <option value="">All Niches</option><option>Fashion</option><option>Tech</option>
               <option>Fitness</option><option>Photography</option><option>Business</option>
             </select>
           </div>
           <div>
-            <label class="text-xs font-medium text-gray-500 block mb-1">Location</label>
-            <select id="locFilter" onchange="filterInfluencers()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-200 bg-white">
+            <label class="text-xs font-medium block mb-1" style="color:var(--slate-500)">Location</label>
+            <select id="locFilter" onchange="filterInfluencers()" class="text-sm rounded-lg px-3 py-1.5 focus:outline-none filter-select" style="border:1.5px solid var(--slate-300);background:var(--slate-50);color:var(--slate-800)">
               <option value="">All Locations</option><option>Local</option><option>National</option><option>Global</option>
             </select>
           </div>
@@ -268,7 +416,8 @@
 
       <div class="card p-4 fade-up">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saved Influencers</h2>
+          <div class="card-section-title">Saved Influencers</div>
+          <span style="font-size:0.72rem;color:var(--teal);font-weight:600;cursor:pointer">View All</span>
         </div>
         <div id="savedList"></div>
       </div>
@@ -278,29 +427,29 @@
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
       <div class="card p-4 xl:col-span-2 fade-up">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Compare Influencers</h2>
-          <label class="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
-            <input type="checkbox" id="themeToggle" class="accent-brand-600" onchange="updateCompareChart()"/>
+          <div class="card-section-title">Compare Influencers</div>
+          <label class="flex items-center gap-1.5 text-xs cursor-pointer" style="color:var(--slate-500)">
+            <input type="checkbox" id="themeToggle" onchange="updateCompareChart()" style="accent-color:var(--teal)"/>
             Add theme for comparison
           </label>
         </div>
         <div class="flex flex-col sm:flex-row gap-4">
           <div class="flex flex-col gap-2 w-full sm:w-44 flex-shrink-0">
-            <div id="compareCard1" class="flex items-center gap-2 p-2.5 rounded-xl border-2 border-brand-200 bg-brand-50 cursor-pointer" onclick="selectCompare(1)">
+            <div id="compareCard1" class="flex items-center gap-2 p-2.5 rounded-xl cursor-pointer border-2" style="border-color:rgba(13,148,136,0.35);background:#f0fdfa" onclick="selectCompare(1)">
               <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex-shrink-0"></div>
-              <div><div class="text-sm font-semibold text-gray-800">Ava Green</div><div class="text-xs text-gray-400">Fashion</div></div>
-              <div class="ml-auto"><div class="w-4 h-4 rounded bg-brand-600 flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+              <div><div class="text-sm font-semibold" style="color:var(--slate-800)">Ava Green</div><div class="text-xs" style="color:var(--slate-400)">Fashion</div></div>
+              <div class="ml-auto"><div class="w-4 h-4 rounded flex items-center justify-center" style="background:var(--teal)"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div>
             </div>
-            <div id="compareCard2" class="flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 bg-white cursor-pointer" onclick="selectCompare(2)">
+            <div id="compareCard2" class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer" style="border-color:var(--slate-200);background:white" onclick="selectCompare(2)">
               <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex-shrink-0"></div>
-              <div><div class="text-sm font-semibold text-gray-800">Leo King</div><div class="text-xs text-gray-400">Tech</div></div>
-              <div class="ml-auto"><div class="w-4 h-4 rounded border-2 border-gray-300"></div></div>
+              <div><div class="text-sm font-semibold" style="color:var(--slate-800)">Leo King</div><div class="text-xs" style="color:var(--slate-400)">Tech</div></div>
+              <div class="ml-auto"><div class="w-4 h-4 rounded border-2" style="border-color:var(--slate-300)"></div></div>
             </div>
           </div>
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-4 mb-2 text-xs font-medium text-gray-600">
-              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-brand-600 inline-block"></span>Ava Green</span>
-              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-indigo-300 inline-block"></span>Leo King</span>
+            <div class="flex items-center gap-4 mb-2 text-xs font-medium" style="color:var(--slate-600)">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm inline-block" style="background:var(--teal)"></span>Ava Green</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm inline-block" style="background:#99f6e4"></span>Leo King</span>
             </div>
             <div style="height:180px"><canvas id="compareChart"></canvas></div>
           </div>
@@ -309,14 +458,14 @@
 
       <div class="card p-4 fade-up">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Filters & Insights</h2>
+          <div class="card-section-title">Filters &amp; Insights</div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><div class="text-xs font-semibold text-gray-600 mb-1">Engagement Rates</div><div style="height:60px"><canvas id="engagementSparkline"></canvas></div></div>
-          <div><div class="text-xs font-semibold text-gray-600 mb-1">Audience Quality</div><div style="height:60px"><canvas id="gaugeChart"></canvas></div></div>
+          <div><div class="text-xs font-semibold mb-1" style="color:var(--slate-600)">Engagement Rates</div><div style="height:60px"><canvas id="engagementSparkline"></canvas></div></div>
+          <div><div class="text-xs font-semibold mb-1" style="color:var(--slate-600)">Audience Quality</div><div style="height:60px"><canvas id="gaugeChart"></canvas></div></div>
         </div>
-        <div class="mt-3"><div class="text-xs font-semibold text-gray-700 mb-1">Campaign History</div><p class="text-xs text-gray-500 leading-relaxed">Summer Bloom drove 1M impressions. Holiday Gifting saw 12k clicks via 8 influencers across Fashion &amp; Tech niches. New Launch is trending up.</p></div>
-        <div class="mt-3"><div class="text-xs font-semibold text-gray-700 mb-1">Success Stories</div><p class="text-xs text-gray-500 leading-relaxed">Apex Agency partnered with Mia Pixels for a viral photo campaign — 38k clicks, 1.5M impressions in 2 weeks.</p></div>
+        <div class="mt-3"><div class="text-xs font-semibold mb-1" style="color:var(--slate-700)">Campaign History</div><p class="text-xs leading-relaxed" style="color:var(--slate-500)">Summer Bloom drove 1M impressions. Holiday Gifting saw 12k clicks via 8 influencers across Fashion &amp; Tech niches. New Launch is trending up.</p></div>
+        <div class="mt-3"><div class="text-xs font-semibold mb-1" style="color:var(--slate-700)">Success Stories</div><p class="text-xs leading-relaxed" style="color:var(--slate-500)">Apex Agency partnered with Mia Pixels for a viral photo campaign — 38k clicks, 1.5M impressions in 2 weeks.</p></div>
       </div>
     </div>
 
@@ -324,20 +473,20 @@
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
       <div class="card p-4 fade-up">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Campaigns</h2>
-          <select id="campaignFilter" onchange="renderCampaigns()" class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none bg-white">
+          <div class="card-section-title">Active Campaigns</div>
+          <select id="campaignFilter" onchange="renderCampaigns()" class="text-xs rounded-lg px-2 py-1 focus:outline-none" style="border:1.5px solid var(--slate-300);color:var(--slate-700);background:white">
             <option value="">All</option>
             <option value="high">High Progress (≥50%)</option>
             <option value="low">Low Progress (&lt;50%)</option>
           </select>
         </div>
         <table class="w-full text-sm">
-          <thead><tr class="text-xs text-gray-400 font-semibold border-b border-gray-100">
-            <th class="text-left pb-2">Campaign Name</th>
-            <th class="text-left pb-2">Progress</th>
-            <th class="text-right pb-2">Influencers</th>
-            <th class="text-right pb-2 hidden sm:table-cell">Clicks</th>
-            <th class="text-right pb-2 hidden sm:table-cell">Impr.</th>
+          <thead><tr style="border-bottom:1px solid var(--slate-100)">
+            <th class="text-left pb-2" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Campaign Name</th>
+            <th class="text-left pb-2" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Progress</th>
+            <th class="text-right pb-2" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Influencers</th>
+            <th class="text-right pb-2 hidden sm:table-cell" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Clicks</th>
+            <th class="text-right pb-2 hidden sm:table-cell" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Impr.</th>
           </tr></thead>
           <tbody id="campaignTableBody"></tbody>
         </table>
@@ -345,7 +494,8 @@
 
       <div class="card p-4 fade-up">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Creators Showcase</h2>
+          <div class="card-section-title">Creators Showcase</div>
+          <span style="font-size:0.72rem;color:var(--teal);font-weight:600;cursor:pointer">View All</span>
         </div>
         <div id="creatorsGrid" class="grid grid-cols-2 gap-2"></div>
       </div>
@@ -511,7 +661,7 @@ function renderInfluencerTiles(list) {
       <div class="star-badge" onclick="event.stopPropagation();toggleSave(${inf.id})" title="${inf.saved?'Unsave':'Save'}">${inf.saved?'⭐':'☆'}</div>
       <!-- Hover overlay with action buttons -->
       <div class="tile-hover-layer">
-        <button style="background:#fff;color:#2d4deb;border:none;padding:6px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif"
+        <button style="background:#fff;color:#0d9488;border:none;padding:6px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif"
           onclick="openProfile(${inf.id})">View Profile</button>
         <button style="background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.45);padding:5px 14px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif"
           onclick="event.stopPropagation();toggleSave(${inf.id})">${inf.saved?'✓ Saved':'+ Save'}</button>
@@ -530,7 +680,7 @@ function toggleSave(id) {
   // update drawer save button text if drawer is open for this influencer
   if (activeId === id) {
     const btn = document.getElementById('dSaveBtn');
-    if (btn) { btn.textContent = inf.saved ? '✓ Saved' : '+ Save'; btn.style.background = inf.saved ? '#eef1ff' : '#2d4deb'; btn.style.color = inf.saved ? '#2d4deb' : '#fff'; }
+    if (btn) { btn.textContent = inf.saved ? '✓ Saved' : '+ Save'; btn.style.background = inf.saved ? '#ccfbf1' : '#0d9488'; btn.style.color = inf.saved ? '#0f766e' : '#fff'; }
   }
 }
 
@@ -545,7 +695,7 @@ function renderSavedList() {
         <div style="font-size:13.5px;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${inf.name}</div>
         <div style="font-size:11px;color:#9ca3af">${inf.niche}</div>
       </div>
-      <button style="font-size:11.5px;color:#2d4deb;font-weight:600;border:none;background:none;cursor:pointer;padding:0 6px" onclick="openProfile(${inf.id})">Revisit</button>
+      <button style="font-size:11.5px;color:#0d9488;font-weight:600;border:none;background:none;cursor:pointer;padding:0 6px" onclick="openProfile(${inf.id})">Revisit</button>
       <button style="font-size:11.5px;color:#f87171;font-weight:600;border:none;background:none;cursor:pointer" onclick="toggleSave(${inf.id})">Remove</button>
     </div>`).join('');
 }
@@ -569,10 +719,10 @@ function openProfile(id) {
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px">
       <div>
         <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;color:#0f172a;line-height:1.2">${inf.name}</div>
-        <div style="font-size:13px;color:#6b7280;margin-top:2px">${inf.handle} &nbsp;·&nbsp; <span style="color:#2d4deb;font-weight:600">${inf.niche}</span></div>
+        <div style="font-size:13px;color:#64748b;margin-top:2px">${inf.handle} &nbsp;·&nbsp; <span style="color:#0d9488;font-weight:600">${inf.niche}</span></div>
       </div>
       <button id="dSaveBtn" onclick="toggleSave(${inf.id})"
-        style="background:${inf.saved?'#eef1ff':'#2d4deb'};color:${inf.saved?'#2d4deb':'#fff'};border:none;padding:7px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'DM Sans',sans-serif;white-space:nowrap">
+        style="background:${inf.saved?'#ccfbf1':'#0d9488'};color:${inf.saved?'#0f766e':'#fff'};border:none;padding:7px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'DM Sans',sans-serif;white-space:nowrap">
         ${inf.saved?'✓ Saved':'+ Save'}
       </button>
     </div>
@@ -596,11 +746,11 @@ function openProfile(id) {
   // Footer
   document.getElementById('dFooter').innerHTML = `
     <button onclick="contactNow(${inf.id})"
-      style="flex:1;background:#2d4deb;color:#fff;border:none;padding:11px;border-radius:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">
+      style="flex:1;background:#0d9488;color:#fff;border:none;padding:11px;border-radius:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">
       📩 Contact &nbsp;·&nbsp; ${inf.rate}
     </button>
     <button onclick="shareNow(${inf.id})"
-      style="background:#f4f6fb;color:#374151;border:1px solid #e8ecf4;padding:11px 16px;border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">
+      style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;padding:11px 16px;border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">
       🔗 Share
     </button>`;
 
@@ -650,10 +800,10 @@ function renderTab(inf, tab) {
         </div>
       </div>
 
-      <div style="background:linear-gradient(135deg,#eef1ff,#f0f4ff);border-radius:13px;padding:15px;display:flex;align-items:center;justify-content:space-between">
+      <div style="background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border-radius:13px;padding:15px;display:flex;align-items:center;justify-content:space-between;border:1px solid #99f6e4">
         <div>
-          <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Collab Rate</div>
-          <div style="font-size:24px;font-weight:800;color:#2d4deb;font-family:'Syne',sans-serif;line-height:1.1;margin-top:2px">${inf.rate}</div>
+          <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em">Collab Rate</div>
+          <div style="font-size:24px;font-weight:800;color:#0d9488;font-family:'Syne',sans-serif;line-height:1.1;margin-top:2px">${inf.rate}</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:11px;color:#9ca3af;margin-bottom:1px">Avg Rating</div>
@@ -676,12 +826,12 @@ function renderTab(inf, tab) {
             <div class="pov"><span style="color:#fff;font-size:12px;font-weight:700">❤️ ${p.likes}</span></div>
           </div>`).join('')}
       </div>
-      <div style="background:#f8fafc;border-radius:11px;padding:13px">
-        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:9px">Post Performance Snapshot</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:12.5px;color:#6b7280">
+      <div style="background:#f8fafc;border-radius:11px;padding:13px;border:1px solid #e2e8f0">
+        <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:9px">Post Performance Snapshot</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:12.5px;color:#64748b">
           <span>❤️ Avg Likes: <strong style="color:#1e293b">${inf.avgLikes}</strong></span>
           <span>💬 Avg Comments: <strong style="color:#1e293b">${inf.avgComments}</strong></span>
-          <span>📈 Engagement: <strong style="color:#2d4deb">${inf.engagement}</strong></span>
+          <span>📈 Engagement: <strong style="color:#0d9488">${inf.engagement}</strong></span>
           <span>👁 Reach: <strong style="color:#1e293b">${inf.reach}</strong></span>
         </div>
       </div>
@@ -693,7 +843,7 @@ function renderTab(inf, tab) {
       <div style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Campaign History</div>
       ${inf.campaigns.length ? inf.campaigns.map(name => {
         const c = CAMPAIGNS.find(x=>x.name===name); if(!c) return '';
-        const clr = c.progress>=70?'#22c55e':c.progress>=40?'#4066f5':'#f59e0b';
+        const clr = c.progress>=70?'#10b981':c.progress>=40?'#0d9488':'#f59e0b';
         return `<div style="padding:13px;background:#f8fafc;border-radius:11px;margin-bottom:9px;border-left:3.5px solid ${clr}">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
             <span style="font-size:14px;font-weight:700;color:#0f172a">${c.name}</span>
@@ -752,8 +902,8 @@ function buildCompareChart() {
     data:{
       labels:['Engagement Rate','Rate (normalized)','Reach (×1k)','Past Projects'],
       datasets:[
-        {label:'Ava Green',data:[4.2,15,150,46],backgroundColor:'#4066f5',borderRadius:6,borderSkipped:false},
-        {label:'Leo King', data:[3.1,20,130,23],backgroundColor:'#a5b4fc',borderRadius:6,borderSkipped:false},
+        {label:'Ava Green',data:[4.2,15,150,46],backgroundColor:'#0d9488',borderRadius:6,borderSkipped:false},
+        {label:'Leo King', data:[3.1,20,130,23],backgroundColor:'#99f6e4',borderRadius:6,borderSkipped:false},
       ]
     },
     options:{
@@ -767,20 +917,20 @@ function buildCompareChart() {
 function updateCompareChart() {
   if (!compareChartInst) return;
   const t = document.getElementById('themeToggle').checked;
-  compareChartInst.data.datasets[0].backgroundColor = t?'#f472b6':'#4066f5';
-  compareChartInst.data.datasets[1].backgroundColor = t?'#fb923c':'#a5b4fc';
+  compareChartInst.data.datasets[0].backgroundColor = t?'#f472b6':'#0d9488';
+  compareChartInst.data.datasets[1].backgroundColor = t?'#fb923c':'#99f6e4';
   compareChartInst.update();
 }
 function selectCompare(n) {
-  document.getElementById('compareCard1').className=`flex items-center gap-2 p-2.5 rounded-xl cursor-pointer border-2 ${n===1?'border-brand-200 bg-brand-50':'border-gray-200 bg-white'}`;
-  document.getElementById('compareCard2').className=`flex items-center gap-2 p-2.5 rounded-xl cursor-pointer border-2 ${n===2?'border-brand-200 bg-brand-50':'border-gray-200 bg-white'}`;
+  document.getElementById('compareCard1').style.cssText=`display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;cursor:pointer;border:2px solid ${n===1?'rgba(13,148,136,0.35)':'var(--slate-200)'};background:${n===1?'#f0fdfa':'white'}`;
+  document.getElementById('compareCard2').style.cssText=`display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;cursor:pointer;border:2px solid ${n===2?'rgba(13,148,136,0.35)':'var(--slate-200)'};background:${n===2?'#f0fdfa':'white'}`;
 }
 
 /* ── SPARKLINE ── */
 function buildEngagementSparkline() {
   new Chart(document.getElementById('engagementSparkline').getContext('2d'),{
     type:'line',
-    data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul'],datasets:[{data:[3.1,3.8,3.5,4.2,4.0,4.5,4.2],borderColor:'#4066f5',borderWidth:2,pointRadius:0,fill:true,backgroundColor:'rgba(64,102,245,.12)',tension:0.4}]},
+    data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul'],datasets:[{data:[3.1,3.8,3.5,4.2,4.0,4.5,4.2],borderColor:'#0d9488',borderWidth:2,pointRadius:0,fill:true,backgroundColor:'rgba(13,148,136,.12)',tension:0.4}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}
   });
 }
@@ -790,7 +940,7 @@ function buildGauge() {
   const score=72;
   new Chart(document.getElementById('gaugeChart').getContext('2d'),{
     type:'doughnut',
-    data:{datasets:[{data:[score,100-score],backgroundColor:['#22c55e','#e5e7eb'],borderWidth:0,circumference:180,rotation:-90}]},
+    data:{datasets:[{data:[score,100-score],backgroundColor:['#0d9488','#e2e8f0'],borderWidth:0,circumference:180,rotation:-90}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'70%'},
     plugins:[{id:'gt',afterDraw(chart){const{ctx,chartArea:{top,left,width,height}}=chart;ctx.save();ctx.font='bold 14px DM Sans';ctx.fillStyle='#1e293b';ctx.textAlign='center';ctx.fillText(`${score}%`,left+width/2,top+height*.88);ctx.restore();}}]
   });
@@ -802,19 +952,19 @@ function renderCampaigns() {
   let data=[...CAMPAIGNS];
   if(f==='high') data=data.filter(c=>c.progress>=50);
   if(f==='low')  data=data.filter(c=>c.progress<50);
-  const clr=p=>p>=70?'#22c55e':p>=40?'#4066f5':'#f59e0b';
+  const clr=p=>p>=70?'#10b981':p>=40?'#0d9488':'#f59e0b';
   document.getElementById('campaignTableBody').innerHTML=data.map(c=>`
-    <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-      <td class="py-2.5 text-sm font-medium text-gray-800">${c.name}</td>
+    <tr style="border-bottom:1px solid var(--slate-100)" onmouseover="this.style.background='#f0fdfa'" onmouseout="this.style.background=''">
+      <td class="py-2.5 text-sm font-medium" style="color:var(--slate-800)">${c.name}</td>
       <td class="py-2.5 w-32">
         <div class="flex items-center gap-2">
           <div class="prog-track flex-1"><div class="prog-fill" style="width:${c.progress}%;background:${clr(c.progress)}"></div></div>
-          <span class="text-xs font-semibold text-gray-500 w-8 text-right">${c.progress}%</span>
+          <span class="text-xs font-semibold w-8 text-right" style="color:var(--slate-500)">${c.progress}%</span>
         </div>
       </td>
-      <td class="py-2.5 text-right text-xs text-gray-600">${c.influencers} Infl.</td>
-      <td class="py-2.5 text-right text-xs text-gray-600 hidden sm:table-cell">${c.clicks}</td>
-      <td class="py-2.5 text-right text-xs text-gray-600 hidden sm:table-cell">${c.impressions}</td>
+      <td class="py-2.5 text-right text-xs" style="color:var(--slate-600)">${c.influencers} Infl.</td>
+      <td class="py-2.5 text-right text-xs hidden sm:table-cell" style="color:var(--slate-600)">${c.clicks}</td>
+      <td class="py-2.5 text-right text-xs hidden sm:table-cell" style="color:var(--slate-600)">${c.impressions}</td>
     </tr>`).join('');
 }
 
@@ -824,9 +974,9 @@ function renderCreators() {
     <div class="creator-card" onclick="openProfile(${c.id})">
       <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${c.color} flex items-center justify-center text-white font-bold text-lg flex-shrink-0">${c.name[0]}</div>
       <div class="min-w-0">
-        <div class="text-sm font-semibold text-gray-800 truncate">${c.name}</div>
-        <div class="text-xs text-gray-400">${c.role}</div>
-        <button class="text-xs text-brand-600 font-medium hover:underline mt-0.5">View Portfolio</button>
+        <div class="text-sm font-semibold truncate" style="color:var(--slate-800)">${c.name}</div>
+        <div class="text-xs" style="color:var(--slate-400)">${c.role}</div>
+        <button class="text-xs font-medium hover:underline mt-0.5" style="color:var(--teal)">View Portfolio</button>
       </div>
     </div>`).join('');
 }
