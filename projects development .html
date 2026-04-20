@@ -2035,7 +2035,7 @@ function setActiveProject(el, name) {
 }
 
 // ── Gantt filter ──
-let activeGanttFilter = null;
+activeGanttFilter = null;
 function filterGantt(type, el) {
   const pills = document.querySelectorAll('.gantt-table .status-pill');
   const rows = document.querySelectorAll('.gantt-table tbody tr');
@@ -2266,14 +2266,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Toast slide-in animation ──
-const toastStyle = document.createElement('style');
-toastStyle.textContent = '@keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }';
-document.head.appendChild(toastStyle);
+var toastStyle2 = document.createElement('style');
+toastStyle2.textContent = '@keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }';
+document.head.appendChild(toastStyle2);
 
 // ── Charts ──
-const MONO = "'DM Mono', monospace";
-const gridColor = 'rgba(30,28,24,0.06)';
-const tickColor = '#8a8782';
+// Reuse chart style constants from the first script block.
 
 new Chart(document.getElementById('budgetBar'), {
   type: 'bar',
