@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zarklyx – Influencer Directory</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['DM Sans', 'sans-serif'], display: ['Syne', 'sans-serif'] },
+          colors: {
+            brand: { 50:'#f0f4ff',100:'#dde8ff',200:'#c3d4ff',300:'#9ab4ff',400:'#6b8cfc',500:'#4066f5',600:'#2d4deb',700:'#2239d8',800:'#1e30ae',900:'#1e2e89' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --teal: #0d9488;
+      --teal-light: #14b8a6;
+      --teal-pale: #ccfbf1;
+      --teal-dark: #0f766e;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --shadow-card: 0 4px 24px rgba(15,118,110,0.08), 0 1px 4px rgba(0,0,0,0.06);
+      --shadow-hover: 0 12px 40px rgba(15,118,110,0.15), 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: #f0f9f8; color: var(--slate-800); margin: 0; }
+
+    /* ═══════════════════════════════════════
+       LANDING PAGE SECTIONS
+    ═══════════════════════════════════════ */
+
+    /* ── HERO ── */
+    .hero-section {
+      min-height: 100vh;
+      background: var(--slate-900);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .hero-grid-bg {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(20,184,166,0.07) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(20,184,166,0.07) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(13,148,136,0.22) 0%, transparent 65%);
+      top: -180px; left: 50%; transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .hero-glow-2 {
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(99,102,241,0.14) 0%, transparent 65%);
+      bottom: 80px; right: -80px;
+      pointer-events: none;
+    }
+
+    /* ── HERO NAV ── */
+    .hero-nav {
+      position: relative; z-index: 10;
+      padding: 1.25rem 3rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(20,184,166,0.1);
+    }
+    .hero-nav-links { display: flex; align-items: center; gap: 2.5rem; }
+    .hero-nav-links a {
+      font-size: 0.85rem; font-weight: 500;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .hero-nav-links a:hover { color: var(--teal-light); }
+    .btn-nav {
+      background: rgba(13,148,136,0.15);
+      border: 1px solid rgba(20,184,166,0.3);
+      color: var(--teal-light);
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn-nav:hover { background: rgba(13,148,136,0.3); border-color: var(--teal-light); }
+
+    /* ── HERO CONTENT ── */
+    .hero-content {
+      position: relative; z-index: 5;
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem 3rem;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(13,148,136,0.12);
+      border: 1px solid rgba(20,184,166,0.25);
+      padding: 0.38rem 1rem;
+      border-radius: 99px;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--teal-light);
+      margin-bottom: 1.75rem;
+      animation: fadeDown 0.5s ease both;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal-light);
+      animation: pulse 1.8s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+    .hero-h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.6rem, 5vw, 4.2rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+      animation: fadeDown 0.55s 0.08s ease both;
+    }
+    .hero-h1 span {
+      background: linear-gradient(135deg, var(--teal-light), #38bdf8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.55);
+      max-width: 580px;
+      line-height: 1.75;
+      margin-bottom: 2.5rem;
+      animation: fadeDown 0.55s 0.14s ease both;
+    }
+    .hero-cta-group {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeDown 0.55s 0.2s ease both;
+    }
+    .btn-primary {
+      background: var(--teal);
+      color: #fff;
+      padding: 0.8rem 2rem;
+      border-radius: 10px; font-size: 0.92rem; font-weight: 700;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      border: none;
+      transition: all .2s;
+      box-shadow: 0 4px 24px rgba(13,148,136,0.4);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(13,148,136,0.5); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.75);
+      padding: 0.8rem 2rem;
+      border-radius: 10px; font-size: 0.92rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: all .2s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.22); }
+
+    /* hero stats row */
+    .hero-stats {
+      display: flex; align-items: center; gap: 2.5rem;
+      margin-top: 3.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      animation: fadeDown 0.55s 0.28s ease both;
+    }
+    .hero-stat-val { font-family: 'Syne', sans-serif; font-size: 1.55rem; font-weight: 800; color: #fff; line-height: 1; }
+    .hero-stat-lbl { font-size: 0.72rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
+    .hero-stat-sep { width: 1px; height: 36px; background: rgba(255,255,255,0.1); }
+
+    @keyframes fadeDown { from { opacity:0; transform: translateY(-16px); } to { opacity:1; transform: none; } }
+
+    /* ═══════════════════════════════════════
+       SECTION COMMON
+    ═══════════════════════════════════════ */
+    .section { padding: 6rem 2rem; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--teal);
+      background: rgba(13,148,136,0.08);
+      border: 1px solid rgba(13,148,136,0.2);
+      padding: 0.3rem 0.85rem; border-radius: 99px;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      color: var(--slate-900);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.85rem;
+    }
+    .section-sub {
+      font-size: 1.02rem;
+      color: var(--slate-500);
+      max-width: 540px;
+      line-height: 1.72;
+    }
+
+    /* ═══════════════════════════════════════
+       DASHBOARD SECTION WRAPPER
+    ═══════════════════════════════════════ */
+    .dashboard-section {
+      background: #0f172a;
+      padding: 5rem 1.5rem;
+    }
+    .dashboard-section .section-title { color: #fff; }
+    .dashboard-section .section-sub { color: rgba(255,255,255,0.5); }
+    .dashboard-wrapper {
+      max-width: 1280px; margin: 3rem auto 0;
+      background: #f0f9f8;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+      border: 1px solid rgba(20,184,166,0.18);
+    }
+
+    /* Scale the dashboard to fit nicely */
+    .dashboard-scale-wrap {
+      width: 100%;
+      max-height: 700px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 210px; min-height: 100vh;
+      background: var(--slate-800);
+      border-right: none;
+      transition: width .3s ease; flex-shrink: 0;
+    }
+    #sidebar.collapsed { width: 60px; }
+    #sidebar.collapsed .nav-label, #sidebar.collapsed .logo-text { display: none; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0.65rem 1.25rem;
+      border-radius: 0;
+      border-left: 3px solid transparent;
+      cursor: pointer; font-size: 0.8rem; font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      transition: background .2s, color .2s, border-color .2s;
+      white-space: nowrap; overflow: hidden;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); border-left-color: transparent; }
+    .nav-item.active { background: rgba(13,148,136,0.15); color: var(--teal-light); border-left-color: var(--teal-light); font-weight: 600; }
+    .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+    .nav-section { padding: 1rem 1.25rem 0.35rem; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.5rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      position: relative;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      border-radius: 14px 14px 0 0;
+      background: linear-gradient(90deg, var(--teal), var(--teal-light));
+    }
+    .card:hover { box-shadow: var(--shadow-hover); transition: box-shadow .2s; }
+
+    /* ── Influencer Tiles ── */
+    .inf-tile { position: relative; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+    .inf-tile:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+    .inf-tile:hover .tile-hover-layer { opacity: 1; }
+    .inf-tile .overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent,rgba(0,0,0,.72)); padding: 6px 8px; }
+    .tile-hover-layer { position: absolute; inset: 0; background: rgba(15,23,60,.54); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; opacity: 0; transition: opacity .22s; }
+    .star-badge { position: absolute; top: 7px; right: 7px; background: rgba(255,255,255,.9); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 3; }
+
+    /* ── Progress bar ── */
+    .prog-track { height: 6px; background: var(--slate-200); border-radius: 9999px; overflow: hidden; }
+    .prog-fill   { height: 100%; border-radius: 9999px; background: var(--teal); transition: width .6s ease; }
+
+    /* ── Creator cards ── */
+    .creator-card { display: flex; gap: 8px; padding: 8px; border-radius: 10px; cursor: pointer; transition: background .2s; }
+    .creator-card:hover { background: #f0fdfa; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
+
+    /* ── Mobile overlay ── */
+    #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 40; }
+
+    /* ── Tip ── */
+    .tip { position: relative; }
+    .tip:hover::after { content: attr(data-tip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background: var(--slate-900); color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 6px; white-space: nowrap; z-index: 99; pointer-events: none; }
+
+    /* ── Fade up ── */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    .fade-up { animation: fadeUp .4s ease both; }
+    .fade-up:nth-child(1){animation-delay:.05s}
+    .fade-up:nth-child(2){animation-delay:.10s}
+    .fade-up:nth-child(3){animation-delay:.15s}
+    .fade-up:nth-child(4){animation-delay:.20s}
+
+    /* ── Saved row ── */
+    .saved-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--slate-100); }
+    .saved-row:last-child { border-bottom: none; }
+
+    /* ── Section card headers ── */
+    .card-section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      color: var(--slate-800);
+    }
+    .card-section-sub { font-size: 0.7rem; color: var(--slate-500); margin-top: 2px; }
+
+    /* PROFILE DRAWER */
+    #profileDrawer {
+      position: fixed; top: 0; right: -440px; width: 420px; height: 100vh;
+      background: #fff; border-left: 1px solid var(--slate-200); z-index: 1000;
+      transition: right .38s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: -8px 0 50px rgba(15,118,110,0.15);
+    }
+    #profileDrawer.open { right: 0; }
+    #drawerBackdrop {
+      display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.35);
+      z-index: 999; backdrop-filter: blur(3px);
+    }
+    #drawerBackdrop.show { display: block; }
+
+    .d-hero { height: 155px; position: relative; flex-shrink: 0; }
+    .d-avatar {
+      position: absolute; bottom: -38px; left: 22px;
+      width: 76px; height: 76px; border-radius: 50%;
+      border: 3.5px solid #fff; box-shadow: 0 4px 18px rgba(0,0,0,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; color: #fff;
+    }
+    .d-close {
+      position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+      background: rgba(0,0,0,.25); border-radius: 8px; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s; backdrop-filter: blur(4px);
+    }
+    .d-close:hover { background: rgba(0,0,0,.42); }
+
+    .spill { background: var(--slate-50); border-radius: 10px; padding: 10px 12px; text-align: center; border: 1px solid var(--slate-100); }
+    .spill .sv { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--slate-800); line-height: 1; }
+    .spill .sl { font-size: 10px; color: var(--slate-500); margin-top: 3px; }
+
+    .chip { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; background: var(--teal-pale); color: var(--teal-dark); margin: 2px; }
+
+    .dtab { padding: 9px 18px; font-size: 13px; font-weight: 600; color: var(--slate-500); cursor: pointer; border-bottom: 2.5px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+    .dtab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+    .pthumb { border-radius: 8px; overflow: hidden; aspect-ratio: 1; cursor: pointer; position: relative; transition: transform .18s; }
+    .pthumb:hover { transform: scale(1.05); }
+    .pthumb .pov { position: absolute; inset: 0; background: rgba(15,23,60,.48); opacity: 0; transition: opacity .18s; display: flex; align-items: center; justify-content: center; }
+    .pthumb:hover .pov { opacity: 1; }
+
+    .sbtn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: filter .15s; font-family: 'DM Sans', sans-serif; }
+    .sbtn:hover { filter: brightness(1.12); }
+
+    @keyframes dIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .d-anim { animation: dIn .28s ease both; }
+
+    /* Header */
+    #mainHeader {
+      background: var(--slate-900) !important;
+      border-bottom: 1px solid rgba(20,184,166,0.15) !important;
+    }
+    #mainHeader input {
+      background: rgba(255,255,255,0.07) !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      color: #fff !important;
+    }
+    #mainHeader input::placeholder { color: rgba(255,255,255,0.35) !important; }
+    #mainHeader input:focus { border-color: var(--teal-light) !important; background: rgba(255,255,255,0.1) !important; }
+    #mainHeader svg { color: rgba(255,255,255,0.45) !important; }
+    #mainHeader .header-btn { background: rgba(255,255,255,0.07) !important; border-radius: 10px; color: rgba(255,255,255,0.6) !important; }
+    #mainHeader .header-btn:hover { background: rgba(13,148,136,0.2) !important; }
+    #mainHeader .user-badge { background: rgba(255,255,255,0.08) !important; border-radius: 10px !important; }
+    #mainHeader .user-badge:hover { background: rgba(13,148,136,0.15) !important; }
+    #mainHeader .user-name { color: rgba(255,255,255,0.7) !important; }
+    #mainHeader .user-caret { color: rgba(255,255,255,0.4) !important; }
+    #mainHeader .user-avatar { background: linear-gradient(135deg, var(--teal), var(--teal-dark)) !important; }
+    #mainHeader .notif-btn svg { color: rgba(255,255,255,0.6) !important; }
+
+    #sidebar .logo-text { color: var(--teal-light) !important; }
+    #sidebar .logo-icon { background: var(--teal) !important; }
+
+    .search-btn { background: var(--teal) !important; color: #fff !important; }
+    .search-btn:hover { background: var(--teal-dark) !important; }
+
+    .filter-input, .filter-select {
+      border-color: var(--slate-300) !important;
+      background: var(--slate-50) !important;
+      color: var(--slate-800) !important;
+    }
+    .filter-input:focus, .filter-select:focus {
+      border-color: var(--teal) !important;
+      box-shadow: 0 0 0 2px rgba(13,148,136,0.1) !important;
+    }
+
+    tbody tr:hover td { background: #f0fdfa; }
+
+    .badge-green  { background: #d1fae5; color: #065f46; border-radius: 100px; padding: 2px 8px; font-size: 0.62rem; font-weight: 700; }
+    .badge-amber  { background: #fef3c7; color: #92400e; border-radius: 100px; padding: 2px 8px; font-size: 0.62rem; font-weight: 700; }
+    .badge-blue   { background: #dbeafe; color: #1e40af; border-radius: 100px; padding: 2px 8px; font-size: 0.62rem; font-weight: 700; }
+
+    #campaignFilter { border-color: var(--slate-300); color: var(--slate-700); background: white; }
+
+    .compare-selected { border-color: rgba(13,148,136,0.4) !important; background: #f0fdfa !important; }
+    .compare-check-box { background: var(--teal) !important; }
+    .theme-toggle { accent-color: var(--teal) !important; }
+
+    .btn-teal {
+      background: var(--teal); color: white; border: none;
+      padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s;
+    }
+    .btn-teal:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,148,136,0.3); }
+
+    .month-badge {
+      padding: 0.3rem 0.8rem; border-radius: 6px;
+      background: rgba(13,148,136,0.15);
+      border: 1px solid rgba(20,184,166,0.3);
+      color: var(--teal-light); font-size: 0.75rem; font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════
+       WHAT IS SECTION
+    ═══════════════════════════════════════ */
+    .what-section { background: #fff; }
+    .what-desc {
+      font-size: 1.08rem; color: var(--slate-600); line-height: 1.8;
+      max-width: 680px;
+    }
+    .what-cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem; margin-top: 3rem;
+    }
+    .what-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 16px;
+      padding: 1.6rem 1.5rem;
+      transition: all .25s;
+      cursor: default;
+    }
+    .what-card:hover {
+      background: #fff;
+      box-shadow: 0 8px 32px rgba(13,148,136,0.1);
+      border-color: rgba(13,148,136,0.3);
+      transform: translateY(-3px);
+    }
+    .what-card-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .what-card-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.45rem; }
+    .what-card-body { font-size: 0.84rem; color: var(--slate-500); line-height: 1.65; }
+
+    /* ═══════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════ */
+    .how-section { background: #f8fafc; }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem; margin-top: 3rem; position: relative;
+    }
+    .step-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      border: 1px solid var(--slate-200);
+      position: relative;
+      transition: all .25s;
+    }
+    .step-card:hover { box-shadow: 0 12px 36px rgba(13,148,136,0.12); transform: translateY(-4px); border-color: rgba(13,148,136,0.25); }
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.8rem; font-weight: 800;
+      color: rgba(13,148,136,0.12);
+      line-height: 1;
+      position: absolute; top: 1rem; right: 1.25rem;
+    }
+    .step-icon { font-size: 1.4rem; margin-bottom: 0.85rem; }
+    .step-title { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.45rem; }
+    .step-body { font-size: 0.83rem; color: var(--slate-500); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       FEATURES
+    ═══════════════════════════════════════ */
+    .features-section { background: #fff; }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .feature-card {
+      background: linear-gradient(145deg, #f8fafc, #fff);
+      border: 1px solid var(--slate-200);
+      border-radius: 18px;
+      padding: 1.75rem;
+      transition: all .25s;
+      position: relative; overflow: hidden;
+    }
+    .feature-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--teal), var(--teal-light));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .3s ease;
+    }
+    .feature-card:hover { box-shadow: 0 12px 40px rgba(13,148,136,0.12); transform: translateY(-4px); border-color: rgba(13,148,136,0.2); }
+    .feature-card:hover::after { transform: scaleX(1); }
+    .feature-icon-wrap {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: rgba(13,148,136,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 1.1rem;
+    }
+    .feature-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.5rem; }
+    .feature-body { font-size: 0.85rem; color: var(--slate-500); line-height: 1.65; }
+
+    /* ═══════════════════════════════════════
+       CAPABILITIES
+    ═══════════════════════════════════════ */
+    .capabilities-section { background: var(--slate-900); }
+    .capabilities-section .section-title { color: #fff; }
+    .capabilities-section .section-sub { color: rgba(255,255,255,0.45); }
+    .cap-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .cap-group {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 1.75rem;
+      transition: all .25s;
+    }
+    .cap-group:hover { background: rgba(13,148,136,0.08); border-color: rgba(13,148,136,0.25); }
+    .cap-group-title {
+      font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700;
+      color: var(--teal-light); margin-bottom: 1.1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cap-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 0.85rem; padding-bottom: 0.85rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .cap-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .cap-bullet {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(13,148,136,0.2);
+      border: 1px solid rgba(13,148,136,0.35);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .cap-bullet svg { width: 9px; height: 9px; }
+    .cap-item-title { font-size: 0.84rem; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 1px; }
+    .cap-item-desc { font-size: 0.77rem; color: rgba(255,255,255,0.38); line-height: 1.5; }
+
+    /* ═══════════════════════════════════════
+       WHY CHOOSE
+    ═══════════════════════════════════════ */
+    .why-section { background: linear-gradient(160deg, #f0fdfa 0%, #f8fafc 100%); }
+    .why-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.25rem; margin-top: 3rem;
+    }
+    .why-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.6rem;
+      border: 1px solid rgba(13,148,136,0.12);
+      transition: all .22s;
+      display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .why-card:hover { box-shadow: 0 8px 28px rgba(13,148,136,0.14); transform: translateY(-2px); }
+    .why-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .why-title { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.35rem; }
+    .why-body { font-size: 0.82rem; color: var(--slate-500); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       CTA SECTION
+    ═══════════════════════════════════════ */
+    .cta-section {
+      background: var(--slate-900);
+      position: relative; overflow: hidden;
+      padding: 7rem 2rem;
+      text-align: center;
+    }
+    .cta-glow {
+      position: absolute;
+      width: 600px; height: 500px;
+      background: radial-gradient(circle, rgba(13,148,136,0.2) 0%, transparent 65%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 800; color: #fff;
+      line-height: 1.12; letter-spacing: -0.02em;
+      margin-bottom: 1.1rem; position: relative;
+    }
+    .cta-sub { font-size: 1.05rem; color: rgba(255,255,255,0.5); max-width: 520px; margin: 0 auto 2.5rem; line-height: 1.7; position: relative; }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    .footer {
+      background: #0a1120;
+      border-top: 1px solid rgba(20,184,166,0.1);
+      padding: 2.5rem 3rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;
+    }
+    .footer-logo { font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--teal-light); }
+    .footer-copy { font-size: 0.8rem; color: rgba(255,255,255,0.3); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.35); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--teal-light); }
+
+    /* ═══════════════════════════════════════
+       SCROLL REVEAL
+    ═══════════════════════════════════════ */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.in-view { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.08s; }
+    .reveal-delay-2 { transition-delay: 0.16s; }
+    .reveal-delay-3 { transition-delay: 0.24s; }
+    .reveal-delay-4 { transition-delay: 0.32s; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-nav { padding: 1rem 1.5rem; }
+      .hero-nav-links { display: none; }
+      .hero-stats { gap: 1.25rem; flex-wrap: wrap; justify-content: center; }
+      .section { padding: 4rem 1.25rem; }
+      .footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     PROFILE DRAWER
+════════════════════════════════════ -->
+<div id="drawerBackdrop" onclick="closeProfile()"></div>
+<div id="profileDrawer">
+  <div class="d-hero" id="dHero">
+    <button class="d-close" onclick="closeProfile()">
+      <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.8"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="d-avatar" id="dAvatar"></div>
+  </div>
+  <div style="padding:46px 22px 0;flex-shrink:0" id="dMeta"></div>
+  <div style="display:flex;border-bottom:1px solid #e8ecf4;padding:0 16px;overflow-x:auto;flex-shrink:0;margin-top:12px">
+    <div class="dtab active" onclick="switchTab(this,'overview')">Overview</div>
+    <div class="dtab" onclick="switchTab(this,'posts')">Posts</div>
+    <div class="dtab" onclick="switchTab(this,'campaigns')">Campaigns</div>
+    <div class="dtab" onclick="switchTab(this,'reviews')">Reviews</div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:18px 22px" id="dContent"></div>
+  <div style="padding:14px 22px;border-top:1px solid #e8ecf4;display:flex;gap:10px;flex-shrink:0" id="dFooter"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     1. HERO SECTION
+════════════════════════════════════ -->
+<section class="hero-section" id="home">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
+
+  <!-- Nav -->
+  <nav class="hero-nav">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;background:var(--teal);border-radius:9px;display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px" stroke="#fff" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <span style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--teal-light)">Zarklyx</span>
+    </div>
+    <div class="hero-nav-links">
+      <a href="#what">What is it</a>
+      <a href="#how">How it Works</a>
+      <a href="#features">Features</a>
+      <a href="#why">Why Choose</a>
+    </div>
+    <a href="#dashboard" class="btn-nav">View Dashboard →</a>
+  </nav>
+
+  <!-- Content -->
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Zarklyx Influencer Directory
+    </div>
+    <h1 class="hero-h1">
+      Bridge Agencies &amp; Creators<br>
+      for <span>Explosive Growth</span>
+    </h1>
+    <p class="hero-sub">
+      Search, compare, and collaborate within a single platform to fetch top talent and launch successful campaigns.
+    </p>
+    <div class="hero-cta-group">
+      <a href="#dashboard" class="btn-primary">
+        <svg style="width:15px;height:15px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Open Dashboard
+      </a>
+      <a href="#features" class="btn-ghost">
+        Explore Features
+        <svg style="width:14px;height:14px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-val">150k+</div>
+        <div class="hero-stat-lbl">Influencers Listed</div>
+      </div>
+      <div class="hero-stat-sep"></div>
+      <div>
+        <div class="hero-stat-val">4</div>
+        <div class="hero-stat-lbl">Active Campaigns</div>
+      </div>
+      <div class="hero-stat-sep"></div>
+      <div>
+        <div class="hero-stat-val">1.5M</div>
+        <div class="hero-stat-lbl">Impressions Tracked</div>
+      </div>
+      <div class="hero-stat-sep"></div>
+      <div>
+        <div class="hero-stat-val">72%</div>
+        <div class="hero-stat-lbl">Audience Quality Score</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     2. DASHBOARD SECTION
+════════════════════════════════════ -->
+<section class="dashboard-section" id="dashboard">
+  <div style="max-width:1280px;margin:0 auto;text-align:center">
+    <div class="section-label" style="background:rgba(13,148,136,0.15);color:var(--teal-light);border-color:rgba(13,148,136,0.25)">Live Dashboard</div>
+    <div class="section-title" style="color:#fff">Your Agency Command Center</div>
+    <p class="section-sub" style="color:rgba(255,255,255,0.45);margin:0 auto">Fully interactive — search, compare, and manage influencers in real time.</p>
+  </div>
+
+  <div class="dashboard-wrapper">
+    <!-- Mobile overlay -->
+    <div id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="flex h-screen overflow-hidden" style="max-height:700px">
+      <!-- SIDEBAR -->
+      <aside id="sidebar" class="flex flex-col py-4 z-50 relative">
+        <div class="flex items-center gap-2 px-5 mb-5">
+          <div class="logo-icon w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--teal)">
+            <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-white" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <span class="logo-text font-display text-xl font-bold tracking-tight" style="color:var(--teal-light);font-family:'Syne',sans-serif">Zarklyx</span>
+        </div>
+        <div class="nav-section nav-label">Main</div>
+        <nav class="flex flex-col flex-1" style="gap:2px">
+          <div class="nav-item active" onclick="setActive(this)"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span class="nav-label">Dashboard</span></div>
+          <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span class="nav-label">Search Influencers</span></div>
+          <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span class="nav-label">Compare Tool</span></div>
+          <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M5 3h14a2 2 0 012 2v16l-3-2-2 2-2-2-2 2-2-2-3 2V5a2 2 0 012-2z"/></svg><span class="nav-label">Saved Profiles</span></div>
+          <div class="nav-section nav-label mt-2" style="padding-left:1.25rem;padding-top:0.75rem">Explore</div>
+          <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Creator Showcase</span></div>
+          <div class="nav-item" onclick="setActive(this)"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Analytics</span></div>
+        </nav>
+        <div class="nav-item" onclick="setActive(this)" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:4px;padding-top:12px"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Navbar -->
+        <header id="mainHeader" class="px-5 py-3 flex items-center gap-4 flex-shrink-0 z-30" style="background:var(--slate-900);border-bottom:1px solid rgba(20,184,166,0.15)">
+          <button onclick="toggleSidebar()" class="p-1.5 rounded-md lg:hidden" style="background:rgba(255,255,255,0.07)">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:rgba(255,255,255,0.6)"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="flex-1 max-w-xl relative">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:rgba(255,255,255,0.35)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" placeholder="Global Search for influencers..." class="w-full pl-9 pr-4 py-2 rounded-xl text-sm focus:outline-none transition" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#fff"/>
+          </div>
+          <div class="flex items-center gap-3 ml-auto">
+            <span class="month-badge hidden sm:inline">Apr 2025</span>
+            <button class="relative p-2 rounded-xl tip" data-tip="3 new alerts" style="background:rgba(255,255,255,0.07)">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:rgba(255,255,255,0.6)"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <span class="absolute top-1 right-1 w-2 h-2 rounded-full" style="background:#f43f5e"></span>
+            </button>
+            <button class="p-2 rounded-xl" style="background:rgba(255,255,255,0.07)">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:rgba(255,255,255,0.6)"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            </button>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl cursor-pointer transition" style="background:rgba(255,255,255,0.08)">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:linear-gradient(135deg,var(--teal),var(--teal-dark))">AA</div>
+              <span class="text-sm font-medium hidden sm:inline" style="color:rgba(255,255,255,0.7)">Apex Agency</span>
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="color:rgba(255,255,255,0.4)"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+        </header>
+
+        <!-- Scrollable body -->
+        <div class="flex-1 overflow-y-auto p-4 lg:p-5 space-y-4">
+
+          <!-- ROW 1 -->
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div class="card p-4 xl:col-span-2 fade-up">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <div class="card-section-title">Search Influencers</div>
+                  <div class="card-section-sub">Filter by niche, location, or keywords</div>
+                </div>
+              </div>
+              <div class="relative mb-3">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--slate-400)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input id="infSearch" type="text" placeholder="Search Influencers..." oninput="filterInfluencers()"
+                  class="w-full pl-9 pr-24 py-2 rounded-xl text-sm focus:outline-none transition filter-input" style="border:1.5px solid var(--slate-300);background:var(--slate-50);color:var(--slate-800)"/>
+                <button onclick="filterInfluencers()" class="absolute right-2 top-1/2 -translate-y-1/2 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition" style="background:var(--teal)">Search</button>
+              </div>
+              <div class="flex flex-wrap gap-3 mb-4">
+                <div>
+                  <label class="text-xs font-medium block mb-1" style="color:var(--slate-500)">Keywords</label>
+                  <input id="kwFilter" type="text" placeholder="Keywords" oninput="filterInfluencers()" class="text-sm rounded-lg px-3 py-1.5 focus:outline-none w-36 filter-input" style="border:1.5px solid var(--slate-300);background:var(--slate-50)"/>
+                </div>
+                <div>
+                  <label class="text-xs font-medium block mb-1" style="color:var(--slate-500)">Niche</label>
+                  <select id="nicheFilter" onchange="filterInfluencers()" class="text-sm rounded-lg px-3 py-1.5 focus:outline-none filter-select" style="border:1.5px solid var(--slate-300);background:var(--slate-50);color:var(--slate-800)">
+                    <option value="">All Niches</option><option>Fashion</option><option>Tech</option>
+                    <option>Fitness</option><option>Photography</option><option>Business</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-medium block mb-1" style="color:var(--slate-500)">Location</label>
+                  <select id="locFilter" onchange="filterInfluencers()" class="text-sm rounded-lg px-3 py-1.5 focus:outline-none filter-select" style="border:1.5px solid var(--slate-300);background:var(--slate-50);color:var(--slate-800)">
+                    <option value="">All Locations</option><option>Local</option><option>National</option><option>Global</option>
+                  </select>
+                </div>
+              </div>
+              <div id="influencerGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+            </div>
+
+            <div class="card p-4 fade-up">
+              <div class="flex items-center justify-between mb-3">
+                <div class="card-section-title">Saved Influencers</div>
+                <span style="font-size:0.72rem;color:var(--teal);font-weight:600;cursor:pointer">View All</span>
+              </div>
+              <div id="savedList"></div>
+            </div>
+          </div>
+
+          <!-- ROW 2 -->
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div class="card p-4 xl:col-span-2 fade-up">
+              <div class="flex items-center justify-between mb-3">
+                <div class="card-section-title">Compare Influencers</div>
+                <label class="flex items-center gap-1.5 text-xs cursor-pointer" style="color:var(--slate-500)">
+                  <input type="checkbox" id="themeToggle" onchange="updateCompareChart()" style="accent-color:var(--teal)"/>
+                  Add theme for comparison
+                </label>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex flex-col gap-2 w-full sm:w-44 flex-shrink-0">
+                  <div id="compareCard1" class="flex items-center gap-2 p-2.5 rounded-xl cursor-pointer border-2" style="border-color:rgba(13,148,136,0.35);background:#f0fdfa" onclick="selectCompare(1)">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex-shrink-0"></div>
+                    <div><div class="text-sm font-semibold" style="color:var(--slate-800)">Ava Green</div><div class="text-xs" style="color:var(--slate-400)">Fashion</div></div>
+                    <div class="ml-auto"><div class="w-4 h-4 rounded flex items-center justify-center" style="background:var(--teal)"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+                  </div>
+                  <div id="compareCard2" class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer" style="border-color:var(--slate-200);background:white" onclick="selectCompare(2)">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex-shrink-0"></div>
+                    <div><div class="text-sm font-semibold" style="color:var(--slate-800)">Leo King</div><div class="text-xs" style="color:var(--slate-400)">Tech</div></div>
+                    <div class="ml-auto"><div class="w-4 h-4 rounded border-2" style="border-color:var(--slate-300)"></div></div>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-4 mb-2 text-xs font-medium" style="color:var(--slate-600)">
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm inline-block" style="background:var(--teal)"></span>Ava Green</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm inline-block" style="background:#99f6e4"></span>Leo King</span>
+                  </div>
+                  <div style="height:180px"><canvas id="compareChart"></canvas></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card p-4 fade-up">
+              <div class="flex items-center justify-between mb-3">
+                <div class="card-section-title">Filters &amp; Insights</div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div><div class="text-xs font-semibold mb-1" style="color:var(--slate-600)">Engagement Rates</div><div style="height:60px"><canvas id="engagementSparkline"></canvas></div></div>
+                <div><div class="text-xs font-semibold mb-1" style="color:var(--slate-600)">Audience Quality</div><div style="height:60px"><canvas id="gaugeChart"></canvas></div></div>
+              </div>
+              <div class="mt-3"><div class="text-xs font-semibold mb-1" style="color:var(--slate-700)">Campaign History</div><p class="text-xs leading-relaxed" style="color:var(--slate-500)">Summer Bloom drove 1M impressions. Holiday Gifting saw 12k clicks via 8 influencers across Fashion &amp; Tech niches. New Launch is trending up.</p></div>
+              <div class="mt-3"><div class="text-xs font-semibold mb-1" style="color:var(--slate-700)">Success Stories</div><p class="text-xs leading-relaxed" style="color:var(--slate-500)">Apex Agency partnered with Mia Pixels for a viral photo campaign — 38k clicks, 1.5M impressions in 2 weeks.</p></div>
+            </div>
+          </div>
+
+          <!-- ROW 3 -->
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div class="card p-4 fade-up">
+              <div class="flex items-center justify-between mb-4">
+                <div class="card-section-title">Active Campaigns</div>
+                <select id="campaignFilter" onchange="renderCampaigns()" class="text-xs rounded-lg px-2 py-1 focus:outline-none" style="border:1.5px solid var(--slate-300);color:var(--slate-700);background:white">
+                  <option value="">All</option>
+                  <option value="high">High Progress (≥50%)</option>
+                  <option value="low">Low Progress (&lt;50%)</option>
+                </select>
+              </div>
+              <table class="w-full text-sm">
+                <thead><tr style="border-bottom:1px solid var(--slate-100)">
+                  <th class="text-left pb-2" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Campaign Name</th>
+                  <th class="text-left pb-2" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Progress</th>
+                  <th class="text-right pb-2" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Influencers</th>
+                  <th class="text-right pb-2 hidden sm:table-cell" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Clicks</th>
+                  <th class="text-right pb-2 hidden sm:table-cell" style="font-size:0.62rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.05em">Impr.</th>
+                </tr></thead>
+                <tbody id="campaignTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="card p-4 fade-up">
+              <div class="flex items-center justify-between mb-3">
+                <div class="card-section-title">Creators Showcase</div>
+                <span style="font-size:0.72rem;color:var(--teal);font-weight:600;cursor:pointer">View All</span>
+              </div>
+              <div id="creatorsGrid" class="grid grid-cols-2 gap-2"></div>
+            </div>
+          </div>
+
+        </div><!-- end scrollable body -->
+      </main>
+    </div><!-- end flex -->
+  </div><!-- end dashboard-wrapper -->
+</section>
+
+<!-- ════════════════════════════════════
+     3. WHAT IS ZARKLYX INFLUENCER DIRECTORY
+════════════════════════════════════ -->
+<section class="section what-section" id="what">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">What is it</div>
+      <h2 class="section-title">Zarklyx Influencer Directory</h2>
+      <p class="what-desc">The Zarklyx Influencer Directory bridges agencies and creators for explosive growth, allowing you to search, compare, and collaborate within a single platform to fetch top talent and launch successful campaigns.</p>
+    </div>
+
+    <div class="what-cards-grid">
+      <div class="what-card reveal reveal-delay-1">
+        <div class="what-card-icon">🏢</div>
+        <div class="what-card-title">Agency Growth Superpowers</div>
+        <div class="what-card-body">Built for agencies to find perfect creator matches, access full profile views, compare side-by-side, and build shortlists of potential partners — all in one place.</div>
+      </div>
+      <div class="what-card reveal reveal-delay-2">
+        <div class="what-card-icon">🔍</div>
+        <div class="what-card-title">Smart Filters &amp; Insights</div>
+        <div class="what-card-body">Target by category (Fashion, Tech, Fitness) and geography (Local, National, Global). Analyze real engagement rates, audience quality scores, and past campaign history.</div>
+      </div>
+      <div class="what-card reveal reveal-delay-3">
+        <div class="what-card-icon">🤝</div>
+        <div class="what-card-title">Seamless Collaboration Hub</div>
+        <div class="what-card-body">Manage content timelines, approvals, and results through the Deliverables History — a single hub for every step of your campaign collaboration.</div>
+      </div>
+      <div class="what-card reveal reveal-delay-4">
+        <div class="what-card-icon">🌟</div>
+        <div class="what-card-title">Creator Showcase</div>
+        <div class="what-card-body">Creators can showcase their services directly on the platform, making it easy for agencies to discover, evaluate, and connect with the right talent.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     4. HOW IT WORKS
+════════════════════════════════════ -->
+<section class="section how-section" id="how">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center;margin-bottom:0">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">From Discovery to Collaboration</h2>
+      <p class="section-sub" style="margin:0 auto">A clear, step-by-step process from finding the right influencer to launching a successful campaign.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num">01</div>
+        <div class="step-icon">🔎</div>
+        <div class="step-title">Search Influencers</div>
+        <div class="step-body">Find perfect matches using keywords and growth metrics across niches and geographies.</div>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num">02</div>
+        <div class="step-icon">👤</div>
+        <div class="step-title">View Influencer Profiles</div>
+        <div class="step-body">Access a full view of reach, overviews, and profile highlights for each creator.</div>
+      </div>
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-num">03</div>
+        <div class="step-icon">⚖️</div>
+        <div class="step-title">Compare Side-by-Side</div>
+        <div class="step-body">Stack influencers by statistics, rates, and niches to choose the best fit for your campaign.</div>
+      </div>
+      <div class="step-card reveal reveal-delay-4">
+        <div class="step-num">04</div>
+        <div class="step-icon">🔖</div>
+        <div class="step-title">Save Your Shortlist</div>
+        <div class="step-body">Build and revisit a shortlist of potential partners for quick access whenever you need.</div>
+      </div>
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num">05</div>
+        <div class="step-icon">📊</div>
+        <div class="step-title">Analyze Performance Data</div>
+        <div class="step-body">Review real engagement rates, audience quality scores, and past campaign history and success stories.</div>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num">06</div>
+        <div class="step-icon">🚀</div>
+        <div class="step-title">Manage Deliverables</div>
+        <div class="step-body">Use the Collaboration Hub to manage content timelines, approvals, and results end-to-end.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     5. FEATURES
+════════════════════════════════════ -->
+<section class="section features-section" id="features">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything You Need to Launch</h2>
+      <p class="section-sub">All the tools agencies and creators need — consolidated in one powerful directory.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Agency Growth Superpowers -->
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon-wrap">🔍</div>
+        <div class="feature-title">Search Influencers</div>
+        <div class="feature-body">Find perfect matches using keywords and growth metrics tailored to your campaign goals.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon-wrap">👁️</div>
+        <div class="feature-title">Influencer Profiles</div>
+        <div class="feature-body">Access a full view of reach, overviews, and profile highlights for every creator in the directory.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon-wrap">⚖️</div>
+        <div class="feature-title">Compare Side-by-Side</div>
+        <div class="feature-body">Stack influencers by statistics, rates, and niches to make data-driven collaboration decisions.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-4">
+        <div class="feature-icon-wrap">🔖</div>
+        <div class="feature-title">Saved Influencers</div>
+        <div class="feature-body">Build and revisit a shortlist of potential partners so your best prospects are always at hand.</div>
+      </div>
+      <!-- Smart Filters & Insights -->
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon-wrap">🗺️</div>
+        <div class="feature-title">Niche &amp; Location Filters</div>
+        <div class="feature-body">Target by category (Fashion, Tech, Fitness) and geography (Local, National, Global).</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon-wrap">📈</div>
+        <div class="feature-title">Performance Data</div>
+        <div class="feature-body">Analyze real engagement rates and audience quality scores to ensure every collab counts.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon-wrap">📋</div>
+        <div class="feature-title">Past Projects</div>
+        <div class="feature-body">Review campaign history and success stories to validate influencer track records before committing.</div>
+      </div>
+      <!-- Collaboration Hub -->
+      <div class="feature-card reveal reveal-delay-4">
+        <div class="feature-icon-wrap">📦</div>
+        <div class="feature-title">Deliverables History</div>
+        <div class="feature-body">Manage content timelines, approvals, and results — the full collaboration lifecycle in one place.</div>
+      </div>
+      <!-- Creators -->
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon-wrap">🌟</div>
+        <div class="feature-title">Creator Showcase</div>
+        <div class="feature-body">Creators can showcase their services, making them discoverable to agencies actively seeking talent.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     6. CAPABILITIES
+════════════════════════════════════ -->
+<section class="section capabilities-section" id="capabilities">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center">
+      <div class="section-label" style="background:rgba(13,148,136,0.15);color:var(--teal-light);border-color:rgba(13,148,136,0.25)">Control &amp; Capabilities</div>
+      <h2 class="section-title">Full-Spectrum Power</h2>
+      <p class="section-sub" style="margin:0 auto;color:rgba(255,255,255,0.45)">Three core pillars that give your agency complete control over influencer partnerships.</p>
+    </div>
+
+    <div class="cap-grid">
+      <div class="cap-group reveal reveal-delay-1">
+        <div class="cap-group-title">
+          <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Agency Growth Superpowers
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Search Influencers</div><div class="cap-item-desc">Find perfect matches using keywords and growth metrics.</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Influencer Profiles</div><div class="cap-item-desc">Access a full view of reach, overviews, and profile highlights.</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Compare Side-by-Side</div><div class="cap-item-desc">Stack influencers by statistics, rates, and niches.</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Saved Influencers</div><div class="cap-item-desc">Build and revisit a shortlist of potential partners.</div></div>
+        </div>
+      </div>
+
+      <div class="cap-group reveal reveal-delay-2">
+        <div class="cap-group-title">
+          <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Smart Filters &amp; Insights
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Niche &amp; Location Filters</div><div class="cap-item-desc">Target by category (Fashion, Tech, Fitness) and geography (Local, National, Global).</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Performance Data</div><div class="cap-item-desc">Analyze real engagement rates and audience quality scores.</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Past Projects</div><div class="cap-item-desc">Review campaign history and success stories.</div></div>
+        </div>
+      </div>
+
+      <div class="cap-group reveal reveal-delay-3">
+        <div class="cap-group-title">
+          <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Seamless Collaboration Hub &amp; Creators
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Deliverables History</div><div class="cap-item-desc">Manage content timelines, approvals, and results.</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-bullet"><svg fill="none" viewBox="0 0 24 24" stroke="#14b8a6" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="cap-item-title">Creator Showcase</div><div class="cap-item-desc">Creators can showcase their services directly on the platform.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     7. WHY CHOOSE
+════════════════════════════════════ -->
+<section class="section why-section" id="why">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center">
+      <div class="section-label">Why Choose</div>
+      <h2 class="section-title">Why Zarklyx Influencer Directory</h2>
+      <p class="section-sub" style="margin:0 auto">The single platform that connects agencies and creators for explosive growth.</p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon">🎯</div>
+        <div>
+          <div class="why-title">One Platform, All You Need</div>
+          <div class="why-body">Search, compare, and collaborate within a single platform — no more juggling tools.</div>
+        </div>
+      </div>
+      <div class="why-card reveal reveal-delay-2">
+        <div class="why-icon">⚡</div>
+        <div>
+          <div class="why-title">Fetch Top Talent Fast</div>
+          <div class="why-body">Use smart filters and performance data to identify and shortlist top influencers in minutes.</div>
+        </div>
+      </div>
+      <div class="why-card reveal reveal-delay-3">
+        <div class="why-icon">📊</div>
+        <div>
+          <div class="why-title">Data-Driven Decisions</div>
+          <div class="why-body">Real engagement rates, audience quality scores, and past project history back every choice.</div>
+        </div>
+      </div>
+      <div class="why-card reveal reveal-delay-4">
+        <div class="why-icon">🤝</div>
+        <div>
+          <div class="why-title">Built for Agencies &amp; Creators</div>
+          <div class="why-body">Agencies gain discovery superpowers. Creators showcase their services and get found by the right brands.</div>
+        </div>
+      </div>
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon">🚀</div>
+        <div>
+          <div class="why-title">Launch Successful Campaigns</div>
+          <div class="why-body">From discovery through deliverables management — everything to run winning influencer campaigns.</div>
+        </div>
+      </div>
+      <div class="why-card reveal reveal-delay-2">
+        <div class="why-icon">🔗</div>
+        <div>
+          <div class="why-title">Explosive Growth</div>
+          <div class="why-body">The Zarklyx Influencer Directory bridges agencies and creators for explosive, measurable growth.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     8. CTA SECTION
+════════════════════════════════════ -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div style="position:relative">
+    <div class="section-label" style="background:rgba(13,148,136,0.15);color:var(--teal-light);border-color:rgba(13,148,136,0.25);margin-bottom:1.5rem">Get Started</div>
+    <h2 class="cta-title">
+      Search, Compare, and Collaborate<br>
+      <span style="background:linear-gradient(135deg,var(--teal-light),#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Within a Single Platform</span>
+    </h2>
+    <p class="cta-sub">The Zarklyx Influencer Directory bridges agencies and creators for explosive growth. Fetch top talent and launch successful campaigns today.</p>
+    <div style="display:flex;align-items:center;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="#dashboard" class="btn-primary" style="font-size:1rem;padding:0.9rem 2.25rem">
+        Open Dashboard
+        <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#features" class="btn-ghost" style="font-size:1rem;padding:0.9rem 2.25rem">Explore Features</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     9. FOOTER
+════════════════════════════════════ -->
+<footer class="footer">
+  <div>
+    <div class="footer-logo">Zarklyx</div>
+    <div class="footer-copy" style="margin-top:4px">Influencer Directory — Bridging Agencies &amp; Creators</div>
+  </div>
+  <div class="footer-links">
+    <a href="#what">What is it</a>
+    <a href="#features">Features</a>
+    <a href="#how">How it Works</a>
+    <a href="#dashboard">Dashboard</a>
+  </div>
+  <div class="footer-copy">© 2025 Zarklyx. All rights reserved.</div>
+</footer>
+
+
+<!-- ════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════ -->
+<script>
+/* ── DATA ── */
+const INFLUENCERS = [
+  {
+    id:1, name:'Avery Styles', niche:'Fashion', followers:'150k', loc:'Global',
+    color:'from-pink-300 to-rose-500', bg:'linear-gradient(135deg,#fda4af,#fb7185)',
+    saved:false, handle:'@averystyles', location:'New York, USA', joined:'Jan 2019',
+    bio:'Fashion-forward creator blending streetwear with high fashion. Partnered with 40+ global brands including Zara and H&M.',
+    engagement:'4.8%', avgLikes:'7.2k', avgComments:'312', reach:'210k', rate:'$1,800/post', rating:4.8, reviews:34,
+    tags:['Fashion','Streetwear','OOTD','Lifestyle'],
+    platforms:{instagram:'150k',tiktok:'89k',youtube:'22k'},
+    campaigns:['Summer Bloom','Spring Vibes'],
+    posts:[{likes:'8.1k',bg:'linear-gradient(135deg,#fda4af,#f43f5e)'},{likes:'6.4k',bg:'linear-gradient(135deg,#fcd34d,#f59e0b)'},{likes:'9.2k',bg:'linear-gradient(135deg,#a78bfa,#8b5cf6)'},{likes:'5.8k',bg:'linear-gradient(135deg,#6ee7b7,#10b981)'},{likes:'7.1k',bg:'linear-gradient(135deg,#93c5fd,#3b82f6)'},{likes:'4.9k',bg:'linear-gradient(135deg,#fda4af,#ec4899)'}],
+    reviewList:[{agency:'Zara Global',text:'Avery exceeded our expectations — stunning visuals and authentic engagement.',stars:5},{agency:'H&M Collab',text:'Great communication and on-time delivery. Would work again!',stars:5},{agency:'Adidas Street',text:'Good results but needed extra edit rounds.',stars:4}]
+  },
+  {
+    id:2, name:'Rosa Glaees', niche:'Fashion', followers:'150k', loc:'National',
+    color:'from-amber-300 to-orange-500', bg:'linear-gradient(135deg,#fcd34d,#f97316)',
+    saved:false, handle:'@rosaglaees', location:'Los Angeles, USA', joined:'Mar 2020',
+    bio:'LA-based fashion influencer known for bold color and editorial shoots. Regular contributor to Vogue Trends.',
+    engagement:'5.2%', avgLikes:'7.8k', avgComments:'420', reach:'195k', rate:'$2,100/post', rating:4.7, reviews:28,
+    tags:['Fashion','Editorial','Beauty','Luxury'],
+    platforms:{instagram:'150k',tiktok:'63k',youtube:'18k'},
+    campaigns:['Holiday Gifting'],
+    posts:[{likes:'9.2k',bg:'linear-gradient(135deg,#fcd34d,#f59e0b)'},{likes:'7.1k',bg:'linear-gradient(135deg,#fda4af,#f43f5e)'},{likes:'8.8k',bg:'linear-gradient(135deg,#fb923c,#ea580c)'},{likes:'6.5k',bg:'linear-gradient(135deg,#a78bfa,#7c3aed)'},{likes:'5.9k',bg:'linear-gradient(135deg,#6ee7b7,#059669)'},{likes:'7.4k',bg:'linear-gradient(135deg,#93c5fd,#2563eb)'}],
+    reviewList:[{agency:'Gucci Campaign',text:'Rosa brought incredible energy and creativity to our campaign.',stars:5},{agency:'Sephora Beauty',text:'Professional, creative, delivers ahead of schedule.',stars:5},{agency:'ASOS',text:'Great engagement rates, audience loved the content.',stars:4}]
+  },
+  {
+    id:3, name:'Mea Green', niche:'Fashion', followers:'100k', loc:'Local',
+    color:'from-teal-300 to-cyan-500', bg:'linear-gradient(135deg,#5eead4,#06b6d4)',
+    saved:false, handle:'@meagreen', location:'Chicago, USA', joined:'Aug 2021',
+    bio:'Sustainable fashion advocate turning thrift finds into runway looks. Passionate about eco-friendly style.',
+    engagement:'6.1%', avgLikes:'6.1k', avgComments:'530', reach:'140k', rate:'$900/post', rating:4.9, reviews:19,
+    tags:['Fashion','Sustainable','Thrift','EcoStyle'],
+    platforms:{instagram:'100k',tiktok:'74k',youtube:'9k'},
+    campaigns:['New Launch'],
+    posts:[{likes:'6.8k',bg:'linear-gradient(135deg,#5eead4,#14b8a6)'},{likes:'5.2k',bg:'linear-gradient(135deg,#6ee7b7,#10b981)'},{likes:'7.1k',bg:'linear-gradient(135deg,#a5f3fc,#0891b2)'},{likes:'4.9k',bg:'linear-gradient(135deg,#fda4af,#e11d48)'},{likes:'6.3k',bg:'linear-gradient(135deg,#fcd34d,#d97706)'},{likes:'5.7k',bg:'linear-gradient(135deg,#c4b5fd,#7c3aed)'}],
+    reviewList:[{agency:'Patagonia',text:'Mea perfectly embodied our brand values. Authentic and inspiring.',stars:5},{agency:'EcoWear',text:'Excellent content, very engaged community around sustainability.',stars:5}]
+  },
+  {
+    id:4, name:'Mara Baloon', niche:'Fashion', followers:'80k', loc:'Global',
+    color:'from-blue-400 to-indigo-600', bg:'linear-gradient(135deg,#60a5fa,#4f46e5)',
+    saved:false, handle:'@marabaloon', location:'Paris, France', joined:'Nov 2020',
+    bio:'Paris-based model turned content creator. Known for minimalist aesthetic and Parisian chic style.',
+    engagement:'3.9%', avgLikes:'3.1k', avgComments:'198', reach:'115k', rate:'$1,200/post', rating:4.5, reviews:22,
+    tags:['Fashion','Minimalist','Parisian','Model'],
+    platforms:{instagram:'80k',tiktok:'41k',youtube:'5k'},
+    campaigns:['Spring Vibes'],
+    posts:[{likes:'3.8k',bg:'linear-gradient(135deg,#60a5fa,#3b82f6)'},{likes:'2.9k',bg:'linear-gradient(135deg,#818cf8,#6366f1)'},{likes:'4.1k',bg:'linear-gradient(135deg,#a78bfa,#8b5cf6)'},{likes:'3.3k',bg:'linear-gradient(135deg,#c4b5fd,#7c3aed)'},{likes:'2.7k',bg:'linear-gradient(135deg,#93c5fd,#2563eb)'},{likes:'3.5k',bg:'linear-gradient(135deg,#a5b4fc,#4f46e5)'}],
+    reviewList:[{agency:'Louis Vuitton',text:'A true professional with an eye for aesthetic quality.',stars:5},{agency:'Dior Beauté',text:'Wonderful collaboration, loved the Parisian tone.',stars:4}]
+  },
+  {
+    id:5, name:'Jordan', niche:'Tech, Fitness', followers:'200k', loc:'Global',
+    color:'from-violet-400 to-purple-600', bg:'linear-gradient(135deg,#a78bfa,#9333ea)',
+    saved:true, handle:'@jordantech', location:'San Francisco, USA', joined:'Feb 2018',
+    bio:'Silicon Valley tech reviewer meets fitness enthusiast. Top gadget unboxer with a dedicated fitness transformation community.',
+    engagement:'5.5%', avgLikes:'11k', avgComments:'890', reach:'320k', rate:'$3,500/post', rating:4.9, reviews:61,
+    tags:['Tech','Fitness','Gadgets','Reviews'],
+    platforms:{instagram:'200k',tiktok:'145k',youtube:'88k'},
+    campaigns:['New Launch','Summer Bloom'],
+    posts:[{likes:'12.1k',bg:'linear-gradient(135deg,#a78bfa,#9333ea)'},{likes:'9.8k',bg:'linear-gradient(135deg,#818cf8,#4f46e5)'},{likes:'14.2k',bg:'linear-gradient(135deg,#c4b5fd,#7c3aed)'},{likes:'10.5k',bg:'linear-gradient(135deg,#6ee7b7,#059669)'},{likes:'8.9k',bg:'linear-gradient(135deg,#60a5fa,#2563eb)'},{likes:'11.7k',bg:'linear-gradient(135deg,#fda4af,#e11d48)'}],
+    reviewList:[{agency:'Apple Inc.',text:'Jordan drives incredible awareness. Our iPhone launch post went viral.',stars:5},{agency:'Nike Run Club',text:'Authentic fitness content, huge impact on sales.',stars:5},{agency:'Samsung Mobile',text:'Very professional, highly engaged audience.',stars:5}]
+  },
+  {
+    id:6, name:'Martin', niche:'Tech, Fitness', followers:'120k', loc:'National',
+    color:'from-gray-400 to-gray-600', bg:'linear-gradient(135deg,#9ca3af,#4b5563)',
+    saved:true, handle:'@martinfit', location:'Austin, Texas', joined:'Jun 2019',
+    bio:'Software engineer by day, powerlifter by night. Breaks down complex tech for everyday people while documenting his fitness journey.',
+    engagement:'4.2%', avgLikes:'5.0k', avgComments:'340', reach:'172k', rate:'$1,400/post', rating:4.6, reviews:38,
+    tags:['Tech','Fitness','PowerLifting','Engineering'],
+    platforms:{instagram:'120k',tiktok:'55k',youtube:'31k'},
+    campaigns:['Holiday Gifting','New Launch'],
+    posts:[{likes:'5.4k',bg:'linear-gradient(135deg,#9ca3af,#6b7280)'},{likes:'4.8k',bg:'linear-gradient(135deg,#6ee7b7,#059669)'},{likes:'6.1k',bg:'linear-gradient(135deg,#60a5fa,#2563eb)'},{likes:'4.3k',bg:'linear-gradient(135deg,#fcd34d,#d97706)'},{likes:'5.7k',bg:'linear-gradient(135deg,#a78bfa,#7c3aed)'},{likes:'3.9k',bg:'linear-gradient(135deg,#fda4af,#e11d48)'}],
+    reviewList:[{agency:'Dell Technologies',text:'Martin explains our products in a way that feels natural and relatable.',stars:5},{agency:'Whoop Fitness',text:'Solid engagement and trusted voice in fitness tech.',stars:4}]
+  },
+  {
+    id:7, name:'Ava Green', niche:'Tech, Fitness', followers:'90k', loc:'Global',
+    color:'from-pink-400 to-purple-500', bg:'linear-gradient(135deg,#f472b6,#a855f7)',
+    saved:true, handle:'@avagreen', location:'London, UK', joined:'Sep 2019',
+    bio:'Wearable tech reviewer and HIIT coach. Bridging the gap between fitness science and consumer tech for women worldwide.',
+    engagement:'6.8%', avgLikes:'6.1k', avgComments:'610', reach:'135k', rate:'$2,200/post', rating:4.9, reviews:47,
+    tags:['Tech','Fitness','Wearables','HIIT'],
+    platforms:{instagram:'90k',tiktok:'112k',youtube:'28k'},
+    campaigns:['Summer Bloom','Spring Vibes'],
+    posts:[{likes:'7.2k',bg:'linear-gradient(135deg,#f472b6,#ec4899)'},{likes:'5.9k',bg:'linear-gradient(135deg,#a78bfa,#9333ea)'},{likes:'8.1k',bg:'linear-gradient(135deg,#6ee7b7,#10b981)'},{likes:'6.4k',bg:'linear-gradient(135deg,#93c5fd,#3b82f6)'},{likes:'5.3k',bg:'linear-gradient(135deg,#fcd34d,#f59e0b)'},{likes:'7.8k',bg:'linear-gradient(135deg,#fda4af,#f43f5e)'}],
+    reviewList:[{agency:'Fitbit Global',text:'Ava is our top performing influencer for female audience reach.',stars:5},{agency:'Lululemon UK',text:'Incredible partnership. Sales conversion beat every benchmark.',stars:5},{agency:'Garmin',text:'Engaged, thoughtful, and highly trusted by her audience.',stars:5}]
+  },
+  {
+    id:8, name:'Leo King', niche:'Tech, Fitness', followers:'75k', loc:'Local',
+    color:'from-gray-700 to-gray-900', bg:'linear-gradient(135deg,#374151,#111827)',
+    saved:true, handle:'@leoking', location:'Mumbai, India', joined:'Apr 2020',
+    bio:"Budget tech reviews and home gym setups for the everyday person. Proving you don't need to spend a fortune to get fit and stay connected.",
+    engagement:'7.2%', avgLikes:'5.4k', avgComments:'720', reach:'108k', rate:'$800/post', rating:4.7, reviews:29,
+    tags:['Tech','Fitness','Budget','HomeGym'],
+    platforms:{instagram:'75k',tiktok:'98k',youtube:'14k'},
+    campaigns:['New Launch'],
+    posts:[{likes:'5.8k',bg:'linear-gradient(135deg,#374151,#1f2937)'},{likes:'4.7k',bg:'linear-gradient(135deg,#6ee7b7,#059669)'},{likes:'6.2k',bg:'linear-gradient(135deg,#60a5fa,#1d4ed8)'},{likes:'5.1k',bg:'linear-gradient(135deg,#fcd34d,#b45309)'},{likes:'4.4k',bg:'linear-gradient(135deg,#f472b6,#be185d)'},{likes:'5.9k',bg:'linear-gradient(135deg,#a78bfa,#6d28d9)'}],
+    reviewList:[{agency:'Xiaomi India',text:'Leo resonates perfectly with our price-conscious audience.',stars:5},{agency:'Decathlon Sports',text:'Authentic and relatable. Great ROI for our home gym campaign.',stars:5}]
+  },
+];
+
+const CAMPAIGNS = [
+  {name:'Summer Bloom',   progress:70, influencers:15, clicks:'25k', impressions:'1M'},
+  {name:'Holiday Gifting',progress:30, influencers:8,  clicks:'12k', impressions:'400k'},
+  {name:'New Launch',     progress:50, influencers:22, clicks:'38k', impressions:'1.5M'},
+  {name:'Spring Vibes',   progress:85, influencers:10, clicks:'19k', impressions:'800k'},
+];
+
+const CREATORS = [
+  {id:1,  name:'Avery Styles', role:'Fashion',      color:'from-pink-300 to-rose-500'},
+  {id:5,  name:'Jordan',       role:'Tech, Fitness', color:'from-violet-400 to-purple-600'},
+  {id:7,  name:'Ava Green',    role:'Tech, Fitness', color:'from-pink-400 to-purple-500'},
+  {id:6,  name:'Martin',       role:'Tech, Fitness', color:'from-gray-400 to-gray-600'},
+  {id:8,  name:'Leo King',     role:'Tech, Fitness', color:'from-gray-700 to-gray-900'},
+  {id:2,  name:'Rosa Glaees',  role:'Fashion',       color:'from-amber-300 to-orange-500'},
+];
+
+/* ── SIDEBAR ── */
+function toggleSidebar() {
+  const s = document.getElementById('sidebar'), o = document.getElementById('overlay');
+  s.classList.toggle('collapsed');
+  o.style.display = s.classList.contains('collapsed') ? 'block' : 'none';
+}
+function setActive(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ── INFLUENCER TILES ── */
+function filterInfluencers() {
+  const q=document.getElementById('infSearch').value.toLowerCase(),
+        kw=document.getElementById('kwFilter').value.toLowerCase(),
+        niche=document.getElementById('nicheFilter').value,
+        loc=document.getElementById('locFilter').value;
+  renderInfluencerTiles(INFLUENCERS.filter(i =>
+    i.name.toLowerCase().includes(q) &&
+    (kw ? (i.name.toLowerCase().includes(kw)||i.niche.toLowerCase().includes(kw)):true) &&
+    (niche ? i.niche.includes(niche):true) &&
+    (loc ? i.loc===loc:true)
+  ));
+}
+
+function renderInfluencerTiles(list) {
+  const grid = document.getElementById('influencerGrid');
+  if (!list.length) { grid.innerHTML=`<p class="col-span-4 text-sm text-gray-400 py-4 text-center">No influencers found.</p>`; return; }
+  grid.innerHTML = list.map(inf => `
+    <div class="inf-tile" onclick="openProfile(${inf.id})">
+      <div style="background:${inf.bg};width:100%;height:128px;display:flex;align-items:center;justify-content:center">
+        <span style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:rgba(255,255,255,.45)">${inf.name[0]}</span>
+      </div>
+      <div class="star-badge" onclick="event.stopPropagation();toggleSave(${inf.id})" title="${inf.saved?'Unsave':'Save'}">${inf.saved?'⭐':'☆'}</div>
+      <div class="tile-hover-layer">
+        <button style="background:#fff;color:#0d9488;border:none;padding:6px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif"
+          onclick="openProfile(${inf.id})">View Profile</button>
+        <button style="background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.45);padding:5px 14px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif"
+          onclick="event.stopPropagation();toggleSave(${inf.id})">${inf.saved?'✓ Saved':'+ Save'}</button>
+      </div>
+      <div class="overlay">
+        <div style="color:#fff;font-size:11.5px;font-weight:600">${inf.name}</div>
+        <div style="color:rgba(255,255,255,.6);font-size:10px">${inf.niche} · ${inf.followers}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleSave(id) {
+  const inf = INFLUENCERS.find(i=>i.id===id); if(!inf) return;
+  inf.saved = !inf.saved;
+  filterInfluencers(); renderSavedList();
+  if (activeId === id) {
+    const btn = document.getElementById('dSaveBtn');
+    if (btn) { btn.textContent = inf.saved ? '✓ Saved' : '+ Save'; btn.style.background = inf.saved ? '#ccfbf1' : '#0d9488'; btn.style.color = inf.saved ? '#0f766e' : '#fff'; }
+  }
+}
+
+/* ── SAVED LIST ── */
+function renderSavedList() {
+  const saved = INFLUENCERS.filter(i=>i.saved), el = document.getElementById('savedList');
+  if (!saved.length) { el.innerHTML=`<p class="text-sm text-gray-400 text-center py-4">No saved influencers.</p>`; return; }
+  el.innerHTML = saved.map(inf=>`
+    <div class="saved-row">
+      <div style="width:36px;height:36px;border-radius:50%;background:${inf.bg};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0">${inf.name[0]}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13.5px;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${inf.name}</div>
+        <div style="font-size:11px;color:#9ca3af">${inf.niche}</div>
+      </div>
+      <button style="font-size:11.5px;color:#0d9488;font-weight:600;border:none;background:none;cursor:pointer;padding:0 6px" onclick="openProfile(${inf.id})">Revisit</button>
+      <button style="font-size:11.5px;color:#f87171;font-weight:600;border:none;background:none;cursor:pointer" onclick="toggleSave(${inf.id})">Remove</button>
+    </div>`).join('');
+}
+
+/* ── PROFILE DRAWER ── */
+let activeId = null, activeTab = 'overview';
+
+function openProfile(id) {
+  const inf = INFLUENCERS.find(i=>i.id===id); if(!inf) return;
+  activeId = id; activeTab = 'overview';
+
+  document.getElementById('dHero').style.background = inf.bg;
+  const av = document.getElementById('dAvatar');
+  av.style.background = inf.bg; av.textContent = inf.name[0];
+
+  document.getElementById('dMeta').innerHTML = `<div class="d-anim">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;color:#0f172a;line-height:1.2">${inf.name}</div>
+        <div style="font-size:13px;color:#64748b;margin-top:2px">${inf.handle} &nbsp;·&nbsp; <span style="color:#0d9488;font-weight:600">${inf.niche}</span></div>
+      </div>
+      <button id="dSaveBtn" onclick="toggleSave(${inf.id})"
+        style="background:${inf.saved?'#ccfbf1':'#0d9488'};color:${inf.saved?'#0f766e':'#fff'};border:none;padding:7px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'DM Sans',sans-serif;white-space:nowrap">
+        ${inf.saved?'✓ Saved':'+ Save'}
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:#9ca3af;margin-bottom:11px">
+      📍 ${inf.location} &nbsp;·&nbsp; 🗓 Since ${inf.joined}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
+      <div class="spill"><div class="sv">${inf.followers}</div><div class="sl">Followers</div></div>
+      <div class="spill"><div class="sv">${inf.engagement}</div><div class="sl">Engagement</div></div>
+      <div class="spill"><div class="sv">${inf.avgLikes}</div><div class="sl">Avg Likes</div></div>
+      <div class="spill"><div class="sv">${inf.reach}</div><div class="sl">Reach</div></div>
+    </div>
+  </div>`;
+
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.dtab')[0].classList.add('active');
+
+  renderTab(inf, 'overview');
+
+  document.getElementById('dFooter').innerHTML = `
+    <button onclick="contactNow(${inf.id})"
+      style="flex:1;background:#0d9488;color:#fff;border:none;padding:11px;border-radius:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">
+      📩 Contact &nbsp;·&nbsp; ${inf.rate}
+    </button>
+    <button onclick="shareNow(${inf.id})"
+      style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;padding:11px 16px;border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">
+      🔗 Share
+    </button>`;
+
+  document.getElementById('drawerBackdrop').classList.add('show');
+  document.getElementById('profileDrawer').classList.add('open');
+}
+
+function closeProfile() {
+  document.getElementById('profileDrawer').classList.remove('open');
+  document.getElementById('drawerBackdrop').classList.remove('show');
+}
+
+function switchTab(el, tab) {
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); activeTab = tab;
+  const inf = INFLUENCERS.find(i=>i.id===activeId);
+  if (inf) renderTab(inf, tab);
+}
+
+function renderTab(inf, tab) {
+  const el = document.getElementById('dContent');
+
+  if (tab === 'overview') {
+    el.innerHTML = `<div class="d-anim">
+      <p style="font-size:13.5px;color:#4b5563;line-height:1.75;margin-bottom:16px">${inf.bio}</p>
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Content Tags</div>
+        ${inf.tags.map(t=>`<span class="chip">#${t}</span>`).join('')}
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Platforms</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="sbtn" style="background:#e1306c;color:#fff">
+            <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            Instagram &nbsp;<strong>${inf.platforms.instagram}</strong>
+          </button>
+          <button class="sbtn" style="background:#010101;color:#fff">
+            <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
+            TikTok &nbsp;<strong>${inf.platforms.tiktok}</strong>
+          </button>
+          <button class="sbtn" style="background:#ff0000;color:#fff">
+            <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            YouTube &nbsp;<strong>${inf.platforms.youtube}</strong>
+          </button>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border-radius:13px;padding:15px;display:flex;align-items:center;justify-content:space-between;border:1px solid #99f6e4">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em">Collab Rate</div>
+          <div style="font-size:24px;font-weight:800;color:#0d9488;font-family:'Syne',sans-serif;line-height:1.1;margin-top:2px">${inf.rate}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:1px">Avg Rating</div>
+          <div style="font-size:20px;font-weight:800;color:#f59e0b">★ ${inf.rating}</div>
+          <div style="font-size:10.5px;color:#9ca3af">${inf.reviews} brand reviews</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  else if (tab === 'posts') {
+    el.innerHTML = `<div class="d-anim">
+      <div style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Recent Posts</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+        ${inf.posts.map(p=>`
+          <div class="pthumb" style="background:${p.bg};min-height:100px">
+            <div style="height:100%;display:flex;align-items:center;justify-content:center;min-height:100px">
+              <span style="font-size:1.8rem;opacity:.35">📸</span>
+            </div>
+            <div class="pov"><span style="color:#fff;font-size:12px;font-weight:700">❤️ ${p.likes}</span></div>
+          </div>`).join('')}
+      </div>
+      <div style="background:#f8fafc;border-radius:11px;padding:13px;border:1px solid #e2e8f0">
+        <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:9px">Post Performance Snapshot</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:12.5px;color:#64748b">
+          <span>❤️ Avg Likes: <strong style="color:#1e293b">${inf.avgLikes}</strong></span>
+          <span>💬 Avg Comments: <strong style="color:#1e293b">${inf.avgComments}</strong></span>
+          <span>📈 Engagement: <strong style="color:#0d9488">${inf.engagement}</strong></span>
+          <span>👁 Reach: <strong style="color:#1e293b">${inf.reach}</strong></span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  else if (tab === 'campaigns') {
+    el.innerHTML = `<div class="d-anim">
+      <div style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Campaign History</div>
+      ${inf.campaigns.length ? inf.campaigns.map(name => {
+        const c = CAMPAIGNS.find(x=>x.name===name); if(!c) return '';
+        const clr = c.progress>=70?'#10b981':c.progress>=40?'#0d9488':'#f59e0b';
+        return `<div style="padding:13px;background:#f8fafc;border-radius:11px;margin-bottom:9px;border-left:3.5px solid ${clr}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+            <span style="font-size:14px;font-weight:700;color:#0f172a">${c.name}</span>
+            <span style="font-size:12px;font-weight:700;color:${clr}">${c.progress}% Complete</span>
+          </div>
+          <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:9px">
+            <div style="height:100%;width:${c.progress}%;background:${clr};border-radius:99px"></div>
+          </div>
+          <div style="display:flex;gap:14px;font-size:11.5px;color:#6b7280">
+            <span>👥 ${c.influencers} influencers</span>
+            <span>🖱 ${c.clicks} clicks</span>
+            <span>👁 ${c.impressions} impr.</span>
+          </div>
+        </div>`;
+      }).join('') : `<p style="font-size:13px;color:#9ca3af;text-align:center;padding:20px 0">No campaigns yet.</p>`}
+    </div>`;
+  }
+
+  else if (tab === 'reviews') {
+    el.innerHTML = `<div class="d-anim">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.07em">Brand Reviews</div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="color:#f59e0b;font-size:16px">★</span>
+          <span style="font-size:15px;font-weight:800;color:#0f172a">${inf.rating}</span>
+          <span style="font-size:12px;color:#9ca3af">(${inf.reviews} reviews)</span>
+        </div>
+      </div>
+      ${inf.reviewList.map(r=>`
+        <div style="padding:13px;background:#f8fafc;border-radius:11px;margin-bottom:9px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:13.5px;font-weight:700;color:#0f172a">${r.agency}</span>
+            <span style="color:#f59e0b;font-size:13px">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
+          </div>
+          <p style="font-size:12.5px;color:#4b5563;line-height:1.65;font-style:italic">"${r.text}"</p>
+        </div>`).join('')}
+    </div>`;
+  }
+}
+
+function contactNow(id) {
+  const inf = INFLUENCERS.find(i=>i.id===id);
+  if (inf) alert(`📩 Collaboration request sent to ${inf.name}!\n\nRate: ${inf.rate}\nHandle: ${inf.handle}\nLocation: ${inf.location}`);
+}
+function shareNow(id) {
+  const inf = INFLUENCERS.find(i=>i.id===id);
+  if (inf) { navigator.clipboard?.writeText(`https://zarklyx.com/profile/${inf.handle}`).catch(()=>{}); alert(`🔗 Profile link copied!\nhttps://zarklyx.com/profile/${inf.handle}`); }
+}
+
+/* ── COMPARE CHART ── */
+let compareChartInst = null;
+function buildCompareChart() {
+  const ctx = document.getElementById('compareChart').getContext('2d');
+  compareChartInst = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['Engagement Rate','Rate (normalized)','Reach (×1k)','Past Projects'],
+      datasets:[
+        {label:'Ava Green',data:[4.2,15,150,46],backgroundColor:'#0d9488',borderRadius:6,borderSkipped:false},
+        {label:'Leo King', data:[3.1,20,130,23],backgroundColor:'#99f6e4',borderRadius:6,borderSkipped:false},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.raw}`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#9ca3af'}},y:{grid:{color:'#f0f0f0'},ticks:{font:{size:10},color:'#9ca3af'}}},
+      animation:{duration:600,easing:'easeInOutQuart'}
+    }
+  });
+}
+function updateCompareChart() {
+  if (!compareChartInst) return;
+  const t = document.getElementById('themeToggle').checked;
+  compareChartInst.data.datasets[0].backgroundColor = t?'#f472b6':'#0d9488';
+  compareChartInst.data.datasets[1].backgroundColor = t?'#fb923c':'#99f6e4';
+  compareChartInst.update();
+}
+function selectCompare(n) {
+  document.getElementById('compareCard1').style.cssText=`display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;cursor:pointer;border:2px solid ${n===1?'rgba(13,148,136,0.35)':'var(--slate-200)'};background:${n===1?'#f0fdfa':'white'}`;
+  document.getElementById('compareCard2').style.cssText=`display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;cursor:pointer;border:2px solid ${n===2?'rgba(13,148,136,0.35)':'var(--slate-200)'};background:${n===2?'#f0fdfa':'white'}`;
+}
+
+/* ── SPARKLINE ── */
+function buildEngagementSparkline() {
+  new Chart(document.getElementById('engagementSparkline').getContext('2d'),{
+    type:'line',
+    data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul'],datasets:[{data:[3.1,3.8,3.5,4.2,4.0,4.5,4.2],borderColor:'#0d9488',borderWidth:2,pointRadius:0,fill:true,backgroundColor:'rgba(13,148,136,.12)',tension:0.4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}
+  });
+}
+
+/* ── GAUGE ── */
+function buildGauge() {
+  const score=72;
+  new Chart(document.getElementById('gaugeChart').getContext('2d'),{
+    type:'doughnut',
+    data:{datasets:[{data:[score,100-score],backgroundColor:['#0d9488','#e2e8f0'],borderWidth:0,circumference:180,rotation:-90}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'70%'},
+    plugins:[{id:'gt',afterDraw(chart){const{ctx,chartArea:{top,left,width,height}}=chart;ctx.save();ctx.font='bold 14px DM Sans';ctx.fillStyle='#1e293b';ctx.textAlign='center';ctx.fillText(`${score}%`,left+width/2,top+height*.88);ctx.restore();}}]
+  });
+}
+
+/* ── CAMPAIGNS ── */
+function renderCampaigns() {
+  const f=document.getElementById('campaignFilter').value;
+  let data=[...CAMPAIGNS];
+  if(f==='high') data=data.filter(c=>c.progress>=50);
+  if(f==='low')  data=data.filter(c=>c.progress<50);
+  const clr=p=>p>=70?'#10b981':p>=40?'#0d9488':'#f59e0b';
+  document.getElementById('campaignTableBody').innerHTML=data.map(c=>`
+    <tr style="border-bottom:1px solid var(--slate-100)" onmouseover="this.style.background='#f0fdfa'" onmouseout="this.style.background=''">
+      <td class="py-2.5 text-sm font-medium" style="color:var(--slate-800)">${c.name}</td>
+      <td class="py-2.5 w-32">
+        <div class="flex items-center gap-2">
+          <div class="prog-track flex-1"><div class="prog-fill" style="width:${c.progress}%;background:${clr(c.progress)}"></div></div>
+          <span class="text-xs font-semibold w-8 text-right" style="color:var(--slate-500)">${c.progress}%</span>
+        </div>
+      </td>
+      <td class="py-2.5 text-right text-xs" style="color:var(--slate-600)">${c.influencers} Infl.</td>
+      <td class="py-2.5 text-right text-xs hidden sm:table-cell" style="color:var(--slate-600)">${c.clicks}</td>
+      <td class="py-2.5 text-right text-xs hidden sm:table-cell" style="color:var(--slate-600)">${c.impressions}</td>
+    </tr>`).join('');
+}
+
+/* ── CREATORS ── */
+function renderCreators() {
+  document.getElementById('creatorsGrid').innerHTML=CREATORS.map(c=>`
+    <div class="creator-card" onclick="openProfile(${c.id})">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${c.color} flex items-center justify-center text-white font-bold text-lg flex-shrink-0">${c.name[0]}</div>
+      <div class="min-w-0">
+        <div class="text-sm font-semibold truncate" style="color:var(--slate-800)">${c.name}</div>
+        <div class="text-xs" style="color:var(--slate-400)">${c.role}</div>
+        <button class="text-xs font-medium hover:underline mt-0.5" style="color:var(--teal)">View Portfolio</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ── SCROLL REVEAL ── */
+function initReveal() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+  filterInfluencers(); renderSavedList(); renderCampaigns(); renderCreators();
+  buildCompareChart(); buildEngagementSparkline(); buildGauge();
+  initReveal();
+});
+</script>
+</body>
+</html>
