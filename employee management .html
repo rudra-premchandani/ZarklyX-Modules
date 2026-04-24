@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZarklyX – Employee Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --teal: #0d9488;
+  --teal-light: #14b8a6;
+  --teal-pale: #ccfbf1;
+  --teal-dark: #0f766e;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --white: #ffffff;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --violet: #7c3aed;
+  --emerald: #10b981;
+  --blue: #3b82f6;
+  --orange: #f97316;
+  --shadow-card: 0 4px 24px rgba(15,118,110,0.08), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-hover: 0 12px 40px rgba(15,118,110,0.15), 0 4px 12px rgba(0,0,0,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--slate-50); color: var(--slate-800); overflow: hidden; height: 100vh; }
+
+/* ── LAYOUT ── */
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+/* ── TOP HEADER ── */
+.top-header {
+  background: var(--slate-900);
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(20,184,166,0.15);
+}
+.th-left { display: flex; align-items: center; gap: 1.5rem; }
+.th-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.25rem; color: var(--teal-light); letter-spacing: -0.5px; cursor: pointer; }
+.th-logo span { color: rgba(255,255,255,0.85); }
+.th-search {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 0.4rem 0.9rem; width: 280px;
+  transition: all 0.2s;
+}
+.th-search:focus-within { border-color: rgba(20,184,166,0.5); background: rgba(255,255,255,0.1); }
+.th-search input { background: none; border: none; outline: none; color: rgba(255,255,255,0.85); font-size: 0.8rem; font-family: 'DM Sans', sans-serif; width: 100%; }
+.th-search input::placeholder { color: rgba(255,255,255,0.35); }
+.th-search-icon { color: rgba(255,255,255,0.35); font-size: 0.85rem; }
+.th-right { display: flex; align-items: center; gap: 1rem; }
+.th-icon-btn { position: relative; width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.6); font-size: 1rem; }
+.th-icon-btn:hover { background: rgba(20,184,166,0.15); border-color: rgba(20,184,166,0.3); color: var(--teal-light); }
+.th-badge { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--rose); font-size: 0.55rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; border: 2px solid var(--slate-900); }
+.th-user { display: flex; align-items: center; gap: 0.65rem; cursor: pointer; padding: 0.35rem 0.75rem; border-radius: 8px; transition: all 0.2s; }
+.th-user:hover { background: rgba(255,255,255,0.07); }
+.th-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: white; flex-shrink: 0; }
+.th-user-info { display: flex; flex-direction: column; }
+.th-user-name { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+.th-user-role { font-size: 0.65rem; color: var(--teal-light); }
+
+/* ── BODY ── */
+.body-row { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 210px; min-width: 210px; background: var(--slate-800); display: flex; flex-direction: column; overflow-y: auto; }
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+.side-section-label { padding: 1.1rem 1.2rem 0.35rem; font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.1em; }
+.side-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 1.2rem; font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; position: relative; }
+.side-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.side-item.active { background: rgba(13,148,136,0.18); color: var(--teal-light); border-left-color: var(--teal-light); }
+.side-icon { font-size: 1rem; width: 20px; text-align: center; }
+.side-count { margin-left: auto; background: rgba(20,184,166,0.2); color: var(--teal-light); font-size: 0.6rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; }
+.side-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 0.5rem 1.2rem; }
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; background: #f0f9f8; padding: 1.1rem; display: flex; flex-direction: column; gap: 1rem; }
+.main::-webkit-scrollbar { width: 4px; }
+.main::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
+
+/* ── PAGE HEADER ── */
+.page-header { display: flex; align-items: center; justify-content: space-between; }
+.page-title h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--slate-800); }
+.page-title p { font-size: 0.72rem; color: var(--slate-500); margin-top: 2px; }
+.page-actions { display: flex; gap: 0.6rem; }
+.btn { padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+.btn-primary { background: var(--teal); color: white; }
+.btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,148,136,0.35); }
+.btn-secondary { background: white; color: var(--slate-700); border: 1px solid var(--slate-200); }
+.btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+.btn-ghost { background: transparent; color: var(--slate-500); border: 1px solid var(--slate-200); }
+
+/* ── KPI CARDS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; }
+.kpi-card { background: var(--white); border-radius: 14px; padding: 1rem; box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.9); transition: all 0.25s; cursor: pointer; position: relative; overflow: hidden; }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0; }
+.kpi-card.teal::before { background: linear-gradient(90deg, var(--teal), var(--teal-light)); }
+.kpi-card.emerald::before { background: linear-gradient(90deg, var(--emerald), #34d399); }
+.kpi-card.violet::before { background: linear-gradient(90deg, var(--violet), #a78bfa); }
+.kpi-card.amber::before { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.kpi-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.kpi-icon.teal { background: #ccfbf1; }
+.kpi-icon.emerald { background: #d1fae5; }
+.kpi-icon.violet { background: #ede9fe; }
+.kpi-icon.amber { background: #fef3c7; }
+.kpi-change { font-size: 0.65rem; font-weight: 600; padding: 0.2rem 0.45rem; border-radius: 5px; }
+.kpi-change.up { background: #d1fae5; color: #065f46; }
+.kpi-change.down { background: #ffe4e6; color: #9f1239; }
+.kpi-change.neutral { background: #f1f5f9; color: var(--slate-600); }
+.kpi-value { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--slate-800); line-height: 1; }
+.kpi-label { font-size: 0.7rem; color: var(--slate-500); margin-top: 0.25rem; }
+.kpi-spark { margin-top: 0.75rem; height: 36px; }
+.kpi-spark canvas { width: 100% !important; }
+
+/* ── CHARTS ROW ── */
+.charts-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.85rem; }
+
+/* ── CARD BASE ── */
+.card { background: var(--white); border-radius: 14px; box-shadow: var(--shadow-card); border: 1px solid rgba(255,255,255,0.9); overflow: hidden; }
+.card-header { padding: 0.9rem 1.1rem 0.6rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--slate-100); }
+.card-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--slate-800); }
+.card-subtitle { font-size: 0.68rem; color: var(--slate-500); margin-top: 2px; }
+.card-body { padding: 1rem 1.1rem; }
+
+/* ── CHART CONTROLS ── */
+.chart-tabs { display: flex; gap: 0.3rem; }
+.chart-tab { padding: 0.25rem 0.7rem; border-radius: 6px; font-size: 0.68rem; font-weight: 600; cursor: pointer; border: 1px solid var(--slate-200); color: var(--slate-500); background: white; transition: all 0.2s; }
+.chart-tab.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+/* ── BOTTOM ROW ── */
+.bottom-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.85rem; }
+
+/* ── EMPLOYEES TABLE ── */
+.emp-table-header { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.1rem; border-bottom: 1px solid var(--slate-100); }
+.emp-search { display: flex; align-items: center; gap: 0.5rem; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 8px; padding: 0.35rem 0.75rem; }
+.emp-search input { background: none; border: none; outline: none; font-size: 0.75rem; font-family: 'DM Sans', sans-serif; color: var(--slate-700); width: 160px; }
+.emp-search-icon { color: var(--slate-400); font-size: 0.8rem; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th { padding: 0.55rem 0.85rem; text-align: left; font-size: 0.65rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.06em; background: var(--slate-50); border-bottom: 1px solid var(--slate-100); }
+tbody tr { cursor: pointer; transition: background 0.15s; border-bottom: 1px solid var(--slate-50); }
+tbody tr:hover { background: #f0fdf4; }
+tbody tr.selected { background: #ccfbf1; }
+tbody td { padding: 0.6rem 0.85rem; font-size: 0.78rem; color: var(--slate-700); vertical-align: middle; }
+.emp-avatar-cell { display: flex; align-items: center; gap: 0.65rem; }
+.emp-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: white; flex-shrink: 0; }
+.emp-name { font-weight: 600; color: var(--slate-800); font-size: 0.78rem; }
+.emp-email { font-size: 0.65rem; color: var(--slate-400); }
+.status-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 20px; font-size: 0.65rem; font-weight: 600; }
+.status-badge.active { background: #d1fae5; color: #065f46; }
+.status-badge.probation { background: #fef3c7; color: #92400e; }
+.status-badge.inactive { background: #ffe4e6; color: #9f1239; }
+.status-badge::before { content: '●'; font-size: 0.45rem; }
+.dept-pill { padding: 0.18rem 0.55rem; border-radius: 5px; font-size: 0.65rem; font-weight: 600; }
+.dept-engineering { background: #dbeafe; color: #1e40af; }
+.dept-sales { background: #d1fae5; color: #065f46; }
+.dept-hr { background: #ede9fe; color: #5b21b6; }
+.dept-marketing { background: #fef3c7; color: #92400e; }
+.dept-ops { background: #ffe4e6; color: #9f1239; }
+.dept-finance { background: #ccfbf1; color: #0f766e; }
+.action-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--slate-200); background: white; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--slate-500); transition: all 0.2s; margin-right: 0.2rem; }
+.action-btn:hover { border-color: var(--teal); color: var(--teal); background: #f0fdf4; }
+.action-btn.delete:hover { border-color: var(--rose); color: var(--rose); background: #ffe4e6; }
+.table-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1.1rem; border-top: 1px solid var(--slate-100); }
+.table-info { font-size: 0.7rem; color: var(--slate-500); }
+.pagination { display: flex; gap: 0.3rem; }
+.page-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--slate-200); background: white; cursor: pointer; font-size: 0.72rem; font-weight: 600; color: var(--slate-600); display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.page-btn:hover, .page-btn.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+/* ── ONBOARDING CARD ── */
+.onboarding-list { display: flex; flex-direction: column; gap: 0.75rem; padding: 0 1.1rem 1rem; }
+.onboard-item { background: var(--slate-50); border-radius: 12px; padding: 0.85rem; border: 1px solid var(--slate-100); transition: all 0.2s; cursor: pointer; }
+.onboard-item:hover { border-color: var(--teal); background: #f0fdf4; }
+.onboard-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.onboard-user { display: flex; align-items: center; gap: 0.6rem; }
+.onboard-circle { position: relative; width: 40px; height: 40px; }
+.onboard-circle svg { transform: rotate(-90deg); }
+.onboard-circle-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 0.6rem; font-weight: 800; color: var(--slate-700); }
+.onboard-name { font-weight: 600; font-size: 0.8rem; color: var(--slate-800); }
+.onboard-dept { font-size: 0.65rem; color: var(--slate-500); }
+.onboard-status-badge { font-size: 0.62rem; font-weight: 600; padding: 0.18rem 0.55rem; border-radius: 20px; }
+.onboard-status-badge.inprogress { background: #fef3c7; color: #92400e; }
+.onboard-status-badge.completed { background: #d1fae5; color: #065f46; }
+.onboard-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+.onboard-check { display: flex; align-items: center; gap: 0.35rem; font-size: 0.67rem; color: var(--slate-600); }
+.onboard-check.done { color: var(--teal); }
+.onboard-check.done::before { content: '✓'; font-weight: 700; }
+.onboard-check.pending::before { content: '○'; color: var(--slate-300); }
+.onboarding-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1.1rem; border-top: 1px solid var(--slate-100); font-size: 0.7rem; color: var(--slate-500); }
+.onboarding-footer strong { color: var(--teal); }
+
+/* ── MODAL ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; backdrop-filter: blur(4px); }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: white; border-radius: 18px; width: 520px; max-width: 95vw; box-shadow: 0 25px 80px rgba(0,0,0,0.25); transform: translateY(20px) scale(0.97); transition: all 0.25s; }
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+.modal-header { background: linear-gradient(135deg, var(--slate-900), #134e4a); padding: 1.25rem 1.5rem; border-radius: 18px 18px 0 0; display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: white; }
+.modal-close { width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.1); border: none; cursor: pointer; color: rgba(255,255,255,0.7); font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.modal-close:hover { background: rgba(255,255,255,0.2); color: white; }
+.modal-body { padding: 1.25rem 1.5rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 0.72rem; font-weight: 600; color: var(--slate-600); text-transform: uppercase; letter-spacing: 0.05em; }
+.form-input, .form-select { padding: 0.55rem 0.85rem; border-radius: 8px; border: 1.5px solid var(--slate-200); font-size: 0.82rem; font-family: 'DM Sans', sans-serif; color: var(--slate-800); background: white; transition: all 0.2s; outline: none; width: 100%; }
+.form-input:focus, .form-select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,0.1); }
+.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--slate-100); display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+/* ── TOAST ── */
+.toast-wrap { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.5rem; }
+.toast { padding: 0.75rem 1.1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 0.6rem; }
+.toast.show { transform: translateX(0); }
+.toast.success { background: #065f46; color: white; }
+.toast.error { background: #9f1239; color: white; }
+.toast.info { background: var(--slate-900); color: white; }
+
+/* ── DEPT FILTER CHIPS ── */
+.filter-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
+.chip { padding: 0.22rem 0.7rem; border-radius: 20px; font-size: 0.68rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--slate-200); color: var(--slate-600); background: white; transition: all 0.2s; }
+.chip:hover { border-color: var(--teal); color: var(--teal); }
+.chip.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+/* ── SCROLLBAR THIN ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
+
+/* ── DETAIL PANEL ── */
+.detail-panel {
+  position: fixed; right: 0; top: 56px; bottom: 0; width: 320px;
+  background: white; box-shadow: -8px 0 32px rgba(0,0,0,0.1);
+  transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  z-index: 900; display: flex; flex-direction: column; overflow: hidden;
+}
+.detail-panel.open { transform: translateX(0); }
+.dp-header { background: linear-gradient(135deg, var(--slate-900), #134e4a); padding: 1.25rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.dp-close { position: absolute; top: 0.75rem; right: 0.75rem; width: 26px; height: 26px; border-radius: 6px; background: rgba(255,255,255,0.12); border: none; color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+.dp-avatar { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; color: white; border: 3px solid rgba(20,184,166,0.5); }
+.dp-name { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: white; }
+.dp-role { font-size: 0.75rem; color: var(--teal-light); }
+.dp-body { flex: 1; overflow-y: auto; padding: 1rem; }
+.dp-section { margin-bottom: 1rem; }
+.dp-section-title { font-size: 0.65rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.6rem; }
+.dp-row { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid var(--slate-50); }
+.dp-row-label { font-size: 0.72rem; color: var(--slate-500); }
+.dp-row-value { font-size: 0.75rem; font-weight: 600; color: var(--slate-800); }
+.dp-footer { padding: 1rem; border-top: 1px solid var(--slate-100); display: flex; gap: 0.6rem; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.kpi-card { animation: fadeIn 0.4s ease both; }
+.kpi-card:nth-child(1) { animation-delay: 0.05s; }
+.kpi-card:nth-child(2) { animation-delay: 0.1s; }
+.kpi-card:nth-child(3) { animation-delay: 0.15s; }
+.kpi-card:nth-child(4) { animation-delay: 0.2s; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP HEADER -->
+  <div class="top-header">
+    <div class="th-left">
+      <div class="th-logo">Zarkly<span>X</span></div>
+      <div class="th-search">
+        <span class="th-search-icon">🔍</span>
+        <input type="text" placeholder="Search employees, departments..." id="globalSearch">
+      </div>
+    </div>
+    <div class="th-right">
+      <div class="th-icon-btn" title="Notifications" onclick="showToast('3 new notifications', 'info')">
+        🔔<span class="th-badge">3</span>
+      </div>
+      <div class="th-icon-btn" title="Messages" onclick="showToast('1 unread message', 'info')">
+        ✉️<span class="th-badge">1</span>
+      </div>
+      <div class="th-user" onclick="showToast('Profile settings coming soon', 'info')">
+        <div class="th-avatar">MC</div>
+        <div class="th-user-info">
+          <span class="th-user-name">Michael Chen</span>
+          <span class="th-user-role">VP HR</span>
+        </div>
+        <span style="color:rgba(255,255,255,0.4);font-size:0.7rem;">▼</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="side-section-label">Main</div>
+      <div class="side-item active" onclick="setNav(this)"><span class="side-icon">📊</span>Dashboard</div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">👥</span>Employees <span class="side-count">2845</span></div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">🏢</span>Departments <span class="side-count">18</span></div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">🎭</span>Roles</div>
+      <div class="side-divider"></div>
+      <div class="side-section-label">HR Tools</div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">🚀</span>Onboarding <span class="side-count">5</span></div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">📅</span>Leave Tracker</div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">⭐</span>Performance</div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">💰</span>Payroll</div>
+      <div class="side-divider"></div>
+      <div class="side-section-label">System</div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">📋</span>Reports</div>
+      <div class="side-item" onclick="setNav(this)"><span class="side-icon">⚙️</span>Settings</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main" id="mainArea">
+
+      <!-- PAGE HEADER -->
+      <div class="page-header">
+        <div class="page-title">
+          <h2>Employee Management Dashboard</h2>
+          <p>April 2026 · HR Overview · All Departments</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost" onclick="exportData()">⬇ Export</button>
+          <button class="btn btn-secondary" onclick="showToast('Filter panel coming soon','info')">⚙ Filters</button>
+          <button class="btn btn-primary" onclick="openAddModal()">+ Add Employee</button>
+        </div>
+      </div>
+
+      <!-- KPI CARDS -->
+      <div class="kpi-grid">
+        <div class="kpi-card teal" onclick="filterDept('All')">
+          <div class="kpi-top">
+            <div class="kpi-icon teal">👤</div>
+            <span class="kpi-change up">⬆ +3.2%</span>
+          </div>
+          <div class="kpi-value" id="kpi-total">2,845</div>
+          <div class="kpi-label">Total Employees</div>
+          <div class="kpi-spark"><canvas id="spark1"></canvas></div>
+        </div>
+        <div class="kpi-card emerald" onclick="filterDept('All')">
+          <div class="kpi-top">
+            <div class="kpi-icon emerald">✅</div>
+            <span class="kpi-change up">⬆ +2.9%</span>
+          </div>
+          <div class="kpi-value" id="kpi-active">2,682</div>
+          <div class="kpi-label">Active Employees</div>
+          <div class="kpi-spark"><canvas id="spark2"></canvas></div>
+        </div>
+        <div class="kpi-card violet" onclick="showToast('18 active departments','info')">
+          <div class="kpi-top">
+            <div class="kpi-icon violet">🏢</div>
+            <span class="kpi-change neutral">0%</span>
+          </div>
+          <div class="kpi-value">18</div>
+          <div class="kpi-label">Departments</div>
+          <div class="kpi-spark"><canvas id="spark3"></canvas></div>
+        </div>
+        <div class="kpi-card amber" onclick="filterStatus('probation')">
+          <div class="kpi-top">
+            <div class="kpi-icon amber">🌟</div>
+            <span class="kpi-change up">this month</span>
+          </div>
+          <div class="kpi-value" id="kpi-new">48</div>
+          <div class="kpi-label">New Joinees</div>
+          <div class="kpi-spark"><canvas id="spark4"></canvas></div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="charts-row">
+        <!-- Population Growth -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Employee Population Growth</div>
+              <div class="card-subtitle">Jan 2022 – Apr 2026 · Headcount trend</div>
+            </div>
+            <div class="chart-tabs">
+              <button class="chart-tab active" onclick="switchGrowthChart('monthly',this)">Monthly</button>
+              <button class="chart-tab" onclick="switchGrowthChart('quarterly',this)">Quarterly</button>
+              <button class="chart-tab" onclick="switchGrowthChart('yearly',this)">Yearly</button>
+            </div>
+          </div>
+          <div class="card-body" style="height:200px;">
+            <canvas id="growthChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Workforce Distribution -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Workforce Distribution</div>
+              <div class="card-subtitle">Employees by Department</div>
+            </div>
+            <button class="btn btn-secondary" style="font-size:0.68rem;padding:0.3rem 0.7rem;" onclick="switchDistChart()">Switch View</button>
+          </div>
+          <div class="card-body" style="height:200px;">
+            <canvas id="distChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM ROW -->
+      <div class="bottom-row">
+        <!-- Employee Table -->
+        <div class="card">
+          <div class="emp-table-header">
+            <div>
+              <div class="card-title" style="font-size:0.85rem;">Employees</div>
+              <div class="filter-chips" id="deptChips" style="margin-top:0.4rem;">
+                <span class="chip active" onclick="filterDept('All',this)">All</span>
+                <span class="chip" onclick="filterDept('Engineering',this)">Engineering</span>
+                <span class="chip" onclick="filterDept('Sales',this)">Sales</span>
+                <span class="chip" onclick="filterDept('HR',this)">HR</span>
+                <span class="chip" onclick="filterDept('Marketing',this)">Marketing</span>
+                <span class="chip" onclick="filterDept('Ops',this)">Ops</span>
+              </div>
+            </div>
+            <div class="emp-search">
+              <span class="emp-search-icon">🔍</span>
+              <input type="text" placeholder="Search employees..." id="tableSearch" oninput="filterTable()">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th onclick="sortTable('name')" style="cursor:pointer;">Name ⇅</th>
+                  <th onclick="sortTable('role')" style="cursor:pointer;">Role ⇅</th>
+                  <th onclick="sortTable('dept')" style="cursor:pointer;">Department ⇅</th>
+                  <th onclick="sortTable('status')" style="cursor:pointer;">Status ⇅</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="empTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span class="table-info" id="tableInfo">Showing 1–8 of 15 employees</span>
+            <div class="pagination" id="paginationEl"></div>
+          </div>
+        </div>
+
+        <!-- Onboarding Progress -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Onboarding Progress</div>
+              <div class="card-subtitle">Active onboarding employees</div>
+            </div>
+            <button class="btn btn-primary" style="font-size:0.68rem;padding:0.3rem 0.8rem;" onclick="openAddModal()">+ New</button>
+          </div>
+          <div class="onboarding-list" id="onboardingList"></div>
+          <div class="onboarding-footer">
+            <span id="onboardSummary">In Progress: 2 · Completed: 2 · Pending: 1</span>
+            <button class="btn btn-secondary" style="font-size:0.65rem;padding:0.25rem 0.65rem;" onclick="showToast('Onboarding report downloaded','success')">Export</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /body-row -->
+</div><!-- /app -->
+
+<!-- ADD EMPLOYEE MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">✚ Add New Employee</span>
+      <button class="modal-close" onclick="closeModal('addModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-input" id="f_first" placeholder="e.g. Sarah">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input" id="f_last" placeholder="e.g. Jenkins">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="f_email" type="email" placeholder="sarah@zarklyx.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <input class="form-input" id="f_role" placeholder="e.g. Frontend Lead">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-select" id="f_dept">
+            <option value="Engineering">Engineering</option>
+            <option value="Sales">Sales</option>
+            <option value="HR">HR</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Ops">Ops</option>
+            <option value="Finance">Finance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="f_status">
+            <option value="active">Active</option>
+            <option value="probation">Probation</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Join Date</label>
+          <input class="form-input" id="f_date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input class="form-input" id="f_phone" placeholder="+91 99999 00000">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addEmployee()">✔ Save Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLOYEE DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-header" style="position:relative;">
+    <button class="dp-close" onclick="closeDetail()">✕</button>
+    <div class="dp-avatar" id="dp-avatar"></div>
+    <div style="text-align:center;">
+      <div class="dp-name" id="dp-name"></div>
+      <div class="dp-role" id="dp-role"></div>
+    </div>
+    <span class="status-badge" id="dp-status" style="margin-top:0.2rem;"></span>
+  </div>
+  <div class="dp-body">
+    <div class="dp-section">
+      <div class="dp-section-title">Contact Info</div>
+      <div class="dp-row"><span class="dp-row-label">Email</span><span class="dp-row-value" id="dp-email"></span></div>
+      <div class="dp-row"><span class="dp-row-label">Phone</span><span class="dp-row-value" id="dp-phone"></span></div>
+      <div class="dp-row"><span class="dp-row-label">Joined</span><span class="dp-row-value" id="dp-joined"></span></div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Work Details</div>
+      <div class="dp-row"><span class="dp-row-label">Department</span><span class="dp-row-value" id="dp-dept"></span></div>
+      <div class="dp-row"><span class="dp-row-label">Role</span><span class="dp-row-value" id="dp-role2"></span></div>
+      <div class="dp-row"><span class="dp-row-label">Employee ID</span><span class="dp-row-value" id="dp-id"></span></div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Performance</div>
+      <div style="background:var(--slate-50);border-radius:10px;padding:0.75rem;text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--teal);" id="dp-perf"></div>
+        <div style="font-size:0.68rem;color:var(--slate-500);">Performance Score</div>
+      </div>
+    </div>
+  </div>
+  <div class="dp-footer">
+    <button class="btn btn-secondary" style="flex:1;" onclick="closeDetail()">Close</button>
+    <button class="btn btn-primary" style="flex:1;" onclick="showToast('Edit profile coming soon','info')">✏ Edit</button>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const COLORS = ['#0d9488','#10b981','#7c3aed','#3b82f6','#f59e0b','#f43f5e','#f97316'];
+const avatarColors = ['#0d9488','#7c3aed','#3b82f6','#f59e0b','#f43f5e','#10b981','#f97316','#ec4899'];
+
+const allEmployees = [
+  { id:'EMP001', name:'Sarah Jenkins', role:'Frontend Lead', dept:'Engineering', status:'active', email:'s.jenkins@zarklyx.com', phone:'+91 98201 11234', joined:'2021-03-15', perf:92 },
+  { id:'EMP002', name:'David Lee', role:'Sales Executive', dept:'Sales', status:'active', email:'d.lee@zarklyx.com', phone:'+91 98201 22345', joined:'2020-07-22', perf:88 },
+  { id:'EMP003', name:'Emily Chen', role:'HR Specialist', dept:'HR', status:'active', email:'e.chen@zarklyx.com', phone:'+91 98201 33456', joined:'2022-01-10', perf:79 },
+  { id:'EMP004', name:'Raj Patel', role:'Backend Engineer', dept:'Engineering', status:'probation', email:'r.patel@zarklyx.com', phone:'+91 98201 44567', joined:'2024-11-01', perf:74 },
+  { id:'EMP005', name:'Priya Sharma', role:'Marketing Lead', dept:'Marketing', status:'active', email:'p.sharma@zarklyx.com', phone:'+91 98201 55678', joined:'2021-09-14', perf:91 },
+  { id:'EMP006', name:'Tom Wilson', role:'Sales Manager', dept:'Sales', status:'active', email:'t.wilson@zarklyx.com', phone:'+91 98201 66789', joined:'2019-05-30', perf:95 },
+  { id:'EMP007', name:'Anika Roy', role:'DevOps Engineer', dept:'Engineering', status:'active', email:'a.roy@zarklyx.com', phone:'+91 98201 77890', joined:'2022-06-20', perf:87 },
+  { id:'EMP008', name:'Karan Mehta', role:'Operations Head', dept:'Ops', status:'probation', email:'k.mehta@zarklyx.com', phone:'+91 98201 88901', joined:'2024-10-15', perf:68 },
+  { id:'EMP009', name:'Sneha Gupta', role:'Finance Analyst', dept:'Finance', status:'active', email:'s.gupta@zarklyx.com', phone:'+91 98201 99012', joined:'2023-02-28', perf:83 },
+  { id:'EMP010', name:'Mihir Joshi', role:'HR Manager', dept:'HR', status:'active', email:'m.joshi@zarklyx.com', phone:'+91 98201 10123', joined:'2020-11-03', perf:90 },
+  { id:'EMP011', name:'Lara Nair', role:'UI/UX Designer', dept:'Engineering', status:'active', email:'l.nair@zarklyx.com', phone:'+91 98201 21234', joined:'2023-07-08', perf:94 },
+  { id:'EMP012', name:'Ravi Verma', role:'Sales Rep', dept:'Sales', status:'inactive', email:'r.verma@zarklyx.com', phone:'+91 98201 32345', joined:'2021-04-17', perf:60 },
+  { id:'EMP013', name:'Pooja Iyer', role:'Content Strategist', dept:'Marketing', status:'active', email:'p.iyer@zarklyx.com', phone:'+91 98201 43456', joined:'2022-09-25', perf:86 },
+  { id:'EMP014', name:'Akash Dubey', role:'Full Stack Dev', dept:'Engineering', status:'probation', email:'a.dubey@zarklyx.com', phone:'+91 98201 54567', joined:'2025-01-06', perf:71 },
+  { id:'EMP015', name:'Meera Singh', role:'Ops Analyst', dept:'Ops', status:'active', email:'m.singh@zarklyx.com', phone:'+91 98201 65678', joined:'2023-03-11', perf:82 },
+];
+
+const onboardingData = [
+  { name:'Sarah J.', dept:'Engineering', pct:75, status:'inprogress', checks:[true,true,true,false] },
+  { name:'Michael F.', dept:'Sales', pct:100, status:'completed', checks:[true,true,true,true] },
+  { name:'Emily C.', dept:'HR', pct:50, status:'inprogress', checks:[true,true,false,false] },
+  { name:'Raj P.', dept:'Engineering', pct:25, status:'inprogress', checks:[true,false,false,false] },
+];
+const checkLabels = ['Profile Created','Credentials Sent','First Login','Task Assigned'];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let filteredEmployees = [...allEmployees];
+let currentPage = 1;
+const PER_PAGE = 8;
+let currentDeptFilter = 'All';
+let currentStatusFilter = '';
+let searchQuery = '';
+let sortKey = '';
+let sortAsc = true;
+let growthChartMode = 'monthly';
+let distChartMode = 'bar';
+
+// ══════════════════════════════════════════
+// SPARKLINES
+// ══════════════════════════════════════════
+function makeSparkline(id, data, color) {
+  const ctx = document.getElementById(id).getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map((_,i) => i),
+      datasets: [{ data, borderColor: color, borderWidth: 2, pointRadius: 0, fill: true,
+        backgroundColor: (ctx) => {
+          const g = ctx.chart.ctx.createLinearGradient(0,0,0,40);
+          g.addColorStop(0, color+'40'); g.addColorStop(1, color+'00'); return g;
+        }
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend:{display:false}, tooltip:{enabled:false} },
+      scales: { x:{display:false}, y:{display:false} }, animation: { duration: 1000 } }
+  });
+}
+makeSparkline('spark1',[180,200,210,230,250,280,300,310,295,320,340,345],'#0d9488');
+makeSparkline('spark2',[160,185,200,215,240,265,285,295,280,305,325,328],'#10b981');
+makeSparkline('spark3',[14,14,15,15,16,16,17,17,17,18,18,18],'#7c3aed');
+makeSparkline('spark4',[30,38,42,35,50,45,52,48,55,60,53,48],'#f59e0b');
+
+// ══════════════════════════════════════════
+// GROWTH CHART
+// ══════════════════════════════════════════
+const growthMonthly = {
+  labels:['Jan 22','Apr','Jul','Oct','Jan 23','Apr','Jul','Oct','Jan 24','Apr','Jul','Oct','Jan 25','Apr','Jul','Oct','Jan 26','Apr'],
+  data:[800,920,1050,1150,1280,1380,1510,1630,1750,1900,2020,2150,2280,2450,2600,2720,2800,2845]
+};
+const growthQuarterly = {
+  labels:['Q1 22','Q2','Q3','Q4','Q1 23','Q2','Q3','Q4','Q1 24','Q2','Q3','Q4','Q1 25','Q2','Q3','Q4','Q1 26'],
+  data:[800,1050,1280,1510,1630,1900,2020,2280,2450,2600,2720,2800,2845,2845,2845,2845,2845]
+};
+const growthYearly = {
+  labels:['2021','2022','2023','2024','2025','2026'],
+  data:[600,1150,1900,2450,2800,2845]
+};
+
+let growthChart;
+function initGrowthChart() {
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  const d = growthMonthly;
+  growthChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels:d.labels,
+      datasets:[{
+        label:'Employees',data:d.data,
+        borderColor:'#0d9488',borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#0d9488',fill:true,
+        backgroundColor:(c)=>{const g=c.chart.ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,'rgba(13,148,136,0.2)');g.addColorStop(1,'rgba(13,148,136,0)');return g;},
+        tension:0.4
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()+' employees'}}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:9},color:'#94a3b8'}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9},color:'#94a3b8',callback:v=>v>=1000?(v/1000).toFixed(1)+'k':v}}
+      }
+    }
+  });
+}
+function switchGrowthChart(mode, btn) {
+  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const d = mode==='monthly'?growthMonthly:mode==='quarterly'?growthQuarterly:growthYearly;
+  growthChart.data.labels = d.labels;
+  growthChart.data.datasets[0].data = d.data;
+  growthChart.update();
+}
+
+// ══════════════════════════════════════════
+// DISTRIBUTION CHART
+// ══════════════════════════════════════════
+const deptData = {
+  labels:['Engineering','Sales','Marketing','HR','Ops','Finance'],
+  values:[34,28,20,16,24,12]
+};
+let distChart;
+function initDistChart() {
+  const ctx = document.getElementById('distChart').getContext('2d');
+  distChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:deptData.labels,
+      datasets:[{data:deptData.values,backgroundColor:COLORS,borderRadius:6,borderSkipped:false}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+' employees'}}},
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9},color:'#94a3b8'}},
+        y:{grid:{display:false},ticks:{font:{size:9},color:'#64748b'}}
+      }
+    }
+  });
+}
+function switchDistChart() {
+  distChartMode = distChartMode==='bar'?'doughnut':'bar';
+  distChart.destroy();
+  const ctx = document.getElementById('distChart').getContext('2d');
+  if(distChartMode==='doughnut') {
+    distChart = new Chart(ctx, {
+      type:'doughnut',
+      data:{labels:deptData.labels,datasets:[{data:deptData.values,backgroundColor:COLORS,borderWidth:2,borderColor:'white'}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},boxWidth:10}}}}
+    });
+  } else { initDistChart(); }
+}
+
+// ══════════════════════════════════════════
+// EMPLOYEE TABLE
+// ══════════════════════════════════════════
+function getInitials(name){return name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();}
+function getAvatarColor(name){return avatarColors[name.charCodeAt(0)%avatarColors.length];}
+
+function applyFilters() {
+  let arr = [...allEmployees];
+  if(currentDeptFilter!=='All') arr = arr.filter(e=>e.dept===currentDeptFilter);
+  if(currentStatusFilter) arr = arr.filter(e=>e.status===currentStatusFilter);
+  if(searchQuery) {
+    const q=searchQuery.toLowerCase();
+    arr = arr.filter(e=>e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q)||e.dept.toLowerCase().includes(q));
+  }
+  if(sortKey) {
+    arr.sort((a,b)=>{
+      const va=a[sortKey]?.toLowerCase(), vb=b[sortKey]?.toLowerCase();
+      return sortAsc?(va<vb?-1:1):(va>vb?-1:1);
+    });
+  }
+  filteredEmployees = arr;
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('empTableBody');
+  const start=(currentPage-1)*PER_PAGE, end=start+PER_PAGE;
+  const page = filteredEmployees.slice(start,end);
+  tbody.innerHTML = page.map(emp=>`
+    <tr onclick="openDetail(${JSON.stringify(emp).replace(/"/g,"&quot;")})">
+      <td>
+        <div class="emp-avatar-cell">
+          <div class="emp-avatar" style="background:${getAvatarColor(emp.name)}">${getInitials(emp.name)}</div>
+          <div>
+            <div class="emp-name">${emp.name}</div>
+            <div class="emp-email">${emp.email}</div>
+          </div>
+        </div>
+      </td>
+      <td>${emp.role}</td>
+      <td><span class="dept-pill dept-${emp.dept.toLowerCase()}">${emp.dept}</span></td>
+      <td><span class="status-badge ${emp.status}">${emp.status.charAt(0).toUpperCase()+emp.status.slice(1)}</span></td>
+      <td onclick="event.stopPropagation()">
+        <button class="action-btn" title="View" onclick="openDetailById('${emp.id}')">👁</button>
+        <button class="action-btn" title="Edit" onclick="showToast('Edit: ${emp.name}','info')">✏</button>
+        <button class="action-btn delete" title="Delete" onclick="deleteEmployee('${emp.id}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('tableInfo').textContent = `Showing ${start+1}–${Math.min(end,filteredEmployees.length)} of ${filteredEmployees.length} employees`;
+  renderPagination();
+}
+
+function renderPagination() {
+  const total = Math.ceil(filteredEmployees.length/PER_PAGE);
+  const el = document.getElementById('paginationEl');
+  el.innerHTML = '';
+  const prev = document.createElement('button');
+  prev.className='page-btn'; prev.textContent='‹';
+  prev.onclick=()=>{if(currentPage>1){currentPage--;renderTable();}};
+  el.appendChild(prev);
+  for(let i=1;i<=total;i++) {
+    const b=document.createElement('button');
+    b.className='page-btn'+(i===currentPage?' active':'');
+    b.textContent=i; b.onclick=()=>{currentPage=i;renderTable();};
+    el.appendChild(b);
+  }
+  const next=document.createElement('button');
+  next.className='page-btn'; next.textContent='›';
+  next.onclick=()=>{if(currentPage<total){currentPage++;renderTable();}};
+  el.appendChild(next);
+}
+
+function filterDept(dept, el) {
+  currentDeptFilter=dept;
+  document.querySelectorAll('#deptChips .chip').forEach(c=>c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  applyFilters();
+}
+function filterStatus(s){currentStatusFilter=s;applyFilters();}
+function filterTable(){searchQuery=document.getElementById('tableSearch').value;applyFilters();}
+function sortTable(k){if(sortKey===k)sortAsc=!sortAsc;else{sortKey=k;sortAsc=true;}applyFilters();}
+document.getElementById('globalSearch').oninput=function(){searchQuery=this.value;document.getElementById('tableSearch').value=this.value;applyFilters();}
+
+// ══════════════════════════════════════════
+// DETAIL PANEL
+// ══════════════════════════════════════════
+function openDetail(emp) {
+  if(typeof emp==='string') emp=JSON.parse(emp);
+  document.getElementById('dp-avatar').textContent=getInitials(emp.name);
+  document.getElementById('dp-avatar').style.background=getAvatarColor(emp.name);
+  document.getElementById('dp-name').textContent=emp.name;
+  document.getElementById('dp-role').textContent=emp.role;
+  const sb=document.getElementById('dp-status');
+  sb.className='status-badge '+emp.status;
+  sb.textContent=emp.status.charAt(0).toUpperCase()+emp.status.slice(1);
+  document.getElementById('dp-email').textContent=emp.email;
+  document.getElementById('dp-phone').textContent=emp.phone;
+  document.getElementById('dp-joined').textContent=new Date(emp.joined).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('dp-dept').textContent=emp.dept;
+  document.getElementById('dp-role2').textContent=emp.role;
+  document.getElementById('dp-id').textContent=emp.id;
+  document.getElementById('dp-perf').textContent=emp.perf+'%';
+  document.getElementById('detailPanel').classList.add('open');
+}
+function openDetailById(id){const e=allEmployees.find(x=>x.id===id);if(e)openDetail(e);}
+function closeDetail(){document.getElementById('detailPanel').classList.remove('open');}
+
+// ══════════════════════════════════════════
+// ONBOARDING
+// ══════════════════════════════════════════
+function renderOnboarding() {
+  const el = document.getElementById('onboardingList');
+  el.innerHTML = onboardingData.map((e,i) => {
+    const r=36,cx=20,cy=20,circ=2*Math.PI*r/2;
+    const pct=e.pct/100*circ;
+    const color=e.status==='completed'?'#10b981':'#f59e0b';
+    const checks=checkLabels.map((lbl,j)=>`<span class="onboard-check ${e.checks[j]?'done':'pending'}">${lbl}</span>`).join('');
+    return `
+    <div class="onboard-item" onclick="showToast('${e.name} – ${e.pct}% complete','info')">
+      <div class="onboard-top">
+        <div class="onboard-user">
+          <div class="onboard-circle">
+            <svg width="40" height="40" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+              <circle cx="20" cy="20" r="16" fill="none" stroke="${color}" stroke-width="3"
+                stroke-dasharray="${2*Math.PI*16*e.pct/100} ${2*Math.PI*16*(1-e.pct/100)}"
+                stroke-linecap="round" style="transition:stroke-dasharray 1s ease"/>
+            </svg>
+            <div class="onboard-circle-pct">${e.pct}%</div>
+          </div>
+          <div>
+            <div class="onboard-name">${e.name}</div>
+            <div class="onboard-dept">${e.dept}</div>
+          </div>
+        </div>
+        <span class="onboard-status-badge ${e.status}">${e.status==='completed'?'Completed':'In Progress'}</span>
+      </div>
+      <div class="onboard-checks">${checks}</div>
+    </div>`;
+  }).join('');
+  const ip=onboardingData.filter(x=>x.status==='inprogress').length;
+  const cp=onboardingData.filter(x=>x.status==='completed').length;
+  document.getElementById('onboardSummary').textContent=`In Progress: ${ip} · Completed: ${cp} · Pending: ${onboardingData.length-ip-cp}`;
+}
+
+// ══════════════════════════════════════════
+// ADD EMPLOYEE
+// ══════════════════════════════════════════
+function openAddModal(){document.getElementById('addModal').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.getElementById('addModal').addEventListener('click',function(e){if(e.target===this)closeModal('addModal');});
+
+function addEmployee() {
+  const first=document.getElementById('f_first').value.trim();
+  const last=document.getElementById('f_last').value.trim();
+  if(!first||!last){showToast('First and Last name required','error');return;}
+  const newEmp = {
+    id:'EMP'+(allEmployees.length+1).toString().padStart(3,'0'),
+    name:`${first} ${last}`,
+    role:document.getElementById('f_role').value||'New Employee',
+    dept:document.getElementById('f_dept').value,
+    status:document.getElementById('f_status').value,
+    email:document.getElementById('f_email').value||`${first.toLowerCase()}@zarklyx.com`,
+    phone:document.getElementById('f_phone').value||'+91 99999 00000',
+    joined:document.getElementById('f_date').value||new Date().toISOString().split('T')[0],
+    perf:70
+  };
+  allEmployees.unshift(newEmp);
+  applyFilters();
+  // update KPIs
+  document.getElementById('kpi-total').textContent=allEmployees.length.toLocaleString();
+  document.getElementById('kpi-active').textContent=allEmployees.filter(e=>e.status==='active').length.toLocaleString();
+  document.getElementById('kpi-new').textContent=(parseInt(document.getElementById('kpi-new').textContent)+1);
+  // onboarding
+  onboardingData.unshift({name:`${first} ${last.charAt(0)}.`,dept:newEmp.dept,pct:0,status:'inprogress',checks:[false,false,false,false]});
+  renderOnboarding();
+  closeModal('addModal');
+  showToast(`✓ ${newEmp.name} added successfully!`,'success');
+  ['f_first','f_last','f_email','f_role','f_phone','f_date'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ══════════════════════════════════════════
+// DELETE
+// ══════════════════════════════════════════
+function deleteEmployee(id) {
+  const idx=allEmployees.findIndex(e=>e.id===id);
+  if(idx>-1){
+    const name=allEmployees[idx].name;
+    allEmployees.splice(idx,1);
+    applyFilters();
+    document.getElementById('kpi-total').textContent=allEmployees.length.toLocaleString();
+    showToast(`${name} removed`,'error');
+  }
+}
+
+// ══════════════════════════════════════════
+// SIDEBAR NAV
+// ══════════════════════════════════════════
+function setNav(el) {
+  document.querySelectorAll('.side-item').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  const label=el.textContent.trim().split('\n')[0].trim().replace(/\d+$/,'').trim();
+  showToast('Navigated to '+label,'info');
+}
+
+// ══════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════
+function exportData() {
+  const headers=['ID','Name','Role','Department','Status','Email','Joined'];
+  const rows=filteredEmployees.map(e=>[e.id,e.name,e.role,e.dept,e.status,e.email,e.joined]);
+  const csv=[headers,...rows].map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='zarklyx_employees.csv';
+  a.click();
+  showToast('CSV exported successfully','success');
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function showToast(msg, type='info') {
+  const wrap=document.getElementById('toastWrap');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span> ${msg}`;
+  wrap.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},3000);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  initGrowthChart();
+  initDistChart();
+  applyFilters();
+  renderOnboarding();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Metrics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --surface2: #eef2f7;
+    --border: rgba(15,23,42,0.12);
+    --border2: rgba(15,23,42,0.2);
+    --text: #0f172a;
+    --muted: #64748b;
+    --muted2: #475569;
+
+    --blue: #4f8ef7;
+    --blue-bg: rgba(79,142,247,0.1);
+    --green: #34d399;
+    --green-bg: rgba(52,211,153,0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.1);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.1);
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.1);
+    --teal: #2dd4bf;
+    --teal-bg: rgba(45,212,191,0.1);
+    --pink: #f472b6;
+    --pink-bg: rgba(244,114,182,0.1);
+
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .layout { position: relative; z-index: 1; display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .logo-text {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: .06em;
+  }
+
+  .nav-section {
+    padding: 0 12px;
+    margin-bottom: 6px;
+  }
+  .nav-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted2);
+    transition: all .15s;
+    margin-bottom: 2px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--blue-bg); color: var(--blue); }
+  .nav-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .nav-count {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: var(--surface2);
+    padding: 1px 6px;
+    border-radius: 10px;
+    color: var(--muted);
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px 0;
+    border-top: 1px solid var(--border);
+  }
+  .last-updated {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .live-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* MAIN */
+  .main { flex: 1; padding: 28px 28px; overflow-x: hidden; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* PAGE HEADER */
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-title { font-size: 26px; font-weight: 800; letter-spacing: -1px; }
+  .page-subtitle { font-size: 13px; color: var(--muted2); margin-top: 2px; font-weight: 400; }
+  .period-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    color: var(--muted2);
+  }
+
+  /* METRIC CARDS */
+  .metrics-grid {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g5 { grid-template-columns: repeat(5, 1fr); }
+
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .metric-card:hover { border-color: var(--border2); }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .metric-card.blue::before { background: var(--blue); }
+  .metric-card.green::before { background: var(--green); }
+  .metric-card.amber::before { background: var(--amber); }
+  .metric-card.red::before { background: var(--red); }
+  .metric-card.purple::before { background: var(--purple); }
+  .metric-card.teal::before { background: var(--teal); }
+  .metric-card.pink::before { background: var(--pink); }
+
+  .metric-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .metric-value {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .metric-value.blue { color: var(--blue); }
+  .metric-value.green { color: var(--green); }
+  .metric-value.amber { color: var(--amber); }
+  .metric-value.red { color: var(--red); }
+  .metric-value.purple { color: var(--purple); }
+  .metric-value.teal { color: var(--teal); }
+  .metric-value.pink { color: var(--pink); }
+
+  .metric-change {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .metric-change.up { color: var(--green); }
+  .metric-change.down { color: var(--red); }
+  .metric-change.neutral { color: var(--muted); }
+
+  .metric-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: .04em;
+  }
+  .metric-badge.good { background: var(--green-bg); color: var(--green); }
+  .metric-badge.warn { background: var(--amber-bg); color: var(--amber); }
+  .metric-badge.bad { background: var(--red-bg); color: var(--red); }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    margin-top: 22px;
+  }
+  .section-header:first-child { margin-top: 0; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* CHART CARDS */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .chart-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .chart-card-title {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .chart-card-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .chart-grid { display: grid; gap: 12px; }
+  .chart-grid.c2 { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid.c3 { grid-template-columns: repeat(3, 1fr); }
+
+  /* BAR METER */
+  .bar-meter { margin-bottom: 10px; }
+  .bar-meter-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .bar-meter-label { font-size: 12px; color: var(--muted2); }
+  .bar-meter-value { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+  .bar-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* FUNNEL */
+  .funnel { display: flex; flex-direction: column; gap: 6px; }
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .funnel-label { font-size: 12px; color: var(--muted2); width: 130px; flex-shrink: 0; }
+  .funnel-bar-wrap { flex: 1; }
+  .funnel-bar {
+    height: 28px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(15,23,42,0.82);
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* GAUGE */
+  .gauge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .gauge-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    text-align: center;
+  }
+  .gauge-label { font-size: 11px; color: var(--muted2); margin-bottom: 8px; font-weight: 600; }
+  .gauge-val { font-size: 18px; font-weight: 800; margin-top: 4px; }
+
+  /* STATUS ROW */
+  .status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .status-row:last-child { border-bottom: none; }
+  .status-name { color: var(--muted2); }
+  .status-val { font-family: 'DM Mono', monospace; font-weight: 500; }
+
+  /* SPARKLINE WRAPPER */
+  .spark-wrap { height: 40px; margin-top: 8px; }
+
+  /* TAG */
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .tag.blue { background: var(--blue-bg); color: var(--blue); }
+  .tag.green { background: var(--green-bg); color: var(--green); }
+  .tag.amber { background: var(--amber-bg); color: var(--amber); }
+  .tag.red { background: var(--red-bg); color: var(--red); }
+  .tag.purple { background: var(--purple-bg); color: var(--purple); }
+
+  /* OVERVIEW HERO */
+  .hero-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .hero-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card-accent {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    opacity: .06;
+    transform: translate(20px, 20px);
+  }
+  .hero-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-value { font-size: 22px; font-weight: 800; letter-spacing: -1px; }
+  .hero-change { font-family: 'DM Mono', monospace; font-size: 11px; margin-top: 5px; }
+
+  /* SUMMARY TABLE */
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .summary-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--muted);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+  .summary-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted2);
+  }
+  .summary-table td:first-child { color: var(--text); font-weight: 600; }
+  .summary-table td.val { font-family: 'DM Mono', monospace; font-weight: 500; }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table tr:hover td { background: var(--surface2); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 60px; }
+    .nav-item span, .nav-section-label, .logo-sub, .logo-text, .last-updated, .nav-count { display: none; }
+    .logo { padding: 0 16px 16px; }
+    .hero-strip { grid-template-columns: repeat(3, 1fr); }
+    .g5 { grid-template-columns: repeat(3, 1fr); }
+    .g4 { grid-template-columns: repeat(2, 1fr); }
+    .gauge-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid.c2, .chart-grid.c3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-text">MetricsOS</div>
+    <div class="logo-sub">BUSINESS INTELLIGENCE</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Dashboard</div>
+    <button class="nav-item active" onclick="showPage('overview',this)">
+      <div class="nav-dot" style="background:var(--blue)"></div>
+      <span>Overview</span>
+      <span class="nav-count">50</span>
+    </button>
+  </div>
+  <div class="nav-section" style="margin-top:8px">
+    <div class="nav-section-label">Sections</div>
+    <button class="nav-item" onclick="showPage('core',this)">
+      <div class="nav-dot" style="background:var(--green)"></div>
+      <span>Core Business</span>
+      <span class="nav-count">10</span>
+    </button>
+    <button class="nav-item" onclick="showPage('clients',this)">
+      <div class="nav-dot" style="background:var(--purple)"></div>
+      <span>Clients & Users</span>
+      <span class="nav-count">8</span>
+    </button>
+    <button class="nav-item" onclick="showPage('sales',this)">
+      <div class="nav-dot" style="background:var(--amber)"></div>
+      <span>Sales & Marketing</span>
+      <span class="nav-count">8</span>
+    </button>
+    <button class="nav-item" onclick="showPage('social',this)">
+      <div class="nav-dot" style="background:var(--pink)"></div>
+      <span>Social & Campaigns</span>
+      <span class="nav-count">8</span>
+    </button>
+    <button class="nav-item" onclick="showPage('projects',this)">
+      <div class="nav-dot" style="background:var(--teal)"></div>
+      <span>Projects & Team</span>
+      <span class="nav-count">10</span>
+    </button>
+    <button class="nav-item" onclick="showPage('finance',this)">
+      <div class="nav-dot" style="background:var(--red)"></div>
+      <span>Financial Health</span>
+      <span class="nav-count">6</span>
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="last-updated"><span class="live-dot"></span>Live · Apr 2026</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══════════════════════════════════ OVERVIEW ═══════════════════════════════════ -->
+<div class="page active" id="page-overview">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Business Overview</div>
+      <div class="page-subtitle">All 50 metrics across 6 categories — April 2026</div>
+    </div>
+    <div class="period-tag">MTD · Apr 2026</div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-card-accent" style="background:var(--blue);width:80px;height:80px"></div>
+      <div class="hero-label">Revenue</div>
+      <div class="hero-value" style="color:var(--blue)">$4.2M</div>
+      <div class="hero-change up">▲ 12.4% MoM</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-accent" style="background:var(--green)"></div>
+      <div class="hero-label">MRR</div>
+      <div class="hero-value" style="color:var(--green)">$348K</div>
+      <div class="hero-change up">▲ 8.1%</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-accent" style="background:var(--purple)"></div>
+      <div class="hero-label">ARR</div>
+      <div class="hero-value" style="color:var(--purple)">$4.18M</div>
+      <div class="hero-change up">▲ 9.6%</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-accent" style="background:var(--teal)"></div>
+      <div class="hero-label">Active Clients</div>
+      <div class="hero-value" style="color:var(--teal)">1,248</div>
+      <div class="hero-change up">▲ +47 this month</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-accent" style="background:var(--amber)"></div>
+      <div class="hero-label">Net Profit</div>
+      <div class="hero-value" style="color:var(--amber)">$892K</div>
+      <div class="hero-change up">▲ 5.2%</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-accent" style="background:var(--red)"></div>
+      <div class="hero-label">Churn Rate</div>
+      <div class="hero-value" style="color:var(--red)">2.4%</div>
+      <div class="hero-change down">▼ +0.3% vs target</div>
+    </div>
+  </div>
+
+  <!-- REVENUE CHART + METRICS TABLE -->
+  <div class="chart-grid c2" style="margin-bottom:12px">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div class="chart-card-title">Revenue Trend (6 Months)</div>
+        <div class="chart-card-meta">Monthly · $K</div>
+      </div>
+      <div style="position:relative;height:180px">
+        <canvas id="ov-revenue" role="img" aria-label="Revenue bar chart last 6 months"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div class="chart-card-title">Health Indicators</div>
+        <div class="chart-card-meta">All categories</div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Retention Rate</span><span class="bar-meter-value" style="color:var(--green)">97.6%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:97.6%;background:var(--green)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Win Rate</span><span class="bar-meter-value" style="color:var(--blue)">38.2%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:38.2%;background:var(--blue)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">On-Time Delivery</span><span class="bar-meter-value" style="color:var(--teal)">89.1%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:89.1%;background:var(--teal)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Resource Utilization</span><span class="bar-meter-value" style="color:var(--purple)">78.0%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--purple)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Attendance Rate</span><span class="bar-meter-value" style="color:var(--teal)">93.4%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:93.4%;background:var(--teal)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Task Completion</span><span class="bar-meter-value" style="color:var(--amber)">84.5%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:84.5%;background:var(--amber)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Profit Margin</span><span class="bar-meter-value" style="color:var(--green)">21.2%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:21.2%;background:var(--green)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Lead Conversion</span><span class="bar-meter-value" style="color:var(--amber)">34.0%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:34%;background:var(--amber)"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALL 50 SUMMARY TABLE -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div class="chart-card-title">All 50 Metrics — Quick Reference</div>
+      <span class="tag blue">Live</span>
+    </div>
+    <table class="summary-table">
+      <thead>
+        <tr><th>#</th><th>Metric</th><th>Category</th><th>Value</th><th>Change</th><th>Status</th></tr>
+      </thead>
+      <tbody id="all-metrics-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ CORE BUSINESS ═══════════════════════════════════ -->
+<div class="page" id="page-core">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Core Business Metrics</div>
+      <div class="page-subtitle">10 primary KPIs — revenue, growth & client health</div>
+    </div>
+    <div class="period-tag">MTD · Apr 2026</div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Revenue</span><div class="section-line"></div></div>
+  <div class="metrics-grid g4">
+    <div class="metric-card blue">
+      <div class="metric-label">Revenue</div>
+      <div class="metric-value blue">$4.2M</div>
+      <div class="metric-change up">▲ +12.4% MoM</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">MRR</div>
+      <div class="metric-value green">$348K</div>
+      <div class="metric-change up">▲ +8.1% vs last</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">ARR</div>
+      <div class="metric-value purple">$4.18M</div>
+      <div class="metric-change up">▲ +9.6%</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">Growth Rate</div>
+      <div class="metric-value amber">12.4%</div>
+      <div class="metric-change up">▲ Above 10% target</div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Clients</span><div class="section-line"></div></div>
+  <div class="metrics-grid g4">
+    <div class="metric-card teal">
+      <div class="metric-label">Active Clients</div>
+      <div class="metric-value teal">1,248</div>
+      <div class="metric-change up">▲ +47 this month</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-label">New Clients</div>
+      <div class="metric-value blue">63</div>
+      <div class="metric-change up">▲ +11 vs last month</div>
+    </div>
+    <div class="metric-card red">
+      <div class="metric-label">Churn Rate</div>
+      <div class="metric-value red">2.4%</div>
+      <div class="metric-change down">▼ +0.3% vs target</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">Retention Rate</div>
+      <div class="metric-value green">97.6%</div>
+      <div class="metric-change up">▲ Industry avg 94%</div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Value Metrics</span><div class="section-line"></div></div>
+  <div class="metrics-grid g3">
+    <div class="metric-card purple">
+      <div class="metric-label">Customer LTV</div>
+      <div class="metric-value purple">$12,400</div>
+      <div class="metric-change up">▲ +6.2%</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">CAC</div>
+      <div class="metric-value amber">$1,840</div>
+      <div class="metric-change down">▼ +4.1% cost increase</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">LTV:CAC Ratio</div>
+      <div class="metric-value green">6.7×</div>
+      <div class="metric-change up">▲ Healthy (>3× target)</div>
+    </div>
+  </div>
+
+  <div class="chart-grid c2">
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">MRR Growth (8 Months)</div><div class="chart-card-meta">$K monthly</div></div>
+      <div style="position:relative;height:200px"><canvas id="core-mrr" role="img" aria-label="MRR growth line chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Client Growth (6 Months)</div><div class="chart-card-meta">Active clients</div></div>
+      <div style="position:relative;height:200px"><canvas id="core-clients" role="img" aria-label="Active clients bar chart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ CLIENTS & USERS ═══════════════════════════════════ -->
+<div class="page" id="page-clients">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Clients & User Engagement</div>
+      <div class="page-subtitle">8 engagement metrics — activity, health & retention</div>
+    </div>
+    <div class="period-tag">MTD · Apr 2026</div>
+  </div>
+
+  <div class="section-header"><span class="section-label">User Activity</span><div class="section-line"></div></div>
+  <div class="metrics-grid g4">
+    <div class="metric-card blue">
+      <div class="metric-label">Active Users</div>
+      <div class="metric-value blue">8,492</div>
+      <div class="metric-change up">▲ +324 this week</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">New Users</div>
+      <div class="metric-value green">487</div>
+      <div class="metric-change up">▲ +12.3%</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">User Activity Rate</div>
+      <div class="metric-value purple">68.4%</div>
+      <div class="metric-change neutral">— Stable</div>
+    </div>
+    <div class="metric-card teal">
+      <div class="metric-label">Avg Session Duration</div>
+      <div class="metric-value teal">14.2m</div>
+      <div class="metric-change up">▲ +1.8m vs last</div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Client Health</span><div class="section-line"></div></div>
+  <div class="gauge-grid">
+    <div class="gauge-card">
+      <div class="gauge-label">Health Score</div>
+      <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;display:block;margin:0 auto" role="img" aria-label="Health score gauge 82 out of 100">
+        <path d="M15,55 A40,40 0 0,1 85,55" fill="none" stroke="#e2e8f0" stroke-width="10" stroke-linecap="round"/>
+        <path d="M15,55 A40,40 0 0,1 85,55" fill="none" stroke="var(--purple)" stroke-width="10" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="22"/>
+      </svg>
+      <div class="gauge-val" style="color:var(--purple)">82/100</div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-label">Engagement Score</div>
+      <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;display:block;margin:0 auto" role="img" aria-label="Engagement score 74 out of 100">
+        <path d="M15,55 A40,40 0 0,1 85,55" fill="none" stroke="#e2e8f0" stroke-width="10" stroke-linecap="round"/>
+        <path d="M15,55 A40,40 0 0,1 85,55" fill="none" stroke="var(--teal)" stroke-width="10" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="33"/>
+      </svg>
+      <div class="gauge-val" style="color:var(--teal)">74/100</div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-label">Client Retention</div>
+      <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;display:block;margin:0 auto" role="img" aria-label="Client retention 97.6 percent">
+        <path d="M15,55 A40,40 0 0,1 85,55" fill="none" stroke="#e2e8f0" stroke-width="10" stroke-linecap="round"/>
+        <path d="M15,55 A40,40 0 0,1 85,55" fill="none" stroke="var(--green)" stroke-width="10" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="3"/>
+      </svg>
+      <div class="gauge-val" style="color:var(--green)">97.6%</div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-label">Client Churn Rate</div>
+      <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;display:block;margin:0 auto" role="img" aria-label="Client churn rate 2.4 percent">
+        <path d="M15,55 A40,40 0 0,1 85,55" fill="none" stroke="#e2e8f0" stroke-width="10" stroke-linecap="round"/>
+        <path d="M15,55 A40,40 0 0,1 85,55" fill="none" stroke="var(--red)" stroke-width="10" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="122.7"/>
+      </svg>
+      <div class="gauge-val" style="color:var(--red)">2.4%</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-card-header"><div class="chart-card-title">Daily Active Users — Last 14 Days</div><div class="chart-card-meta">Count</div></div>
+    <div style="position:relative;height:200px"><canvas id="cl-users" role="img" aria-label="Daily active users line chart"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ SALES & MARKETING ═══════════════════════════════════ -->
+<div class="page" id="page-sales">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Sales & Marketing</div>
+      <div class="page-subtitle">8 metrics — leads, pipeline & deal performance</div>
+    </div>
+    <div class="period-tag">MTD · Apr 2026</div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Leads</span><div class="section-line"></div></div>
+  <div class="metrics-grid g4">
+    <div class="metric-card blue">
+      <div class="metric-label">Total Leads</div>
+      <div class="metric-value blue">2,847</div>
+      <div class="metric-change up">▲ +18.2%</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">Qualified Leads</div>
+      <div class="metric-value purple">968</div>
+      <div class="metric-change up">▲ 34% qualify rate</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">Lead Conversion Rate</div>
+      <div class="metric-value amber">34%</div>
+      <div class="metric-change up">▲ +2.1% vs last</div>
+    </div>
+    <div class="metric-card teal">
+      <div class="metric-label">Revenue per Lead</div>
+      <div class="metric-value teal">$1,476</div>
+      <div class="metric-change up">▲ +$84</div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Pipeline & Deals</span><div class="section-line"></div></div>
+  <div class="metrics-grid g4">
+    <div class="metric-card green">
+      <div class="metric-label">Pipeline Value</div>
+      <div class="metric-value green">$8.6M</div>
+      <div class="metric-change up">▲ +$1.2M</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-label">Sales Velocity</div>
+      <div class="metric-value blue">$42K/d</div>
+      <div class="metric-change up">▲ +6.8%</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">Win Rate</div>
+      <div class="metric-value purple">38.2%</div>
+      <div class="metric-change up">▲ +3.4%</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">Avg Deal Size</div>
+      <div class="metric-value amber">$18.4K</div>
+      <div class="metric-change neutral">— Stable</div>
+    </div>
+  </div>
+
+  <div class="chart-grid c2">
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Lead Funnel</div><div class="chart-card-meta">Conversion flow</div></div>
+      <div class="funnel" style="margin-top:8px">
+        <div class="funnel-step">
+          <span class="funnel-label">Total Leads</span>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%;background:var(--blue)">2,847</div>
+          </div>
+        </div>
+        <div class="funnel-step">
+          <span class="funnel-label">Qualified Leads</span>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:34%;background:var(--purple)">968</div>
+          </div>
+        </div>
+        <div class="funnel-step">
+          <span class="funnel-label">Proposals Sent</span>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:15%;background:var(--teal)">421</div>
+          </div>
+        </div>
+        <div class="funnel-step">
+          <span class="funnel-label">Won Deals</span>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:5.7%;background:var(--green)">161</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Sales Velocity Trend</div><div class="chart-card-meta">$K/day</div></div>
+      <div style="position:relative;height:200px"><canvas id="sl-velocity" role="img" aria-label="Sales velocity line chart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ SOCIAL & CAMPAIGNS ═══════════════════════════════════ -->
+<div class="page" id="page-social">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Social Media & Campaigns</div>
+      <div class="page-subtitle">8 metrics — reach, engagement & campaign ROI</div>
+    </div>
+    <div class="period-tag">MTD · Apr 2026</div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Reach & Engagement</span><div class="section-line"></div></div>
+  <div class="metrics-grid g4">
+    <div class="metric-card pink">
+      <div class="metric-label">Engagement Rate</div>
+      <div class="metric-value pink">4.8%</div>
+      <div class="metric-change up">▲ +0.6%</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">Followers Growth Rate</div>
+      <div class="metric-value purple">+3.2%</div>
+      <div class="metric-change up">▲ +12K this month</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-label">Impressions</div>
+      <div class="metric-value blue">2.4M</div>
+      <div class="metric-change up">▲ +18.4%</div>
+    </div>
+    <div class="metric-card teal">
+      <div class="metric-label">Reach</div>
+      <div class="metric-value teal">1.1M</div>
+      <div class="metric-change up">▲ +14.2%</div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Campaign Performance</span><div class="section-line"></div></div>
+  <div class="metrics-grid g4">
+    <div class="metric-card amber">
+      <div class="metric-label">Click-Through Rate</div>
+      <div class="metric-value amber">3.6%</div>
+      <div class="metric-change up">▲ Avg is 2.1%</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">Campaign ROI</div>
+      <div class="metric-value green">284%</div>
+      <div class="metric-change up">▲ +42%</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-label">Cost per Click (CPC)</div>
+      <div class="metric-value blue">$0.84</div>
+      <div class="metric-change up">▲ -$0.12 saved</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">Cost per Acquisition (CPA)</div>
+      <div class="metric-value purple">$24.60</div>
+      <div class="metric-change up">▲ -$3.20 saved</div>
+    </div>
+  </div>
+
+  <div class="chart-grid c2">
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Reach by Channel</div><div class="chart-card-meta">% share</div></div>
+      <div style="position:relative;height:220px"><canvas id="sc-donut" role="img" aria-label="Donut chart of social reach by channel">Instagram 42%, LinkedIn 28%, Twitter 18%, Facebook 12%</canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Impressions Trend (6 Months)</div><div class="chart-card-meta">Millions</div></div>
+      <div style="position:relative;height:220px"><canvas id="sc-impressions" role="img" aria-label="Impressions trend line chart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ PROJECTS & TEAM ═══════════════════════════════════ -->
+<div class="page" id="page-projects">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Projects & Team Performance</div>
+      <div class="page-subtitle">10 metrics — delivery, tasks & productivity</div>
+    </div>
+    <div class="period-tag">MTD · Apr 2026</div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Project Delivery</span><div class="section-line"></div></div>
+  <div class="metrics-grid g3">
+    <div class="metric-card teal">
+      <div class="metric-label">Active Projects</div>
+      <div class="metric-value teal">84</div>
+      <div class="metric-change neutral">— Across 3 teams</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">Project Completion Rate</div>
+      <div class="metric-value green">78.2%</div>
+      <div class="metric-change up">▲ +4.1%</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">On-Time Delivery Rate</div>
+      <div class="metric-value amber">89.1%</div>
+      <div class="metric-change up">▲ Target: 90%</div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Tasks</span><div class="section-line"></div></div>
+  <div class="metrics-grid g3">
+    <div class="metric-card blue">
+      <div class="metric-label">Task Completion Rate</div>
+      <div class="metric-value blue">84.5%</div>
+      <div class="metric-change up">▲ +2.8%</div>
+    </div>
+    <div class="metric-card red">
+      <div class="metric-label">Overdue Tasks</div>
+      <div class="metric-value red">47</div>
+      <div class="metric-change down">▼ +8 this week</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">Avg Task Completion Time</div>
+      <div class="metric-value purple">3.4d</div>
+      <div class="metric-change up">▲ -0.4d improvement</div>
+    </div>
+  </div>
+
+  <div class="section-header"><span class="section-label">Team Productivity</span><div class="section-line"></div></div>
+  <div class="metrics-grid g4">
+    <div class="metric-card green">
+      <div class="metric-label">Productivity Score</div>
+      <div class="metric-value green">76/100</div>
+      <div class="metric-change neutral">— Stable</div>
+    </div>
+    <div class="metric-card teal">
+      <div class="metric-label">Resource Utilization</div>
+      <div class="metric-value teal">78%</div>
+      <div class="metric-change up">▲ +3%</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-label">Attendance Rate</div>
+      <div class="metric-value blue">93.4%</div>
+      <div class="metric-change up">▲ Above target</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">Avg Working Hours</div>
+      <div class="metric-value amber">7.8h/d</div>
+      <div class="metric-change neutral">— Normal range</div>
+    </div>
+  </div>
+
+  <div class="chart-grid c2">
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Project Status Breakdown</div><div class="chart-card-meta">84 total</div></div>
+      <div class="bar-meter" style="margin-top:8px">
+        <div class="bar-meter-top"><span class="bar-meter-label">On Track (52)</span><span class="bar-meter-value" style="color:var(--green)">62%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:62%;background:var(--green)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">At Risk (16)</span><span class="bar-meter-value" style="color:var(--amber)">19%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:19%;background:var(--amber)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Delayed (8)</span><span class="bar-meter-value" style="color:var(--red)">10%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--red)"></div></div>
+      </div>
+      <div class="bar-meter">
+        <div class="bar-meter-top"><span class="bar-meter-label">Completed (8)</span><span class="bar-meter-value" style="color:var(--blue)">10%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--blue)"></div></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Team Productivity Trend</div><div class="chart-card-meta">Score /100</div></div>
+      <div style="position:relative;height:180px"><canvas id="pr-prod" role="img" aria-label="Productivity score line chart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ FINANCIAL HEALTH ═══════════════════════════════════ -->
+<div class="page" id="page-finance">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Financial Health</div>
+      <div class="page-subtitle">6 metrics — profit, expenses & cash flow</div>
+    </div>
+    <div class="period-tag">MTD · Apr 2026</div>
+  </div>
+
+  <div class="section-header"><span class="section-label">P&L Overview</span><div class="section-line"></div></div>
+  <div class="metrics-grid g3">
+    <div class="metric-card red">
+      <div class="metric-label">Total Expenses</div>
+      <div class="metric-value red">$3.31M</div>
+      <div class="metric-change down">▼ +7.2% vs last</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">Net Profit</div>
+      <div class="metric-value green">$892K</div>
+      <div class="metric-change up">▲ +5.2%</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-label">Profit Margin</div>
+      <div class="metric-value blue">21.2%</div>
+      <div class="metric-change up">▲ Target: 20%</div>
+    </div>
+  </div>
+
+  <div class="metrics-grid g3">
+    <div class="metric-card teal">
+      <div class="metric-label">Cash Flow</div>
+      <div class="metric-value teal">+$624K</div>
+      <div class="metric-change up">▲ Positive</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">Outstanding Payments</div>
+      <div class="metric-value amber">$218K</div>
+      <div class="metric-change down">▼ 62 open invoices</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">Revenue Growth Rate</div>
+      <div class="metric-value purple">12.4%</div>
+      <div class="metric-change up">▲ Above 10% target</div>
+    </div>
+  </div>
+
+  <div class="chart-grid c2">
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Revenue vs Expenses (6 Months)</div><div class="chart-card-meta">$K</div></div>
+      <div style="position:relative;height:210px"><canvas id="fi-revexp" role="img" aria-label="Grouped bar chart revenue vs expenses"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header"><div class="chart-card-title">Expense Breakdown</div><div class="chart-card-meta">% of total</div></div>
+      <div style="position:relative;height:210px"><canvas id="fi-expenses" role="img" aria-label="Doughnut chart of expense categories">Payroll 52%, Marketing 18%, Infrastructure 15%, Operations 10%, Other 5%</canvas></div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+const allMetrics = [
+  {n:'Revenue',cat:'Core Business',val:'$4.2M',chg:'+12.4%',st:'good'},
+  {n:'MRR',cat:'Core Business',val:'$348K',chg:'+8.1%',st:'good'},
+  {n:'ARR',cat:'Core Business',val:'$4.18M',chg:'+9.6%',st:'good'},
+  {n:'Growth Rate',cat:'Core Business',val:'12.4%',chg:'+2.1%',st:'good'},
+  {n:'Active Clients',cat:'Core Business',val:'1,248',chg:'+47',st:'good'},
+  {n:'New Clients',cat:'Core Business',val:'63',chg:'+11',st:'good'},
+  {n:'Churn Rate',cat:'Core Business',val:'2.4%',chg:'+0.3%',st:'warn'},
+  {n:'Retention Rate',cat:'Core Business',val:'97.6%',chg:'+0.2%',st:'good'},
+  {n:'Customer LTV',cat:'Core Business',val:'$12,400',chg:'+6.2%',st:'good'},
+  {n:'CAC',cat:'Core Business',val:'$1,840',chg:'+4.1%',st:'warn'},
+  {n:'Active Users',cat:'Clients & Users',val:'8,492',chg:'+324',st:'good'},
+  {n:'New Users',cat:'Clients & Users',val:'487',chg:'+12.3%',st:'good'},
+  {n:'User Activity Rate',cat:'Clients & Users',val:'68.4%',chg:'0%',st:'warn'},
+  {n:'Avg Session Duration',cat:'Clients & Users',val:'14.2m',chg:'+1.8m',st:'good'},
+  {n:'Client Health Score',cat:'Clients & Users',val:'82/100',chg:'+2',st:'good'},
+  {n:'Client Engagement Score',cat:'Clients & Users',val:'74/100',chg:'+1',st:'good'},
+  {n:'Client Retention Rate',cat:'Clients & Users',val:'97.6%',chg:'+0.1%',st:'good'},
+  {n:'Client Churn Rate',cat:'Clients & Users',val:'2.4%',chg:'+0.3%',st:'bad'},
+  {n:'Total Leads',cat:'Sales & Marketing',val:'2,847',chg:'+18.2%',st:'good'},
+  {n:'Qualified Leads',cat:'Sales & Marketing',val:'968',chg:'+9.4%',st:'good'},
+  {n:'Lead Conversion Rate',cat:'Sales & Marketing',val:'34%',chg:'+2.1%',st:'good'},
+  {n:'Pipeline Value',cat:'Sales & Marketing',val:'$8.6M',chg:'+$1.2M',st:'good'},
+  {n:'Sales Velocity',cat:'Sales & Marketing',val:'$42K/d',chg:'+6.8%',st:'good'},
+  {n:'Win Rate',cat:'Sales & Marketing',val:'38.2%',chg:'+3.4%',st:'good'},
+  {n:'Avg Deal Size',cat:'Sales & Marketing',val:'$18.4K',chg:'0%',st:'warn'},
+  {n:'Revenue per Lead',cat:'Sales & Marketing',val:'$1,476',chg:'+$84',st:'good'},
+  {n:'Engagement Rate',cat:'Social & Campaigns',val:'4.8%',chg:'+0.6%',st:'good'},
+  {n:'Followers Growth Rate',cat:'Social & Campaigns',val:'+3.2%',chg:'+12K',st:'good'},
+  {n:'Impressions',cat:'Social & Campaigns',val:'2.4M',chg:'+18.4%',st:'good'},
+  {n:'Reach',cat:'Social & Campaigns',val:'1.1M',chg:'+14.2%',st:'good'},
+  {n:'Click-Through Rate',cat:'Social & Campaigns',val:'3.6%',chg:'+1.5%',st:'good'},
+  {n:'Campaign ROI',cat:'Social & Campaigns',val:'284%',chg:'+42%',st:'good'},
+  {n:'Cost per Click (CPC)',cat:'Social & Campaigns',val:'$0.84',chg:'-$0.12',st:'good'},
+  {n:'Cost per Acquisition (CPA)',cat:'Social & Campaigns',val:'$24.60',chg:'-$3.20',st:'good'},
+  {n:'Active Projects',cat:'Projects & Team',val:'84',chg:'0',st:'warn'},
+  {n:'Project Completion Rate',cat:'Projects & Team',val:'78.2%',chg:'+4.1%',st:'good'},
+  {n:'Task Completion Rate',cat:'Projects & Team',val:'84.5%',chg:'+2.8%',st:'good'},
+  {n:'Overdue Tasks',cat:'Projects & Team',val:'47',chg:'+8',st:'bad'},
+  {n:'On-Time Delivery Rate',cat:'Projects & Team',val:'89.1%',chg:'+1.2%',st:'good'},
+  {n:'Avg Task Completion Time',cat:'Projects & Team',val:'3.4d',chg:'-0.4d',st:'good'},
+  {n:'Productivity Score',cat:'Projects & Team',val:'76/100',chg:'0',st:'warn'},
+  {n:'Resource Utilization',cat:'Projects & Team',val:'78%',chg:'+3%',st:'good'},
+  {n:'Attendance Rate',cat:'Projects & Team',val:'93.4%',chg:'+0.4%',st:'good'},
+  {n:'Avg Working Hours',cat:'Projects & Team',val:'7.8h/d',chg:'0',st:'warn'},
+  {n:'Total Expenses',cat:'Financial Health',val:'$3.31M',chg:'+7.2%',st:'warn'},
+  {n:'Net Profit',cat:'Financial Health',val:'$892K',chg:'+5.2%',st:'good'},
+  {n:'Profit Margin',cat:'Financial Health',val:'21.2%',chg:'+1.2%',st:'good'},
+  {n:'Cash Flow',cat:'Financial Health',val:'+$624K',chg:'+8.1%',st:'good'},
+  {n:'Outstanding Payments',cat:'Financial Health',val:'$218K',chg:'+12K',st:'warn'},
+  {n:'Revenue Growth Rate',cat:'Financial Health',val:'12.4%',chg:'+2.1%',st:'good'},
+];
+
+const tbody = document.getElementById('all-metrics-tbody');
+allMetrics.forEach((m, i) => {
+  const stClass = m.st === 'good' ? 'good' : m.st === 'warn' ? 'warn' : 'bad';
+  const stLabel = m.st === 'good' ? 'On track' : m.st === 'warn' ? 'Monitor' : 'Alert';
+  const chgColor = m.chg.startsWith('-') && !m.n.includes('CPC') && !m.n.includes('CPA') && !m.n.includes('Churn') && !m.n.includes('Overdue') && !m.n.includes('Avg Task') && !m.n.includes('Expenses')
+    ? 'color:var(--red)' : (!m.chg.startsWith('+') ? 'color:var(--muted)' : 'color:var(--green)');
+  tbody.innerHTML += `<tr>
+    <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${String(i+1).padStart(2,'0')}</td>
+    <td>${m.n}</td>
+    <td><span class="tag ${m.cat==='Core Business'?'blue':m.cat==='Clients & Users'?'purple':m.cat==='Sales & Marketing'?'amber':m.cat==='Social & Campaigns'?'purple':m.cat==='Projects & Team'?'green':'red'}" style="font-size:9px">${m.cat}</span></td>
+    <td class="val">${m.val}</td>
+    <td class="val" style="${chgColor}">${m.chg}</td>
+    <td><span class="metric-badge ${stClass}">${stLabel}</span></td>
+  </tr>`;
+});
+
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// CHART CONFIG
+const months6 = ['Nov','Dec','Jan','Feb','Mar','Apr'];
+const gridC = 'rgba(15,23,42,0.12)';
+const tickC = '#475569';
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } },
+    y: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } }
+  }
+};
+
+// Overview Revenue
+new Chart(document.getElementById('ov-revenue'), {
+  type: 'bar',
+  data: { labels: months6, datasets: [{ data: [2900,3100,3380,3720,3950,4200], backgroundColor: ['#4f8ef7aa','#4f8ef7aa','#4f8ef7aa','#4f8ef7aa','#4f8ef7aa','#4f8ef7'], borderRadius: 6 }] },
+  options: { ...baseOpts, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } }, y: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, callback: v => '$' + (v/1000).toFixed(0) + 'K' }, grid: { color: gridC } } } }
+});
+
+// Core MRR
+new Chart(document.getElementById('core-mrr'), {
+  type: 'line',
+  data: { labels: ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr'], datasets: [{ data: [220,248,265,284,302,318,334,348], borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)', fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#34d399', borderWidth: 2 }] },
+  options: { ...baseOpts, scales: { x: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } }, y: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, callback: v => '$' + v + 'K' }, grid: { color: gridC } } } }
+});
+
+// Core Clients
+new Chart(document.getElementById('core-clients'), {
+  type: 'bar',
+  data: { labels: months6, datasets: [{ data: [1140,1168,1192,1208,1224,1248], backgroundColor: 'rgba(45,212,191,0.7)', borderRadius: 6 }] },
+  options: { ...baseOpts, scales: { x: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } }, y: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, callback: v => v.toLocaleString() }, grid: { color: gridC } } } }
+});
+
+// Clients Users
+const days14 = Array.from({length:14}, (_,i) => { const d = new Date(2026,3,10+i); return (d.getMonth()+1)+'/'+ d.getDate(); });
+new Chart(document.getElementById('cl-users'), {
+  type: 'line',
+  data: { labels: days14, datasets: [{ data: [7800,7950,8100,7980,8200,8350,8290,8410,8380,8450,8490,8510,8470,8492], borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.08)', fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: '#a78bfa', borderWidth: 2 }] },
+  options: { ...baseOpts, scales: { x: { ticks: { color: tickC, font: { size: 10, family: "'DM Mono',monospace" }, maxRotation: 45 }, grid: { color: gridC } }, y: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, callback: v => (v/1000).toFixed(1)+'K' }, grid: { color: gridC } } } }
+});
+
+// Sales Velocity
+new Chart(document.getElementById('sl-velocity'), {
+  type: 'line',
+  data: { labels: months6, datasets: [{ data: [34,36,38,39,40,42], borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.08)', fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#fbbf24', borderWidth: 2 }] },
+  options: { ...baseOpts, scales: { x: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } }, y: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, callback: v => '$' + v + 'K' }, grid: { color: gridC } } } }
+});
+
+// Social Donut
+new Chart(document.getElementById('sc-donut'), {
+  type: 'doughnut',
+  data: { labels: ['Instagram','LinkedIn','Twitter/X','Facebook'], datasets: [{ data: [42,28,18,12], backgroundColor: ['#4f8ef7','#fbbf24','#34d399','#f472b6'], borderWidth: 0, hoverOffset: 4 }] },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { display: true, position: 'right', labels: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, boxWidth: 10, padding: 12 } } } }
+});
+
+// Social Impressions
+new Chart(document.getElementById('sc-impressions'), {
+  type: 'line',
+  data: { labels: months6, datasets: [{ data: [1.4,1.6,1.8,1.9,2.1,2.4], borderColor: '#f472b6', backgroundColor: 'rgba(244,114,182,0.08)', fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#f472b6', borderWidth: 2 }] },
+  options: { ...baseOpts, scales: { x: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } }, y: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, callback: v => v + 'M' }, grid: { color: gridC } } } }
+});
+
+// Projects Productivity
+new Chart(document.getElementById('pr-prod'), {
+  type: 'line',
+  data: { labels: months6, datasets: [{ data: [70,72,73,74,75,76], borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,0.08)', fill: true, tension: .4, pointRadius: 4, pointBackgroundColor: '#2dd4bf', borderWidth: 2 }] },
+  options: { ...baseOpts, scales: { x: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } }, y: { min: 60, max: 85, ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, callback: v => v + '/100' }, grid: { color: gridC } } } }
+});
+
+// Finance Rev vs Exp
+new Chart(document.getElementById('fi-revexp'), {
+  type: 'bar',
+  data: { labels: months6, datasets: [
+    { label: 'Revenue', data: [2900,3100,3380,3720,3950,4200], backgroundColor: 'rgba(79,142,247,0.8)', borderRadius: 5 },
+    { label: 'Expenses', data: [2400,2550,2700,2920,3100,3310], backgroundColor: 'rgba(248,113,113,0.8)', borderRadius: 5 }
+  ]},
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, boxWidth: 10 } } }, scales: { x: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" } }, grid: { color: gridC } }, y: { ticks: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, callback: v => '$' + (v/1000).toFixed(0) + 'K' }, grid: { color: gridC } } } }
+});
+
+// Finance Expense donut
+new Chart(document.getElementById('fi-expenses'), {
+  type: 'doughnut',
+  data: { labels: ['Payroll','Marketing','Infrastructure','Operations','Other'], datasets: [{ data: [52,18,15,10,5], backgroundColor: ['#4f8ef7','#a78bfa','#34d399','#fbbf24','#6b7280'], borderWidth: 0 }] },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { display: true, position: 'right', labels: { color: tickC, font: { size: 11, family: "'DM Mono',monospace" }, boxWidth: 10, padding: 10 } } } }
+});
+</script>
+</body>
+</html>

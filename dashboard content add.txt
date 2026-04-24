@@ -1,0 +1,81 @@
+🔥 STRICT PROMPT (NO EXTRA CONTENT, SAME DASHBOARD)
+
+You are a senior frontend developer and UI/UX designer.
+
+Your task is to build a complete module webpage using the content I provide.
+
+⚠️ VERY STRICT RULES (DO NOT BREAK)
+❌ Do NOT add any new content
+❌ Do NOT generate extra explanations
+❌ Do NOT expand beyond what is given
+❌ Do NOT use AI-generated assumptions
+❌ Do NOT remove any content
+✅ ONLY use the exact content provided
+✅ You may restructure, format, and design it properly
+✅ You may split content into sections
+✅ You may improve readability and UI presentation only
+🎯 MAIN REQUIREMENT
+1. 📊 Dashboard MUST remain EXACT SAME
+Keep the same layout, structure, and UI
+Keep:
+Sidebar
+KPI cards
+Charts
+Tables
+Actions
+Make it interactive (hover, click, transitions)
+Do NOT redesign or replace it
+🧩 PAGE STRUCTURE (USE THIS ONLY)
+1. 🔝 Hero Section
+Use ONLY given content
+Create:
+Title
+Subtitle
+CTA buttons
+Do NOT add extra text
+2. 📊 Dashboard Section
+Reuse existing dashboard code
+Keep it identical
+Just enhance interactivity if needed
+3. 🧠 What is [Module]
+Use only provided content
+Convert into readable paragraphs/cards
+Do NOT add new explanation
+4. 🪜 How It Works
+Convert given points into steps
+Do NOT add extra steps
+Only format existing content
+5. 🚀 Features Section
+Convert content into feature cards
+Use same text, no additions
+6. 🎛️ Control / Capabilities
+Use only provided points
+Structure into sections/cards
+7. ⭐ Why Choose
+Use only given content
+Format into clean UI
+8. 📢 CTA Section
+Use only existing messaging
+No new marketing lines
+9. 🧾 Footer
+Keep simple
+🎨 DESIGN REQUIREMENTS
+Light theme
+Glassmorphism allowed
+Clean SaaS UI
+Proper spacing
+Modern layout
+⚡ INTERACTIVITY (ALLOWED)
+Hover effects
+Click effects
+Smooth transitions
+Animations
+
+👉 BUT:
+
+Do NOT change content
+Do NOT add logic that changes meaning
+🛠️ OUTPUT REQUIREMENT
+Clean HTML + CSS (or React if specified)
+Modular structure
+Ready to use

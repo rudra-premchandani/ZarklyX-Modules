@@ -4,9 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Zarklyx — Client Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
-/* ══ ZarklyX Design System — Client Management Module ══ */
 :root {
   --teal: #0d9488;
   --teal-light: #14b8a6;
@@ -22,380 +21,466 @@
   --slate-200: #e2e8f0;
   --slate-100: #f1f5f9;
   --white: #ffffff;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05);
-  --shadow-hover: 0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(13,148,136,0.12);
+  --bg: #f0f4f8;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-hover: 0 8px 28px rgba(0,0,0,0.12), 0 0 0 1px rgba(13,148,136,0.15);
+  --radius: 12px;
+  --sidebar-w: 220px;
+  --topbar-h: 62px;
 }
 
-/* ── Reset & Base ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: #f4f6f8; color: var(--slate-800); font-size: 13px; line-height: 1.5; overflow: hidden; height: 100vh; display: flex; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--slate-800);font-size:13px;line-height:1.5;display:flex;}
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--slate-200); border-radius: 99px; }
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--slate-200);border-radius:99px;}
+::-webkit-scrollbar-thumb:hover{background:var(--slate-300);}
 
-/* ══════════════ SIDEBAR ══════════════ */
-.sidebar {
-  width: 210px; min-height: 100vh;
-  background: linear-gradient(180deg, #1a2332 0%, #1e293b 100%);
-  border-right: 1px solid rgba(255,255,255,0.05);
-  display: flex; flex-direction: column;
-  padding: 0; flex-shrink: 0; z-index: 10;
+/* ═══════ SIDEBAR ═══════ */
+.sidebar{
+  width:var(--sidebar-w);height:100vh;flex-shrink:0;
+  background:linear-gradient(175deg,#141e2e 0%,#1a2744 60%,#1e293b 100%);
+  border-right:1px solid rgba(255,255,255,0.04);
+  display:flex;flex-direction:column;position:relative;z-index:20;
+  overflow:hidden;
 }
-.sb-logo {
-  display: flex; align-items: center; gap: 9px;
-  padding: 18px 18px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+.sidebar::after{
+  content:'';position:absolute;bottom:-60px;left:-60px;
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(13,148,136,0.12) 0%,transparent 70%);
+  pointer-events:none;
 }
-.sb-logo-icon {
-  width: 30px; height: 30px;
-  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(13,148,136,0.4);
+.sb-logo{
+  display:flex;align-items:center;gap:10px;
+  padding:20px 18px 18px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
 }
-.sb-logo-icon svg { width: 17px; height: 17px; fill: #fff; }
-.sb-logo-text { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: #5eead4; letter-spacing: -0.3px; }
-.sb-nav { padding: 10px 8px; flex: 1; }
-.sb-item {
-  display: flex; align-items: center; gap: 9px;
-  padding: 8px 11px; border-radius: 0 7px 7px 0;
-  cursor: pointer; color: rgba(255,255,255,0.42); font-size: 13px; font-weight: 500;
-  transition: all .18s; margin-bottom: 2px; user-select: none;
-  border-left: 2px solid transparent; margin-left: 0; margin-right: 4px;
+.sb-logo-icon{
+  width:32px;height:32px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--teal-light),var(--teal-dark));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(13,148,136,0.4);
 }
-.sb-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.78); border-left-color: rgba(255,255,255,0.1); }
-.sb-item.active { background: rgba(13,148,136,0.15); color: #5eead4; font-weight: 600; border-left-color: var(--teal-light); box-shadow: inset 0 0 0 1px rgba(20,184,166,0.12); }
-.sb-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.sb-logo-icon svg{width:17px;height:17px;fill:#fff;}
+.sb-logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#5eead4;letter-spacing:-0.5px;}
+.sb-section-label{font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.1em;padding:16px 18px 6px;}
+.sb-nav{padding:8px;flex:1;overflow-y:auto;}
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:9px;
+  cursor:pointer;color:rgba(255,255,255,0.38);font-size:13px;font-weight:500;
+  transition:all .18s;margin-bottom:1px;user-select:none;position:relative;
+}
+.sb-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.75);}
+.sb-item.active{
+  background:rgba(13,148,136,0.18);color:#5eead4;font-weight:600;
+  box-shadow:inset 0 0 0 1px rgba(20,184,166,0.15);
+}
+.sb-item.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:60%;background:var(--teal-light);border-radius:0 3px 3px 0;
+}
+.sb-item svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;}
+.sb-badge{
+  margin-left:auto;background:rgba(239,68,68,0.9);color:#fff;
+  font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;
+}
+.sb-footer{padding:12px 8px;border-top:1px solid rgba(255,255,255,0.06);}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:background .15s;}
+.sb-user:hover{background:rgba(255,255,255,0.06);}
+.sb-user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.sb-user-info{flex:1;min-width:0;}
+.sb-user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-user-role{font-size:10.5px;color:rgba(255,255,255,0.3);}
 
-/* ══════════════ MAIN ══════════════ */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+/* ═══════ MAIN ═══════ */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0;}
 
-/* ── Topbar ── */
-.topbar {
-  height: 60px;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(0,0,0,0.07);
-  display: flex; align-items: center; padding: 0 22px; gap: 12px;
+/* ─ Topbar ─ */
+.topbar{
+  height:var(--topbar-h);flex-shrink:0;
+  background:rgba(255,255,255,0.97);backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid rgba(0,0,0,0.07);
+  display:flex;align-items:center;padding:0 22px;gap:12px;
+  position:relative;z-index:10;
 }
-.search-wrap { flex: 1; max-width: 360px; position: relative; }
-.search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--slate-400); pointer-events: none; }
-.search-wrap input {
-  width: 100%; padding: 7.5px 12px 7.5px 34px;
-  border: 1.5px solid rgba(0,0,0,0.1); border-radius: 9px;
-  font-size: 13px; font-family: 'DM Sans', sans-serif;
-  color: var(--slate-700); background: #f8fafc; outline: none;
-  transition: all .18s;
+.tb-page-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--slate-900);white-space:nowrap;margin-right:4px;}
+.tb-divider{width:1px;height:22px;background:var(--slate-200);margin:0 4px;}
+.search-wrap{flex:1;max-width:320px;position:relative;}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--slate-400);pointer-events:none;}
+.search-wrap input{
+  width:100%;padding:8px 12px 8px 34px;
+  border:1.5px solid rgba(0,0,0,0.09);border-radius:9px;
+  font-size:13px;font-family:'DM Sans',sans-serif;
+  color:var(--slate-700);background:#f8fafc;outline:none;transition:all .18s;
 }
-.search-wrap input:focus { border-color: var(--teal); background: #fff; box-shadow: 0 0 0 3px rgba(13,148,136,0.1); }
-.search-wrap input::placeholder { color: var(--slate-400); }
-.tb-spacer { flex: 1; }
-.btn-add-client {
-  display: flex; align-items: center; gap: 6px;
-  padding: 7.5px 16px; border-radius: 9px;
-  background: var(--teal); color: #fff;
-  font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-  border: none; cursor: pointer; transition: all .18s; white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(13,148,136,0.4), 0 0 0 1px rgba(13,148,136,0.2);
+.search-wrap input:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(13,148,136,0.1);}
+.search-wrap input::placeholder{color:var(--slate-400);}
+.tb-spacer{flex:1;}
+.tb-actions{display:flex;align-items:center;gap:8px;}
+.btn-add-client{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:9px;
+  background:var(--teal);color:#fff;
+  font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;
+  border:none;cursor:pointer;transition:all .18s;white-space:nowrap;
+  box-shadow:0 2px 8px rgba(13,148,136,0.35);
 }
-.btn-add-client:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(13,148,136,0.35); }
-.btn-add-client svg { width: 13px; height: 13px; }
-.notif-btn {
-  position: relative; width: 36px; height: 36px;
-  border-radius: 50%; border: 1px solid rgba(0,0,0,0.1);
-  background: #fff; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all .18s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+.btn-add-client:hover{background:var(--teal-dark);transform:translateY(-1px);box-shadow:0 6px 18px rgba(13,148,136,0.4);}
+.btn-add-client:active{transform:translateY(0);}
+.btn-add-client svg{width:13px;height:13px;stroke:currentColor;}
+.icon-btn{
+  position:relative;width:36px;height:36px;border-radius:9px;
+  border:1.5px solid rgba(0,0,0,0.09);background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .18s;
+  box-shadow:0 1px 3px rgba(0,0,0,0.05);color:var(--slate-500);
 }
-.notif-btn:hover { border-color: var(--teal); background: var(--teal-pale); }
-.notif-btn svg { width: 16px; height: 16px; color: var(--slate-500); }
-.notif-badge {
-  position: absolute; top: -3px; right: -3px;
-  width: 15px; height: 15px; background: #ef4444;
-  border-radius: 50%; border: 2px solid #f4f6f8;
-  font-size: 8px; font-weight: 700; color: #fff;
-  display: flex; align-items: center; justify-content: center;
+.icon-btn:hover{border-color:var(--teal);background:var(--teal-pale);color:var(--teal);}
+.icon-btn svg{width:16px;height:16px;stroke:currentColor;}
+.notif-badge{
+  position:absolute;top:-4px;right:-4px;
+  width:16px;height:16px;background:#ef4444;
+  border-radius:50%;border:2px solid var(--bg);
+  font-size:8.5px;font-weight:700;color:#fff;
+  display:flex;align-items:center;justify-content:center;
 }
-.profile-btn { display: flex; align-items: center; gap: 7px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: background .15s; }
-.profile-btn:hover { background: #f0fdfa; }
-.profile-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #ea580c); overflow: hidden; box-shadow: 0 0 0 2px rgba(13,148,136,0.2); }
-.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-chevron svg { width: 12px; height: 12px; color: var(--slate-400); }
+.profile-btn{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 8px;border-radius:9px;transition:background .15s;}
+.profile-btn:hover{background:var(--teal-pale);}
+.profile-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;box-shadow:0 0 0 2px rgba(13,148,136,0.25);}
+.profile-name{font-size:12.5px;font-weight:600;color:var(--slate-700);}
+.profile-chevron svg{width:12px;height:12px;stroke:var(--slate-400);}
 
-/* ── Content area ── */
-.content { flex: 1; overflow: hidden; padding: 18px 20px; display: flex; gap: 16px; min-height: 0; }
-.content-left { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
-.content-right { width: 268px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; }
+/* ─ Content Layout ─ */
+.content{flex:1;overflow:hidden;display:flex;gap:0;min-height:0;}
+.content-body{flex:1;display:flex;flex-direction:column;gap:0;overflow:hidden;min-width:0;padding:18px 18px 18px 20px;}
+.content-right{width:272px;flex-shrink:0;padding:18px 20px 18px 0;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
 
-/* ══════════════ KPI CARDS ══════════════ */
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.kpi-card {
-  background: var(--white);
-  border-radius: 13px; padding: 16px 18px;
-  box-shadow: var(--shadow-card);
-  cursor: pointer; transition: all .22s cubic-bezier(0.4,0,0.2,1);
-  position: relative; overflow: hidden;
+/* ═══════ KPI CARDS ═══════ */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;flex-shrink:0;}
+.kpi-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:16px 18px;box-shadow:var(--shadow-sm);
+  cursor:pointer;transition:all .22s cubic-bezier(0.4,0,0.2,1);
+  position:relative;overflow:hidden;
 }
-.kpi-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0;
-  height: 2px; border-radius: 13px 13px 0 0;
+.kpi-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);}
+.kpi-card:active{transform:translateY(0);}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;}
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.kpi-label{font-size:12.5px;font-weight:500;color:var(--slate-500);line-height:1.3;}
+.kpi-icon{
+  width:34px;height:34px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
-.kpi-card:nth-child(1)::before { background: linear-gradient(90deg, var(--teal), var(--teal-light)); }
-.kpi-card:nth-child(2)::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.kpi-card:nth-child(3)::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-.kpi-card:nth-child(4)::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
-.kpi-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
-.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.kpi-label { font-size: 12.5px; font-weight: 500; color: var(--slate-500); }
-.kpi-badge { display: flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; }
-.kpi-badge.green { background: #dcfce7; color: #15803d; }
-.kpi-badge.green::before { content:''; width:5px; height:5px; border-radius:50%; background:#15803d; display:inline-block; }
-.kpi-badge.yellow { background: #fef9c3; color: #a16207; }
-.kpi-badge.yellow::before { content:''; width:5px; height:5px; border-radius:50%; background:#a16207; display:inline-block; }
-.kpi-badge.blue { background: #dbeafe; color: #1d4ed8; }
-.kpi-badge.blue::before { content:''; width:5px; height:5px; border-radius:50%; background:#1d4ed8; display:inline-block; }
-.kpi-badge.purple { background: #ede9fe; color: #6d28d9; }
-.kpi-badge.purple::before { content:''; width:5px; height:5px; border-radius:50%; background:#6d28d9; display:inline-block; }
-.kpi-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--slate-900); letter-spacing: -1px; line-height: 1; }
+.kpi-icon svg{width:16px;height:16px;stroke:currentColor;}
+.kpi-bottom{display:flex;align-items:flex-end;justify-content:space-between;}
+.kpi-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--slate-900);letter-spacing:-1.5px;line-height:1;}
+.kpi-trend{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;}
+.kpi-trend svg{width:10px;height:10px;stroke:currentColor;}
+.kpi-trend.up{background:#dcfce7;color:#15803d;}
+.kpi-trend.warn{background:#fef9c3;color:#a16207;}
+.kpi-trend.blue{background:#dbeafe;color:#1d4ed8;}
 
-/* ══════════════ PANELS ROW ══════════════ */
-.panels-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.panel-card {
-  background: var(--white); border-radius: 13px;
-  padding: 16px 18px; box-shadow: var(--shadow-card);
-}
-.panel-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.panel-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--slate-900); }
-.btn-outline {
-  padding: 5.5px 13px; border-radius: 7px;
-  border: 1px solid rgba(0,0,0,0.1); background: var(--white);
-  font-size: 12px; font-weight: 600; color: var(--slate-700);
-  cursor: pointer; font-family: 'DM Sans', sans-serif;
-  transition: all .18s; white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-.btn-outline:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-pale); }
-.btn-primary-sm {
-  padding: 6px 14px; border-radius: 7px; border: none;
-  background: var(--teal); color: #fff;
-  font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-  cursor: pointer; transition: all .18s; white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(13,148,136,0.4);
-}
-.btn-primary-sm:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,148,136,0.3); }
+/* ═══════ PANELS ROW ═══════ */
+.panels-row{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:14px;flex-shrink:0;}
+.panel-card{background:var(--white);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);}
+.panel-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.panel-title{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;color:var(--slate-900);}
+.panel-sub{font-size:11.5px;color:var(--slate-400);margin-top:1px;}
 
-/* Pending requests table */
-.pending-label { font-size: 12.5px; font-weight: 600; color: var(--slate-700); margin-bottom: 9px; }
-.req-table { width: 100%; border-collapse: collapse; }
-.req-table th { font-size: 10.5px; font-weight: 700; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.05em; text-align: left; padding: 4px 0 6px; border-bottom: 1px solid var(--slate-100); }
-.req-table td { padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 12px; color: var(--slate-700); }
-.req-table tr:last-child td { border-bottom: none; }
-.req-table td:last-child { text-align: right; }
-.req-actions { display: flex; gap: 5px; justify-content: flex-end; }
-.btn-approve, .btn-reject {
-  width: 25px; height: 25px; border-radius: 6px; border: none;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all .15s; flex-shrink: 0;
+/* Pending Table */
+.req-table{width:100%;border-collapse:collapse;}
+.req-table th{font-size:10.5px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:0.06em;text-align:left;padding:5px 0 7px;border-bottom:1px solid var(--slate-100);}
+.req-table td{padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04);font-size:12px;color:var(--slate-700);vertical-align:middle;}
+.req-table tr:last-child td{border-bottom:none;}
+.req-table td:last-child{text-align:right;}
+.req-actions{display:flex;gap:5px;justify-content:flex-end;}
+.btn-approve,.btn-reject{
+  width:26px;height:26px;border-radius:7px;border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s;flex-shrink:0;
 }
-.btn-approve { background: #dcfce7; color: #15803d; }
-.btn-approve:hover { background: #bbf7d0; }
-.btn-reject { background: #fee2e2; color: #b91c1c; }
-.btn-reject:hover { background: #fecaca; }
-.btn-approve svg, .btn-reject svg { width: 12px; height: 12px; }
+.btn-approve{background:#dcfce7;color:#15803d;}
+.btn-approve:hover{background:#bbf7d0;transform:scale(1.08);}
+.btn-reject{background:#fee2e2;color:#b91c1c;}
+.btn-reject:hover{background:#fecaca;transform:scale(1.08);}
+.btn-approve svg,.btn-reject svg{width:11px;height:11px;stroke:currentColor;}
+.empty-state{text-align:center;padding:20px 0;color:var(--slate-400);font-size:12px;font-style:italic;}
+.empty-state svg{width:28px;height:28px;stroke:var(--slate-200);margin-bottom:6px;}
 
-/* Direct Client Add form */
-.form-input {
-  width: 100%; padding: 8px 11px; border: 1.5px solid rgba(0,0,0,0.1);
-  border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif;
-  color: var(--slate-800); background: #f8fafc; outline: none; margin-bottom: 9px;
-  transition: all .18s;
+/* Add Client Panel */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
+.form-label{font-size:11.5px;font-weight:600;color:var(--slate-600);}
+.form-input{
+  width:100%;padding:8px 11px;border:1.5px solid rgba(0,0,0,0.09);
+  border-radius:8px;font-size:12.5px;font-family:'DM Sans',sans-serif;
+  color:var(--slate-800);background:#f8fafc;outline:none;transition:all .18s;
 }
-.form-input:focus { border-color: var(--teal); background: #fff; box-shadow: 0 0 0 3px rgba(13,148,136,0.1); }
-.form-input::placeholder { color: var(--slate-400); }
-.form-select {
-  width: 100%; padding: 8px 11px; border: 1.5px solid rgba(0,0,0,0.1);
-  border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif;
-  color: var(--slate-500); background: #f8fafc; outline: none; cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 11px center; background-size: 13px;
-  transition: all .18s; margin-bottom: 10px;
+.form-input:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(13,148,136,0.1);}
+.form-input::placeholder{color:var(--slate-400);}
+.form-select{
+  width:100%;padding:8px 28px 8px 11px;border:1.5px solid rgba(0,0,0,0.09);
+  border-radius:8px;font-size:12.5px;font-family:'DM Sans',sans-serif;
+  color:var(--slate-700);background:#f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 9px center/12px;
+  appearance:none;outline:none;cursor:pointer;transition:all .18s;
 }
-.form-select:focus { border-color: var(--teal); background: #fff; box-shadow: 0 0 0 3px rgba(13,148,136,0.1); }
+.form-select:focus{border-color:var(--teal);background-color:#fff;box-shadow:0 0 0 3px rgba(13,148,136,0.1);}
 
-/* ══════════════ CLIENT TABLE ══════════════ */
-.table-card {
-  background: var(--white); border-radius: 13px;
-  box-shadow: var(--shadow-card); overflow: auto;
-  flex: 1; min-height: 0;
+/* ═══════ CLIENT TABLE ═══════ */
+.table-wrap{flex:1;min-height:0;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column;}
+.table-toolbar{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--slate-100);flex-shrink:0;}
+.table-count{font-size:12.5px;color:var(--slate-500);}
+.table-count strong{color:var(--slate-900);}
+.tb-filter-btns{display:flex;gap:5px;}
+.filter-btn{
+  padding:5px 12px;border-radius:7px;border:1.5px solid rgba(0,0,0,0.09);
+  background:#fff;font-size:12px;font-weight:600;color:var(--slate-600);
+  cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;
 }
-.client-table { width: 100%; border-collapse: collapse; }
-.client-table th {
-  font-size: 11px; font-weight: 700; color: var(--slate-400);
-  text-transform: uppercase; letter-spacing: 0.06em;
-  text-align: left; padding: 10px 14px;
-  border-bottom: 1px solid var(--slate-100); background: #fff; white-space: nowrap;
+.filter-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-pale);}
+.filter-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal-pale);}
+.table-scroll{overflow:auto;flex:1;}
+.client-table{width:100%;border-collapse:collapse;}
+.client-table th{
+  font-size:10.5px;font-weight:700;color:var(--slate-400);
+  text-transform:uppercase;letter-spacing:0.07em;
+  text-align:left;padding:10px 14px;
+  border-bottom:1px solid var(--slate-100);background:#fff;
+  position:sticky;top:0;z-index:1;white-space:nowrap;cursor:pointer;user-select:none;
 }
-.client-table th:first-child { width: 36px; }
-.client-table td { padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 12.5px; color: var(--slate-700); }
-.client-table tr:last-child td { border-bottom: none; }
-.client-table tbody tr { transition: background .14s; cursor: pointer; }
-.client-table tbody tr:hover { background: #f0fdfa; }
-.client-table tbody tr.selected { background: #f0fdfa; box-shadow: inset 3px 0 0 var(--teal); }
+.client-table th:hover{color:var(--slate-600);}
+.client-table th .sort-icon{display:inline-block;margin-left:4px;opacity:0.4;font-size:9px;}
+.client-table th.sorted .sort-icon{opacity:1;color:var(--teal);}
+.client-table td{padding:10px 14px;border-bottom:1px solid rgba(0,0,0,0.04);font-size:12.5px;color:var(--slate-700);vertical-align:middle;}
+.client-table tr:last-child td{border-bottom:none;}
+.client-table tbody tr{transition:background .12s;cursor:pointer;}
+.client-table tbody tr:hover{background:#f8fffe;}
+.client-table tbody tr.selected{background:#f0fdfa;}
+input[type="checkbox"]{width:14px;height:14px;border-radius:3px;cursor:pointer;accent-color:var(--teal);}
+.client-name-cell{display:flex;align-items:center;gap:9px;}
+.client-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0;}
+.client-info-name{font-weight:600;color:var(--slate-800);}
+.client-info-email{font-size:11px;color:var(--slate-400);}
 
-input[type="checkbox"] { width: 13px; height: 13px; border-radius: 3px; cursor: pointer; accent-color: var(--teal); }
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:10.5px;font-weight:700;white-space:nowrap;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:0.7;}
+.badge-selfreg{background:#fef3c7;color:#b45309;}
+.badge-directadd{background:#dbeafe;color:#1d4ed8;}
+.badge-pending{background:#fef9c3;color:#a16207;border:1px solid #fde68a;}
+.badge-active{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
+.badge-inactive{background:var(--slate-100);color:var(--slate-500);}
 
-.badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 99px; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
-.badge-selfreg { background: #fef3c7; color: #b45309; }
-.badge-directadd { background: #dbeafe; color: #1d4ed8; }
-.badge-pending { background: #fef9c3; color: #a16207; border: 1px solid #fde68a; }
-.badge-active { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-.badge-inactive { background: var(--slate-100); color: var(--slate-500); }
+.tbl-actions{display:flex;align-items:center;gap:4px;justify-content:flex-end;}
+.tbl-icon-btn{
+  width:27px;height:27px;border-radius:7px;
+  border:1px solid rgba(0,0,0,0.09);background:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--slate-400);transition:all .14s;
+}
+.tbl-icon-btn:hover{background:var(--teal-pale);color:var(--teal);border-color:rgba(13,148,136,0.2);}
+.tbl-icon-btn svg{width:12px;height:12px;stroke:currentColor;}
 
-.tbl-actions { display: flex; align-items: center; gap: 4px; }
-.tbl-icon-btn {
-  width: 26px; height: 26px; border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.09); background: var(--white);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--slate-400); transition: all .14s;
+/* Dropdown */
+.dropdown{position:relative;}
+.dropdown-menu{
+  display:none;position:absolute;right:0;top:calc(100% + 5px);z-index:200;
+  background:var(--white);border:1px solid rgba(0,0,0,0.09);border-radius:10px;
+  box-shadow:0 10px 36px rgba(0,0,0,0.14);min-width:148px;overflow:hidden;
 }
-.tbl-icon-btn:hover { background: var(--teal-pale); color: var(--teal); border-color: rgba(13,148,136,0.2); }
-.tbl-icon-btn svg { width: 12px; height: 12px; }
+.dropdown-menu.open{display:block;animation:dropIn .14s ease;}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.dropdown-item{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:12.5px;color:var(--slate-700);cursor:pointer;transition:background .1s;}
+.dropdown-item:hover{background:var(--teal-pale);color:var(--teal-dark);}
+.dropdown-item.danger{color:#b91c1c;}
+.dropdown-item.danger:hover{background:#fef2f2;color:#991b1b;}
+.dropdown-item svg{width:13px;height:13px;stroke:currentColor;flex-shrink:0;}
+.dd-divider{height:1px;background:var(--slate-100);margin:3px 0;}
 
-/* Dropdown menu */
-.dropdown { position: relative; }
-.dropdown-menu {
-  display: none; position: absolute; right: 0; top: calc(100% + 4px); z-index: 100;
-  background: var(--white); border: 1px solid rgba(0,0,0,0.09); border-radius: 10px;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.12); min-width: 128px; overflow: hidden;
-}
-.dropdown-menu.open { display: block; animation: dropIn .15s ease; }
-@keyframes dropIn { from { opacity:0; transform: translateY(-5px) scale(0.98); } to { opacity:1; transform: translateY(0) scale(1); } }
-.dropdown-item { padding: 7px 13px; font-size: 12.5px; color: var(--slate-700); cursor: pointer; transition: background .12s; }
-.dropdown-item:hover { background: var(--teal-pale); color: var(--teal-dark); }
-.dropdown-item.danger { color: #b91c1c; }
-.dropdown-item.danger:hover { background: #fef2f2; color: #991b1b; }
+/* ═══════ RIGHT SIDEBAR ═══════ */
+.rs-card{background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);}
+.rs-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.rs-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--slate-900);}
+.rs-link{font-size:11.5px;color:var(--teal);font-weight:600;cursor:pointer;transition:color .15s;}
+.rs-link:hover{color:var(--teal-dark);}
 
-/* ══════════════ RIGHT SIDEBAR ══════════════ */
-.rs-card {
-  background: var(--white); border-radius: 13px;
-  padding: 14px 16px; box-shadow: var(--shadow-card);
-  flex: 1; min-height: 0; display: flex; flex-direction: column;
-}
-.rs-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--slate-900); margin-bottom: 11px; }
+/* Activity Feed */
+.activity-list{display:flex;flex-direction:column;gap:10px;}
+.activity-item{display:flex;gap:9px;align-items:flex-start;}
+.act-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;margin-top:3px;}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.act-dot.success{background:var(--teal-light);}
+.act-dot.info{background:var(--slate-300);}
+.act-dot.error{background:#f43f5e;}
+.act-line{width:1px;height:100%;min-height:14px;background:var(--slate-100);margin-top:3px;}
+.activity-item:last-child .act-line{display:none;}
+.act-text{flex:1;}
+.act-msg{font-size:12px;color:var(--slate-600);line-height:1.45;}
+.act-msg .highlight{color:var(--teal);font-weight:600;}
+.act-time{font-size:10.5px;color:var(--slate-400);margin-top:2px;}
 
-/* Recent Activity */
-.activity-list { display: flex; flex-direction: column; gap: 9px; overflow-y: auto; }
-.activity-item { display: flex; gap: 9px; align-items: flex-start; }
-.act-avatar {
-  width: 26px; height: 26px; border-radius: 50%;
-  background: var(--slate-100); display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
-}
-.act-avatar svg { width: 12px; height: 12px; color: var(--slate-500); }
-.act-avatar.green { background: #dcfce7; }
-.act-avatar.green svg { color: #15803d; }
-.act-text { flex: 1; }
-.act-msg { font-size: 11.5px; color: var(--slate-600); line-height: 1.45; }
-.act-msg .highlight { color: var(--teal); font-weight: 600; }
-.act-time { font-size: 10.5px; color: var(--slate-400); margin-top: 2px; }
+/* Workload */
+.workload-list{display:flex;flex-direction:column;gap:5px;}
+.workload-item{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:8px;transition:background .14s;cursor:pointer;}
+.workload-item:hover{background:var(--teal-pale);}
+.wl-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.wl-info{flex:1;min-width:0;}
+.wl-name{font-size:12px;color:var(--slate-700);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wl-bar-wrap{width:60px;height:4px;background:var(--slate-100);border-radius:99px;overflow:hidden;}
+.wl-bar{height:100%;border-radius:99px;background:var(--teal);}
+.wl-count{font-size:11px;font-weight:700;color:var(--teal-dark);background:rgba(13,148,136,0.1);border:1px solid rgba(13,148,136,0.18);padding:1px 8px;border-radius:99px;flex-shrink:0;}
 
-/* Manager Workload */
-.workload-list { display: flex; flex-direction: column; gap: 6px; }
-.workload-item { display: flex; align-items: center; gap: 9px; padding: 5px 7px; border-radius: 8px; transition: background .14s; cursor: pointer; }
-.workload-item:hover { background: var(--teal-pale); }
-.wl-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--slate-200); overflow: hidden; flex-shrink: 0; }
-.wl-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.wl-name { flex: 1; font-size: 12px; color: var(--slate-700); font-weight: 500; }
-.wl-count {
-  font-size: 11px; font-weight: 700; color: var(--teal-dark);
-  background: rgba(13,148,136,0.1); border: 1px solid rgba(13,148,136,0.18);
-  padding: 1px 8px; border-radius: 99px;
+/* Login URLs */
+.url-block{margin-bottom:0;}
+.url-label{font-size:10.5px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.url-label-dot{width:6px;height:6px;border-radius:50%;}
+.url-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;}
+.url-input{
+  flex:1;padding:7px 10px;border:1.5px solid rgba(0,0,0,0.09);
+  border-radius:8px;font-size:11px;font-family:'DM Mono','Courier New',monospace;
+  color:var(--slate-600);background:#f8fafc;outline:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
+.btn-copy{
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  border:1.5px solid rgba(0,0,0,0.09);background:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--slate-500);transition:all .15s;
+}
+.btn-copy:hover{background:var(--teal-pale);color:var(--teal);border-color:rgba(13,148,136,0.2);}
+.btn-copy.copied{background:#dcfce7;color:#15803d;border-color:#bbf7d0;}
+.btn-copy svg{width:12px;height:12px;stroke:currentColor;}
 
-/* Dual Login URLs */
-.url-label { font-size: 11px; font-weight: 700; color: var(--slate-600); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-.url-row { display: flex; gap: 6px; align-items: center; margin-bottom: 9px; }
-.url-input {
-  flex: 1; padding: 6.5px 9px; border: 1.5px solid rgba(0,0,0,0.09);
-  border-radius: 7px; font-size: 11px; font-family: 'DM Mono', 'Courier New', monospace;
-  color: var(--slate-700); background: #f8fafc; outline: none;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+/* ═══════ MODAL ═══════ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(9,15,28,0.5);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
 }
-.btn-copy {
-  width: 30px; height: 30px; border-radius: 7px;
-  border: 1px solid rgba(0,0,0,0.1); background: var(--white);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--slate-500); transition: all .15s; flex-shrink: 0;
+.modal-overlay.open{display:flex;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal-box{
+  background:var(--white);border-radius:18px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.2),0 0 0 1px rgba(0,0,0,0.06);
+  width:480px;max-width:94vw;
+  animation:modalIn .22s cubic-bezier(0.4,0,0.2,1);
 }
-.btn-copy:hover { background: var(--teal-pale); color: var(--teal); border-color: rgba(13,148,136,0.25); }
-.btn-copy svg { width: 12px; height: 12px; }
-.btn-copy.copied { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+@keyframes modalIn{from{opacity:0;transform:scale(.97) translateY(14px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px 16px;border-bottom:1px solid rgba(0,0,0,0.06);
+}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--slate-900);}
+.modal-sub{font-size:12px;color:var(--slate-500);margin-top:1px;}
+.modal-close{
+  width:30px;height:30px;border-radius:8px;
+  border:1.5px solid rgba(0,0,0,0.09);background:var(--white);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--slate-400);transition:all .15s;font-size:15px;
+}
+.modal-close:hover{background:var(--slate-100);color:var(--slate-700);}
+.modal-body{padding:20px 24px 24px;}
+.modal-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-form-group{margin-bottom:14px;}
+.modal-form-group:last-of-type{margin-bottom:0;}
+.modal-label{font-size:12px;font-weight:600;color:var(--slate-700);margin-bottom:5px;display:block;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.06);}
+.btn-cancel{
+  padding:9px 20px;border-radius:9px;border:1.5px solid rgba(0,0,0,0.1);
+  background:var(--white);font-size:13px;font-weight:600;
+  color:var(--slate-700);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;
+}
+.btn-cancel:hover{background:var(--slate-100);}
+.btn-submit{
+  padding:9px 24px;border-radius:9px;border:none;
+  background:var(--teal);color:#fff;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s;
+  box-shadow:0 2px 8px rgba(13,148,136,0.4);
+}
+.btn-submit:hover{background:var(--teal-dark);transform:translateY(-1px);box-shadow:0 6px 18px rgba(13,148,136,0.4);}
+.btn-submit:active{transform:translateY(0);}
 
-/* ══════════════ MODAL ══════════════ */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 500;
-  background: rgba(9,15,28,0.55); backdrop-filter: blur(8px);
-  align-items: center; justify-content: center;
+/* Shared button styles */
+.btn-outline{
+  padding:6px 14px;border-radius:8px;
+  border:1.5px solid rgba(0,0,0,0.1);background:var(--white);
+  font-size:12px;font-weight:600;color:var(--slate-700);
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;
+  box-shadow:0 1px 2px rgba(0,0,0,0.04);
 }
-.modal-overlay.open { display: flex; animation: fadeIn .2s ease; }
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-.modal-box {
-  background: var(--white); border-radius: 18px;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.06);
-  width: 460px; max-width: 94vw;
-  animation: modalIn .22s cubic-bezier(0.4,0,0.2,1);
+.btn-outline:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-pale);}
+.btn-primary-sm{
+  padding:7px 15px;border-radius:8px;border:none;
+  background:var(--teal);color:#fff;
+  font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;transition:all .18s;
+  box-shadow:0 2px 6px rgba(13,148,136,0.35);
 }
-@keyframes modalIn { from { opacity:0; transform: scale(.97) translateY(12px); } to { opacity:1; transform: scale(1) translateY(0); } }
-.modal-hd {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 22px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);
-}
-.modal-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--slate-900); }
-.modal-close {
-  width: 28px; height: 28px; border-radius: 7px;
-  border: 1px solid rgba(0,0,0,0.09); background: var(--white);
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--slate-400); transition: all .15s;
-}
-.modal-close:hover { background: var(--slate-100); color: var(--slate-700); }
-.modal-body { padding: 18px 22px 22px; }
-.form-label { font-size: 12px; font-weight: 600; color: var(--slate-700); margin-bottom: 5px; display: block; }
-.form-group { margin-bottom: 13px; }
-.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
-.btn-cancel {
-  padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);
-  background: var(--white); font-size: 13px; font-weight: 600;
-  color: var(--slate-700); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-.btn-cancel:hover { background: var(--slate-100); border-color: rgba(0,0,0,0.15); }
-.btn-submit {
-  padding: 8px 22px; border-radius: 8px; border: none;
-  background: var(--teal); color: #fff; font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .18s;
-  box-shadow: 0 1px 3px rgba(13,148,136,0.4), 0 0 0 1px rgba(13,148,136,0.15);
-}
-.btn-submit:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(13,148,136,0.35); }
+.btn-primary-sm:hover{background:var(--teal-dark);transform:translateY(-1px);}
 
-/* Toast */
-#toast { position: fixed; bottom: 22px; right: 22px; z-index: 999; }
-.toast-msg {
-  background: #111827; color: #f1f5f9; font-size: 12px; font-family: 'DM Sans', sans-serif;
-  padding: 10px 16px; border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.06);
-  animation: slideUp .2s ease; margin-top: 8px; display: flex; align-items: center; gap: 8px;
+/* ─ Toast ─ */
+#toast{position:fixed;bottom:22px;right:22px;z-index:999;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+.toast-msg{
+  background:#111827;color:#f1f5f9;font-size:12.5px;font-family:'DM Sans',sans-serif;
+  padding:11px 18px;border-radius:11px;
+  box-shadow:0 10px 32px rgba(0,0,0,0.25),0 0 0 1px rgba(255,255,255,0.06);
+  animation:slideUp .22s ease;display:flex;align-items:center;gap:9px;max-width:280px;
 }
-@keyframes slideUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
-.toast-msg.success { border-left: 3px solid var(--teal-light); }
-.toast-msg.error { border-left: 3px solid #f43f5e; }
+@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.toast-msg.success{border-left:3px solid var(--teal-light);}
+.toast-msg.error{border-left:3px solid #f43f5e;}
+.toast-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toast-icon.success{background:rgba(20,184,166,0.2);}
+.toast-icon.error{background:rgba(244,63,94,0.2);}
+.toast-icon svg{width:10px;height:10px;stroke:currentColor;}
+.toast-icon.success{color:var(--teal-light);}
+.toast-icon.error{color:#f87171;}
+
+/* ─ Detail Panel (right click / view) ─ */
+.detail-overlay{
+  display:none;position:fixed;inset:0;z-index:400;
+}
+.detail-overlay.open{display:block;}
+.detail-panel{
+  position:fixed;right:0;top:0;bottom:0;width:360px;
+  background:var(--white);box-shadow:-10px 0 40px rgba(0,0,0,0.12);
+  z-index:401;display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .25s cubic-bezier(0.4,0,0.2,1);
+}
+.detail-overlay.open .detail-panel{transform:translateX(0);}
+.detail-hd{padding:20px 22px 16px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;gap:10px;}
+.detail-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
+.detail-meta{flex:1;}
+.detail-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--slate-900);}
+.detail-company{font-size:12px;color:var(--slate-500);}
+.detail-close{width:28px;height:28px;border-radius:7px;border:1.5px solid rgba(0,0,0,0.09);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--slate-400);font-size:14px;transition:all .15s;}
+.detail-close:hover{background:var(--slate-100);color:var(--slate-700);}
+.detail-body{padding:18px 22px;overflow-y:auto;flex:1;}
+.detail-field{margin-bottom:14px;}
+.detail-field-label{font-size:11px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
+.detail-field-value{font-size:13px;color:var(--slate-700);font-weight:500;}
+.detail-section-title{font-family:'Syne',sans-serif;font-size:12.5px;font-weight:700;color:var(--slate-900);margin:18px 0 10px;}
+.detail-actions{padding:16px 22px;border-top:1px solid var(--slate-100);display:flex;gap:8px;}
+
+/* Misc */
+.divider{height:1px;background:var(--slate-100);margin:10px 0;}
+
+/* ─ Placeholder pages ─ */
+.page-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--slate-400);user-select:none;}
+.page-placeholder-icon{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:4px;}
+.page-placeholder-icon svg{width:30px;height:30px;stroke:currentColor;}
+.page-placeholder h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--slate-700);}
+.page-placeholder p{font-size:13px;color:var(--slate-400);text-align:center;max-width:280px;line-height:1.6;}
+.page-placeholder .btn-primary-sm{margin-top:4px;padding:9px 22px;font-size:13px;}
 </style>
 </head>
 <body>
 
-<!-- ════════ SIDEBAR ════════ -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sb-logo">
     <div class="sb-logo-icon">
@@ -403,186 +488,142 @@ input[type="checkbox"] { width: 13px; height: 13px; border-radius: 3px; cursor: 
     </div>
     <span class="sb-logo-text">Zarklyx</span>
   </div>
-  <nav class="sb-nav">
-    <div class="sb-item active" onclick="setNav(this,'Dashboard')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+  <div class="sb-nav">
+    <div class="sb-section-label">Main</div>
+    <div class="sb-item active" data-page="dashboard" onclick="setNav(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
     </div>
-    <div class="sb-item" onclick="setNav(this,'Clients')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <div class="sb-item" data-page="clients" onclick="setNav(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
       Clients
+      <span class="sb-badge" id="clientsBadge">6</span>
     </div>
-    <div class="sb-item" onclick="setNav(this,'Leads')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <div class="sb-item" data-page="leads" onclick="setNav(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       Leads
     </div>
-    <div class="sb-item" onclick="setNav(this,'Tasks')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <div class="sb-item" data-page="tasks" onclick="setNav(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
       Tasks
     </div>
-    <div class="sb-item" onclick="setNav(this,'Reports')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <div class="sb-section-label">Analytics</div>
+    <div class="sb-item" data-page="reports" onclick="setNav(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Reports
     </div>
-    <div class="sb-item" onclick="setNav(this,'Settings')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <div class="sb-section-label">Config</div>
+    <div class="sb-item" data-page="settings" onclick="setNav(this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       Settings
     </div>
-  </nav>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-user" onclick="showToast('Profile settings','')">
+      <div class="sb-user-avatar">AR</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name">Admin Rajan</div>
+        <div class="sb-user-role">Super Admin</div>
+      </div>
+    </div>
+  </div>
 </aside>
 
-<!-- ════════ MAIN ════════ -->
+<!-- MAIN -->
 <div class="main">
-
   <!-- Topbar -->
   <header class="topbar">
+    <div class="tb-page-title" id="pageTitle">Dashboard</div>
+    <div class="tb-divider"></div>
     <div class="search-wrap">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable(this.value)"/>
+      <input type="text" id="searchInput" placeholder="Search clients, companies…" oninput="filterTable(this.value)"/>
     </div>
     <div class="tb-spacer"></div>
-    <button class="btn-add-client" onclick="openAddModal()">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Client
-    </button>
-    <div class="notif-btn" onclick="showToast('3 new notifications','success')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-      <div class="notif-badge">3</div>
-    </div>
-    <div class="profile-btn" onclick="showToast('Profile menu','')">
-      <div class="profile-avatar" style="background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;">AR</div>
-      <div class="profile-chevron"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+    <div class="tb-actions">
+      <button class="btn-add-client" onclick="openAddModal()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Client
+      </button>
+      <div class="icon-btn" onclick="showToast('Exporting client data…','')">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="icon-btn" onclick="showToast('3 new notifications','success')" style="position:relative">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <div class="notif-badge">3</div>
+      </div>
+      <div class="profile-btn" onclick="showToast('Profile menu','')">
+        <div class="profile-avatar">AR</div>
+        <div class="profile-name">Admin</div>
+        <div class="profile-chevron">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
     </div>
   </header>
 
   <!-- Content -->
   <div class="content">
-    <div class="content-left">
+    <div class="content-body" id="pageBody" style="opacity:1">
+    </div><!-- /content-body -->
 
-      <!-- KPI Cards -->
-      <div class="kpi-row">
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <span class="kpi-label">Total Clients</span>
-            <span class="kpi-badge green">Green</span>
-          </div>
-          <div class="kpi-value" id="kpiTotal">2,451</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <span class="kpi-label">Pending Approvals</span>
-            <span class="kpi-badge yellow">Perd</span>
-          </div>
-          <div class="kpi-value" id="kpiPending">18</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <span class="kpi-label">Active Clients</span>
-            <span class="kpi-badge blue">Active</span>
-          </div>
-          <div class="kpi-value" id="kpiActive">2,103</div>
-        </div>
-        
-      </div>
-
-      <!-- Panels Row -->
-      <div class="panels-row">
-        <!-- Left: Self Registration -->
-        <div class="panel-card">
-          <div class="panel-hd">
-            <span class="panel-title">Client Self-Registration</span>
-            <button class="btn-outline" onclick="showToast('Invite link copied to clipboard!','success')">Send Invite Link</button>
-          </div>
-          <div class="pending-label">Pending Requests</div>
-          <table class="req-table" id="pendingTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Timestamp</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="pendingBody">
-            </tbody>
-          </table>
-        </div>
-
-        
-      </div>
-
-      <!-- Client Table -->
-      <div class="table-card">
-        <table class="client-table">
-          <thead>
-            <tr>
-              <th><input type="checkbox" id="selectAll" onchange="toggleAll(this)"/></th>
-              <th>Client Name</th>
-              <th>Company</th>
-              <th>Entry Type</th>
-              <th>Status</th>
-              <th>Assigned Manager</th>
-              <th>Last Activity</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="clientTableBody"></tbody>
-        </table>
-      </div>
-
-    </div><!-- /content-left -->
-
-    <!-- Right Sidebar -->
+    <!-- Right sidebar -->
     <div class="content-right">
-
       <!-- Recent Activity -->
       <div class="rs-card">
-        <div class="rs-title">Recent Activity</div>
-        <div class="activity-list" id="activityFeed">
+        <div class="rs-hd">
+          <div class="rs-title">Recent Activity</div>
+          <span class="rs-link" onclick="showToast('Viewing all activity','')">View all</span>
         </div>
+        <div class="activity-list" id="activityFeed"></div>
       </div>
 
-      
+    </div>
+  </div>
+</div>
 
-    </div><!-- /content-right -->
-  </div><!-- /content -->
-</div><!-- /main -->
-
-<!-- ════════ ADD CLIENT MODAL ════════ -->
+<!-- ADD CLIENT MODAL -->
 <div class="modal-overlay" id="addModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <div class="modal-hd">
-      <div class="modal-title">Add New Client</div>
+      <div>
+        <div class="modal-title">Add New Client</div>
+        <div class="modal-sub">Fill in the details below to register a new client</div>
+      </div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Client Name *</label>
-        <input class="form-input" id="m-name" type="text" placeholder="Full name" style="margin-bottom:0"/>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label class="modal-label">Client Name *</label>
+          <input class="form-input" id="m-name" type="text" placeholder="Full name" style="margin:0"/>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-label">Company *</label>
+          <input class="form-input" id="m-company" type="text" placeholder="Company name" style="margin:0"/>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Company *</label>
-        <input class="form-input" id="m-company" type="text" placeholder="Company name" style="margin-bottom:0"/>
+      <div class="modal-form-group" style="margin-top:14px">
+        <label class="modal-label">Email Address *</label>
+        <input class="form-input" id="m-email" type="email" placeholder="email@company.com" style="margin:0"/>
       </div>
-      <div class="form-group">
-        <label class="form-label">Email *</label>
-        <input class="form-input" id="m-email" type="email" placeholder="email@company.com" style="margin-bottom:0"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Entry Type</label>
-        <select class="form-select" id="m-type" style="margin-bottom:0">
-          <option value="Direct Add">Direct Add</option>
-          <option value="Self-Reg">Self-Registration</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Assign Manager</label>
-        <select class="form-select" id="m-manager" style="margin-bottom:0">
-          <option value="Jom Broitter">Jom Broitter</option>
-          <option value="Jasan Manager">Jasan Manager</option>
-          <option value="Client Employe">Client Employe</option>
-          <option value="Aluan Employee">Aluan Employee</option>
-        </select>
+      <div class="modal-form-row" style="margin-top:14px">
+        <div class="modal-form-group">
+          <label class="modal-label">Entry Type</label>
+          <select class="form-select" id="m-type" style="margin:0">
+            <option value="Direct Add">Direct Add</option>
+            <option value="Self-Reg">Self-Registration</option>
+          </select>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-label">Assign Manager</label>
+          <select class="form-select" id="m-manager" style="margin:0">
+            <option value="Jom Broitter">Jom Broitter</option>
+            <option value="Jasan Manager">Jasan Manager</option>
+            <option value="Client Employe">Client Employe</option>
+            <option value="Aluan Employee">Aluan Employee</option>
+          </select>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -592,62 +633,327 @@ input[type="checkbox"] { width: 13px; height: 13px; border-radius: 3px; cursor: 
   </div>
 </div>
 
-<!-- Toast container -->
+<!-- CLIENT DETAIL PANEL -->
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-hd">
+      <div class="detail-avatar" id="detailAvatar"></div>
+      <div class="detail-meta">
+        <div class="detail-name" id="detailName"></div>
+        <div class="detail-company" id="detailCompany"></div>
+      </div>
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-field"><div class="detail-field-label">Email</div><div class="detail-field-value" id="detailEmail">—</div></div>
+      <div class="detail-field"><div class="detail-field-label">Status</div><div class="detail-field-value" id="detailStatus"></div></div>
+      <div class="detail-field"><div class="detail-field-label">Entry Type</div><div class="detail-field-value" id="detailType"></div></div>
+      <div class="detail-field"><div class="detail-field-label">Assigned Manager</div><div class="detail-field-value" id="detailManager"></div></div>
+      <div class="detail-field"><div class="detail-field-label">Last Activity</div><div class="detail-field-value" id="detailDate"></div></div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn-primary-sm" style="flex:1" id="detailEditBtn">Edit Client</button>
+      <button class="btn-cancel" style="color:#b91c1c;border-color:#fecaca" id="detailDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
-/* ── State ── */
+/* ─── STATE ─── */
+const AVATAR_COLORS = [
+  ['#f0fdfa','#0f766e'],['#eff6ff','#1d4ed8'],['#fef9c3','#a16207'],
+  ['#fce7f3','#9d174d'],['#f0fdf4','#15803d'],['#fef3c7','#92400e'],
+];
+
 let clients = [
-  { id:1, name:'Client Name', company:'Company Inc.',   type:'Self-Reg',   status:'Pending', manager:'Jom Broitter',  date:'Jun 29, 2023' },
-  { id:2, name:'Client Name', company:'Company Inc.',   type:'Self-Reg',   status:'Pending', manager:'Jom Broitter',  date:'Jan 29, 2023' },
-  { id:3, name:'Client Name', company:'Company Company',type:'Direct Add',  status:'Active',  manager:'Jasan Manager', date:'Jan 27, 2023' },
-  { id:4, name:'Client Name', company:'Company Inc.',   type:'Direct Add',  status:'Active',  manager:'Jasan Manager', date:'Jan 27, 2023' },
-  { id:5, name:'Client Name', company:'Robis Inc.',     type:'Direct Add',  status:'Active',  manager:'Jasan Manager', date:'Jan 28, 2023' },
-  { id:6, name:'Client Name', company:'Company Company',type:'Direct Add',  status:'Active',  manager:'Jasan Manager', date:'Jan 28, 2023' },
+  { id:1, name:'Alice Johnson',   company:'Nexus Corp.',     type:'Self-Reg',   status:'Pending', manager:'Jom Broitter',  date:'Jun 29, 2023', email:'alice@nexus.com' },
+  { id:2, name:'Brian Torres',    company:'Velocity Inc.',   type:'Self-Reg',   status:'Pending', manager:'Jom Broitter',  date:'Jan 29, 2023', email:'btorres@velocity.io' },
+  { id:3, name:'Clara Whitmore',  company:'Orbit Company',   type:'Direct Add', status:'Active',  manager:'Jasan Manager', date:'Jan 27, 2023', email:'c.whitmore@orbit.co' },
+  { id:4, name:'David Park',      company:'Prism LLC.',      type:'Direct Add', status:'Active',  manager:'Jasan Manager', date:'Jan 27, 2023', email:'dpark@prismllc.com' },
+  { id:5, name:'Eva Müller',      company:'Robis Inc.',      type:'Direct Add', status:'Active',  manager:'Jasan Manager', date:'Jan 28, 2023', email:'eva.m@robis.de' },
+  { id:6, name:'Franklin Osei',   company:'Summit Partners', type:'Direct Add', status:'Active',  manager:'Jasan Manager', date:'Jan 28, 2023', email:'f.osei@summit.io' },
 ];
 
 let pendingRequests = [
-  { id:1, name:'John Smith',   email:'zarklyix@gmail.com',  time:'1 days ago' },
-  { id:2, name:'Renn Elivat',  email:'remiliiva@gmail.com', time:'1 days ago' },
-  { id:3, name:'John Smither', email:'zarklyx:@gmail.com',  time:'1 days ago' },
+  { id:1, name:'John Smith',   email:'john.smith@gmail.com',  time:'1 day ago' },
+  { id:2, name:'Renn Elivat',  email:'r.elivat@mailco.com',   time:'2 days ago' },
+  { id:3, name:'Mia Delgado',  email:'mia.d@protonmail.com',  time:'3 days ago' },
 ];
 
 let activities = [
-  { type:'info', msg:'Client Registered rapproved',    time:'7 months ago' },
-  { type:'success', msg:'Client Registered on <span class="highlight">Approved</span>', time:'10 minutens ago' },
+  { type:'success', msg:'<span class="highlight">Alice Johnson</span> approved & activated', time:'5 min ago' },
+  { type:'info',    msg:'Brian Torres registration submitted',                                time:'2 hrs ago' },
+  { type:'success', msg:'Franklin Osei added as <span class="highlight">Direct Add</span>',  time:'Yesterday' },
+  { type:'error',   msg:'Renn Elivat registration rejected',                                  time:'2 days ago' },
 ];
 
 let workload = [
-  { name:'Client Employe',  count:47 },
-  { name:'Aluan Employee',  count:35 },
-  { name:'Client Employee', count:14 },
+  { name:'Jom Broitter',  count:47, color:['#dbeafe','#2563eb'] },
+  { name:'Jasan Manager', count:35, color:['#dcfce7','#16a34a'] },
+  { name:'Client Employe',count:14, color:['#fef3c7','#d97706'] },
+  { name:'Aluan Employee',count:8,  color:['#fce7f3','#9d174d'] },
 ];
 
 let nextId = 7;
-let openDropdown = null;
+let currentFilter = '';
+let currentTypeFilter = '';
+let sortKey = '';
+let sortDir = 1;
+let activeDetail = null;
 
-/* ── Sidebar nav ── */
-function setNav(el, name) {
-  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
-  if(name !== 'Dashboard') showToast('Navigating to ' + name, '');
+/* ─── PAGES ─── */
+const PAGE_TITLES = {
+  dashboard: 'Dashboard',
+  clients:   'Client Management',
+  leads:     'Leads',
+  tasks:     'Tasks',
+  reports:   'Reports',
+  settings:  'Settings',
+};
+
+const PLACEHOLDER_PAGES = {
+  leads: {
+    icon: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    color: ['#fef9c3','#a16207'],
+    title: 'Leads Pipeline',
+    desc: 'Track and manage your sales leads from first contact to conversion.',
+    btn: 'Add Lead',
+  },
+  tasks: {
+    icon: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>',
+    color: ['#ede9fe','#6d28d9'],
+    title: 'Task Manager',
+    desc: 'Assign, track and complete tasks across your team and clients.',
+    btn: 'Create Task',
+  },
+  reports: {
+    icon: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    color: ['#dbeafe','#1d4ed8'],
+    title: 'Analytics & Reports',
+    desc: 'View detailed performance metrics, client growth, and activity summaries.',
+    btn: 'Generate Report',
+  },
+  settings: {
+    icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>',
+    color: ['#f0fdfa','#0f766e'],
+    title: 'Settings',
+    desc: 'Configure your workspace, manage integrations, and customize preferences.',
+    btn: 'Open Preferences',
+  },
+};
+
+let currentPage = 'dashboard';
+
+function renderDashboardPage() {
+  return `
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi-card" onclick="filterByStatus('')">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,var(--teal),var(--teal-light))"></div>
+        <div class="kpi-top">
+          <div><div class="kpi-label">Total Clients</div></div>
+          <div class="kpi-icon" style="background:#f0fdfa;color:var(--teal)">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+        </div>
+        <div class="kpi-bottom">
+          <div class="kpi-value" id="kpiTotal">2,451</div>
+          <div class="kpi-trend up"><svg fill="none" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>+4.2%</div>
+        </div>
+      </div>
+      <div class="kpi-card" onclick="filterByStatus('Pending')">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div>
+        <div class="kpi-top">
+          <div><div class="kpi-label">Pending Approvals</div></div>
+          <div class="kpi-icon" style="background:#fefce8;color:#ca8a04">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+        </div>
+        <div class="kpi-bottom">
+          <div class="kpi-value" id="kpiPending">18</div>
+          <div class="kpi-trend warn">↑ 3 new</div>
+        </div>
+      </div>
+      <div class="kpi-card" onclick="filterByStatus('Active')">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div>
+        <div class="kpi-top">
+          <div><div class="kpi-label">Active Clients</div></div>
+          <div class="kpi-icon" style="background:#eff6ff;color:#2563eb">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+        </div>
+        <div class="kpi-bottom">
+          <div class="kpi-value" id="kpiActive">2,103</div>
+          <div class="kpi-trend blue">85.8%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panels Row -->
+    <div class="panels-row">
+      <div class="panel-card">
+        <div class="panel-hd">
+          <div>
+            <div class="panel-title">Self-Registration Requests</div>
+            <div class="panel-sub" id="pendingCountLabel">3 pending approvals</div>
+          </div>
+          <button class="btn-outline" onclick="copyInviteLink()">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;display:inline;margin-right:4px;vertical-align:middle"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            Invite Link
+          </button>
+        </div>
+        <table class="req-table">
+          <thead><tr><th>Name</th><th>Email</th><th>When</th><th style="text-align:right">Actions</th></tr></thead>
+          <tbody id="pendingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Client Table -->
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="table-count"><strong id="tableCountNum">6</strong> clients</div>
+        <div class="tb-filter-btns">
+          <button class="filter-btn active" id="fb-all" onclick="filterByStatus('')">All</button>
+          <button class="filter-btn" id="fb-active" onclick="filterByStatus('Active')">Active</button>
+          <button class="filter-btn" id="fb-pending" onclick="filterByStatus('Pending')">Pending</button>
+          <button class="filter-btn" id="fb-selfreg" onclick="filterByType('Self-Reg')">Self-Reg</button>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          <button class="btn-outline" id="bulkDeleteBtn" style="display:none;color:#b91c1c;border-color:#fecaca" onclick="bulkDelete()">Delete Selected</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="client-table">
+          <thead>
+            <tr>
+              <th style="width:38px"><input type="checkbox" id="selectAll" onchange="toggleAll(this)"/></th>
+              <th onclick="sortTable('name')">Client <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('company')">Company <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('type')">Entry Type <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('status')">Status <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('manager')">Manager <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('date')">Last Activity <span class="sort-icon">↕</span></th>
+              <th style="width:80px;text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody"></tbody>
+        </table>
+      </div>
+    </div>`;
 }
 
-/* ── Render Pending Requests ── */
+function renderClientsPage() {
+  return `
+    <!-- Client Table (full page) -->
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="table-count"><strong id="tableCountNum">${clients.length}</strong> clients</div>
+        <div class="tb-filter-btns">
+          <button class="filter-btn active" id="fb-all" onclick="filterByStatus('')">All</button>
+          <button class="filter-btn" id="fb-active" onclick="filterByStatus('Active')">Active</button>
+          <button class="filter-btn" id="fb-pending" onclick="filterByStatus('Pending')">Pending</button>
+          <button class="filter-btn" id="fb-selfreg" onclick="filterByType('Self-Reg')">Self-Reg</button>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          <button class="btn-outline" id="bulkDeleteBtn" style="display:none;color:#b91c1c;border-color:#fecaca" onclick="bulkDelete()">Delete Selected</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="client-table">
+          <thead>
+            <tr>
+              <th style="width:38px"><input type="checkbox" id="selectAll" onchange="toggleAll(this)"/></th>
+              <th onclick="sortTable('name')">Client <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('company')">Company <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('type')">Entry Type <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('status')">Status <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('manager')">Manager <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('date')">Last Activity <span class="sort-icon">↕</span></th>
+              <th style="width:80px;text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody"></tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderPlaceholderPage(key) {
+  const p = PLACEHOLDER_PAGES[key];
+  const [bg, fg] = p.color;
+  return `
+    <div class="page-placeholder">
+      <div class="page-placeholder-icon" style="background:${bg};color:${fg}">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8">${p.icon}</svg>
+      </div>
+      <h2>${p.title}</h2>
+      <p>${p.desc}</p>
+      <button class="btn-primary-sm" onclick="showToast('${p.btn} — coming soon!','')">${p.btn}</button>
+    </div>`;
+}
+
+function setNav(el) {
+  const page = el.dataset.page;
+  if(page === currentPage) return;
+  currentPage = page;
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pageTitle').textContent = PAGE_TITLES[page] || page;
+  switchPage(page);
+}
+
+function switchPage(page) {
+  const body = document.getElementById('pageBody');
+  // Fade out
+  body.style.opacity = '0';
+  body.style.transform = 'translateY(6px)';
+  setTimeout(() => {
+    if(page === 'dashboard') {
+      body.innerHTML = renderDashboardPage();
+      renderPending(); renderTable(); updateKPIs();
+    } else if(page === 'clients') {
+      body.innerHTML = renderClientsPage();
+      renderTable();
+    } else {
+      body.innerHTML = renderPlaceholderPage(page);
+    }
+    body.style.transition = 'opacity .18s ease, transform .18s ease';
+    body.style.opacity = '1';
+    body.style.transform = 'translateY(0)';
+    setTimeout(()=>body.style.transition='',200);
+  }, 130);
+}
+
+/* ─── AVATAR ─── */
+function initials(name){ return name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(); }
+function avatarColors(id){ return AVATAR_COLORS[id % AVATAR_COLORS.length]; }
+
+/* ─── PENDING ─── */
 function renderPending() {
   const tbody = document.getElementById('pendingBody');
-  tbody.innerHTML = pendingRequests.map(r => `
+  const label = document.getElementById('pendingCountLabel');
+  label.textContent = pendingRequests.length
+    ? `${pendingRequests.length} pending approval${pendingRequests.length!==1?'s':''}`
+    : 'All caught up!';
+  if(!pendingRequests.length) {
+    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">No pending requests</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = pendingRequests.map(r=>`
     <tr id="preq-${r.id}">
-      <td>${r.name}</td>
-      <td style="color:#6b7280">${r.email}</td>
-      <td style="color:#6b7280">${r.time}</td>
+      <td style="font-weight:500">${r.name}</td>
+      <td style="color:var(--slate-500)">${r.email}</td>
+      <td style="color:var(--slate-400);white-space:nowrap">${r.time}</td>
       <td>
         <div class="req-actions">
           <button class="btn-approve" onclick="approvePending(${r.id})" title="Approve">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
           <button class="btn-reject" onclick="rejectPending(${r.id})" title="Reject">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
       </td>
@@ -656,265 +962,357 @@ function renderPending() {
 }
 
 function approvePending(id) {
-  const req = pendingRequests.find(r => r.id === id);
-  if (!req) return;
-  // Add to client table
-  clients.unshift({ id: nextId++, name: req.name, company: 'Self-Reg Co.', type:'Self-Reg', status:'Active', manager:'Jom Broitter', date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) });
-  pendingRequests = pendingRequests.filter(r => r.id !== id);
-  addActivity('success', `${req.name} registration <span class="highlight">Approved</span>`, 'Just now');
-  updateKPIs();
-  renderPending();
-  renderTable(clients);
-  renderActivity();
-  showToast(req.name + ' approved successfully', 'success');
-  // Animate row removal
-  const row = document.getElementById('preq-' + id);
-  if(row) { row.style.transition='opacity .3s'; row.style.opacity='0'; setTimeout(()=>row.remove(),300); }
+  const req = pendingRequests.find(r=>r.id===id);
+  if(!req) return;
+  clients.unshift({ id:nextId++, name:req.name, company:'Self-Reg Co.', type:'Self-Reg', status:'Active', manager:'Jom Broitter', date:fmtDate(new Date()), email:req.email });
+  pendingRequests = pendingRequests.filter(r=>r.id!==id);
+  addActivity('success',`<span class="highlight">${req.name}</span> registration approved`,'Just now');
+  updateKPIs(); renderPending(); renderTable(); renderActivity();
+  showToast(req.name+' approved!','success');
 }
 
 function rejectPending(id) {
-  const req = pendingRequests.find(r => r.id === id);
-  if (!req) return;
-  pendingRequests = pendingRequests.filter(r => r.id !== id);
-  addActivity('info', `${req.name} registration rejected`, 'Just now');
-  renderPending();
-  renderActivity();
-  showToast(req.name + ' rejected', 'error');
+  const req = pendingRequests.find(r=>r.id===id);
+  if(!req) return;
+  pendingRequests = pendingRequests.filter(r=>r.id!==id);
+  addActivity('error',`${req.name} registration rejected`,'Just now');
+  renderPending(); renderActivity();
+  showToast(req.name+' rejected','error');
 }
 
-/* ── Render Client Table ── */
-function renderTable(data) {
+/* ─── TABLE ─── */
+function getFilteredClients() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  return clients.filter(c=>{
+    const matchSearch = !q || [c.name,c.company,c.manager,c.status,c.type,c.email||'']
+      .some(v=>v.toLowerCase().includes(q));
+    const matchStatus = !currentFilter || c.status===currentFilter;
+    const matchType = !currentTypeFilter || c.type===currentTypeFilter;
+    return matchSearch && matchStatus && matchType;
+  });
+}
+
+function renderTable() {
+  const data = getFilteredClients();
+  if(sortKey) {
+    data.sort((a,b)=>{
+      const av=a[sortKey]||'', bv=b[sortKey]||'';
+      return av.localeCompare(bv)*sortDir;
+    });
+  }
   const tbody = document.getElementById('clientTableBody');
-  if(data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af">No clients found</td></tr>`;
+  document.getElementById('tableCountNum').textContent = data.length;
+  if(!data.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--slate-400)">No clients match your search</td></tr>`;
     return;
   }
-  tbody.innerHTML = data.map(c => `
-    <tr onclick="rowClick(event,${c.id})" id="row-${c.id}">
-      <td><input type="checkbox" class="row-cb" onclick="event.stopPropagation()"/></td>
-      <td style="font-weight:500">${c.name}</td>
+  tbody.innerHTML = data.map(c=>{
+    const [bg,fg]=avatarColors(c.id);
+    return `
+    <tr onclick="viewClient(${c.id})" id="row-${c.id}" class="${c.id===activeDetail?'selected':''}">
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" data-id="${c.id}" onchange="checkBulk()"/></td>
+      <td>
+        <div class="client-name-cell">
+          <div class="client-avatar" style="background:${bg};color:${fg}">${initials(c.name)}</div>
+          <div>
+            <div class="client-info-name">${c.name}</div>
+            <div class="client-info-email">${c.email||'—'}</div>
+          </div>
+        </div>
+      </td>
       <td>${c.company}</td>
       <td><span class="badge ${c.type==='Self-Reg'?'badge-selfreg':'badge-directadd'}">${c.type}</span></td>
       <td><span class="badge ${c.status==='Active'?'badge-active':'badge-pending'}">${c.status}</span></td>
       <td>${c.manager}</td>
-      <td style="color:#6b7280">${c.date}</td>
+      <td style="color:var(--slate-500)">${c.date}</td>
       <td onclick="event.stopPropagation()">
         <div class="tbl-actions">
-          <button class="tbl-icon-btn" onclick="editClient(${c.id})" title="Edit">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <button class="tbl-icon-btn" onclick="openEditClient(${c.id})" title="Edit">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
           <div class="dropdown" id="dd-${c.id}">
             <button class="tbl-icon-btn" onclick="toggleDropdown(${c.id})" title="More">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+              <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
             </button>
             <div class="dropdown-menu" id="ddm-${c.id}">
-              <div class="dropdown-item" onclick="viewClient(${c.id})">👁 View Details</div>
-              <div class="dropdown-item" onclick="editClient(${c.id})">✏️ Edit</div>
-              <div class="dropdown-item danger" onclick="deleteClient(${c.id})">🗑 Delete</div>
+              <div class="dropdown-item" onclick="viewClient(${c.id})">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                View Details
+              </div>
+              <div class="dropdown-item" onclick="openEditClient(${c.id})">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </div>
+              <div class="dd-divider"></div>
+              <div class="dropdown-item danger" onclick="deleteClient(${c.id})">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                Delete
+              </div>
             </div>
           </div>
         </div>
       </td>
-    </tr>
-  `).join('');
-}
-
-function rowClick(e, id) {
-  const row = document.getElementById('row-' + id);
-  row.classList.toggle('selected');
-}
-
-function toggleDropdown(id) {
-  const menu = document.getElementById('ddm-' + id);
-  const isOpen = menu.classList.contains('open');
-  // Close all
-  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
-  openDropdown = null;
-  if(!isOpen) { menu.classList.add('open'); openDropdown = id; }
-}
-
-function editClient(id) {
-  const c = clients.find(x => x.id === id);
-  if(!c) return;
-  closeDropdowns();
-  showToast('Editing: ' + c.name + ' — ' + c.company, '');
+    </tr>`;
+  }).join('');
 }
 
 function viewClient(id) {
-  const c = clients.find(x => x.id === id);
-  if(!c) return;
   closeDropdowns();
-  showToast('Viewing: ' + c.name, '');
+  const c = clients.find(x=>x.id===id);
+  if(!c) return;
+  activeDetail = id;
+  const [bg,fg]=avatarColors(id);
+  document.getElementById('detailAvatar').textContent=initials(c.name);
+  document.getElementById('detailAvatar').style.cssText=`background:${bg};color:${fg};width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;`;
+  document.getElementById('detailName').textContent=c.name;
+  document.getElementById('detailCompany').textContent=c.company;
+  document.getElementById('detailEmail').textContent=c.email||'—';
+  document.getElementById('detailStatus').innerHTML=`<span class="badge ${c.status==='Active'?'badge-active':'badge-pending'}">${c.status}</span>`;
+  document.getElementById('detailType').innerHTML=`<span class="badge ${c.type==='Self-Reg'?'badge-selfreg':'badge-directadd'}">${c.type}</span>`;
+  document.getElementById('detailManager').textContent=c.manager;
+  document.getElementById('detailDate').textContent=c.date;
+  document.getElementById('detailEditBtn').onclick=()=>{closeDetail();openEditClient(id);};
+  document.getElementById('detailDeleteBtn').onclick=()=>{closeDetail();deleteClient(id);};
+  document.getElementById('detailOverlay').classList.add('open');
+  renderTable();
+}
+
+function closeDetail() {
+  activeDetail=null;
+  document.getElementById('detailOverlay').classList.remove('open');
+  renderTable();
+}
+
+function openEditClient(id) {
+  closeDropdowns();
+  const c=clients.find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('m-name').value=c.name;
+  document.getElementById('m-company').value=c.company;
+  document.getElementById('m-email').value=c.email||'';
+  document.getElementById('m-type').value=c.type;
+  document.getElementById('m-manager').value=c.manager;
+  // Swap submit to update
+  const btn=document.querySelector('#addModal .btn-submit');
+  btn.textContent='Update Client';
+  btn.onclick=()=>updateClient(id);
+  document.querySelector('#addModal .modal-title').textContent='Edit Client';
+  document.getElementById('addModal').classList.add('open');
+}
+
+function updateClient(id) {
+  const name=document.getElementById('m-name').value.trim();
+  const company=document.getElementById('m-company').value.trim();
+  const email=document.getElementById('m-email').value.trim();
+  const type=document.getElementById('m-type').value;
+  const manager=document.getElementById('m-manager').value;
+  if(!name||!company||!email){showToast('Please fill in required fields','error');return;}
+  const c=clients.find(x=>x.id===id);
+  if(c){Object.assign(c,{name,company,email,type,manager});}
+  addActivity('info',`<span class="highlight">${name}</span> profile updated`,'Just now');
+  renderTable();closeModal();updateKPIs();
+  showToast(name+' updated!','success');
 }
 
 function deleteClient(id) {
   closeDropdowns();
-  const c = clients.find(x => x.id === id);
-  if(!c) return;
-  if(!confirm('Delete client "' + c.name + '"?')) return;
-  clients = clients.filter(x => x.id !== id);
-  addActivity('info', c.name + ' client removed', 'Just now');
-  updateKPIs();
-  renderTable(clients);
-  renderActivity();
-  showToast('Client deleted', 'error');
+  const c=clients.find(x=>x.id===id);
+  if(!c||!confirm('Delete "'+c.name+'"? This cannot be undone.')) return;
+  clients=clients.filter(x=>x.id!==id);
+  addActivity('info',`${c.name} removed from clients`,'Just now');
+  updateKPIs();renderTable();renderActivity();
+  showToast('Client deleted','error');
 }
 
-function closeDropdowns() {
-  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
-  openDropdown = null;
+function sortTable(key) {
+  if(sortKey===key) sortDir*=-1; else {sortKey=key;sortDir=1;}
+  document.querySelectorAll('.client-table th').forEach(th=>{th.classList.remove('sorted');});
+  const ths=document.querySelectorAll('.client-table th');
+  const keys=['','name','company','type','status','manager','date',''];
+  const idx=keys.indexOf(key);
+  if(idx>=0) ths[idx].classList.add('sorted');
+  renderTable();
 }
-
-document.addEventListener('click', e => {
-  if(!e.target.closest('.dropdown')) closeDropdowns();
-});
 
 function toggleAll(cb) {
-  document.querySelectorAll('.row-cb').forEach(c => c.checked = cb.checked);
+  document.querySelectorAll('.row-cb').forEach(c=>c.checked=cb.checked);
+  checkBulk();
 }
 
-/* ── Filter Table ── */
-function filterTable(q) {
-  const filtered = q.trim() === '' ? clients : clients.filter(c =>
-    c.name.toLowerCase().includes(q.toLowerCase()) ||
-    c.company.toLowerCase().includes(q.toLowerCase()) ||
-    c.manager.toLowerCase().includes(q.toLowerCase()) ||
-    c.status.toLowerCase().includes(q.toLowerCase()) ||
-    c.type.toLowerCase().includes(q.toLowerCase())
-  );
-  renderTable(filtered);
+function checkBulk() {
+  const checked=document.querySelectorAll('.row-cb:checked').length;
+  document.getElementById('bulkDeleteBtn').style.display=checked>0?'':'none';
+  document.getElementById('bulkDeleteBtn').textContent=`Delete ${checked} Selected`;
 }
 
-/* ── Activity Feed ── */
+function bulkDelete() {
+  const ids=[...document.querySelectorAll('.row-cb:checked')].map(cb=>+cb.dataset.id);
+  if(!confirm(`Delete ${ids.length} clients?`)) return;
+  clients=clients.filter(c=>!ids.includes(c.id));
+  updateKPIs();renderTable();renderActivity();
+  showToast(`${ids.length} clients deleted`,'error');
+  document.getElementById('bulkDeleteBtn').style.display='none';
+}
+
+function filterTable(q) { currentTypeFilter=''; renderTable(); updateFilterBtns(); }
+
+function filterByStatus(status) {
+  currentFilter=status; currentTypeFilter='';
+  updateFilterBtns();
+  document.getElementById('searchInput').value='';
+  renderTable();
+}
+function filterByType(type) {
+  currentTypeFilter=type; currentFilter='';
+  updateFilterBtns();
+  renderTable();
+}
+function updateFilterBtns() {
+  ['fb-all','fb-active','fb-pending','fb-selfreg'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  if(!currentFilter&&!currentTypeFilter) document.getElementById('fb-all').classList.add('active');
+  if(currentFilter==='Active') document.getElementById('fb-active').classList.add('active');
+  if(currentFilter==='Pending') document.getElementById('fb-pending').classList.add('active');
+  if(currentTypeFilter==='Self-Reg') document.getElementById('fb-selfreg').classList.add('active');
+}
+
+function toggleDropdown(id) {
+  const menu=document.getElementById('ddm-'+id);
+  const wasOpen=menu.classList.contains('open');
+  document.querySelectorAll('.dropdown-menu').forEach(m=>m.classList.remove('open'));
+  if(!wasOpen) menu.classList.add('open');
+}
+function closeDropdowns() { document.querySelectorAll('.dropdown-menu').forEach(m=>m.classList.remove('open')); }
+document.addEventListener('click',e=>{ if(!e.target.closest('.dropdown')) closeDropdowns(); });
+
+/* ─── ACTIVITY ─── */
 function renderActivity() {
-  const el = document.getElementById('activityFeed');
-  el.innerHTML = activities.slice(0,5).map(a => `
+  document.getElementById('activityFeed').innerHTML = activities.slice(0,5).map(a=>`
     <div class="activity-item">
-      <div class="act-avatar ${a.type==='success'?'green':''}">
-        ${a.type==='success'
-          ? '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
-          : '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'}
+      <div class="act-dot-wrap">
+        <div class="act-dot ${a.type}"></div>
+        <div class="act-line"></div>
       </div>
       <div class="act-text">
         <div class="act-msg">${a.msg}</div>
         <div class="act-time">${a.time}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
+function addActivity(type,msg,time) { activities.unshift({type,msg,time}); renderActivity(); }
 
-function addActivity(type, msg, time) {
-  activities.unshift({ type, msg, time });
-  renderActivity();
-}
-
-/* ── Workload ── */
+/* ─── WORKLOAD ─── */
 function renderWorkload() {
-  const el = document.getElementById('workloadList');
-  el.innerHTML = workload.map((w,i) => `
+  const max=Math.max(...workload.map(w=>w.count),1);
+  document.getElementById('workloadList').innerHTML = workload.map(w=>`
     <div class="workload-item">
-      <div class="wl-avatar" style="background:${['#dbeafe','#dcfce7','#fef3c7'][i%3]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${['#2563eb','#16a34a','#d97706'][i%3]}">
-        ${w.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
+      <div class="wl-avatar" style="background:${w.color[0]};color:${w.color[1]}">${initials(w.name)}</div>
+      <div class="wl-info">
+        <div class="wl-name">${w.name}</div>
+        <div class="wl-bar-wrap"><div class="wl-bar" style="width:${Math.round(w.count/max*100)}%;background:${w.color[1]}"></div></div>
       </div>
-      <div class="wl-name">${w.name}</div>
       <div class="wl-count">${w.count}</div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-/* ── KPIs ── */
+/* ─── KPIs ─── */
 function updateKPIs() {
-  const active = clients.filter(c => c.status === 'Active').length;
-  const pending = clients.filter(c => c.status === 'Pending').length + pendingRequests.length;
-  document.getElementById('kpiTotal').textContent = (2451 - 6 + clients.length).toLocaleString();
-  document.getElementById('kpiPending').textContent = pending;
-  document.getElementById('kpiActive').textContent = (2103 - 4 + active).toLocaleString();
+  const active=clients.filter(c=>c.status==='Active').length;
+  const pending=clients.filter(c=>c.status==='Pending').length+pendingRequests.length;
+  const t=document.getElementById('kpiTotal'); if(t) t.textContent=(2451-6+clients.length).toLocaleString();
+  const p=document.getElementById('kpiPending'); if(p) p.textContent=pending;
+  const a=document.getElementById('kpiActive'); if(a) a.textContent=(2103-4+active).toLocaleString();
+  const b=document.getElementById('clientsBadge'); if(b) b.textContent=clients.length;
 }
 
-/* ── Direct Form Submit ── */
+/* ─── QUICK ADD ─── */
 function submitDirectForm() {
-  const name = document.getElementById('dcName').value.trim();
-  const company = document.getElementById('dcCompany').value.trim();
-  const email = document.getElementById('dcEmail').value.trim();
-  const manager = document.getElementById('dcEmployee').value;
-  if(!name || !company || !email) { showToast('Please fill in all fields', 'error'); return; }
-  clients.unshift({ id: nextId++, name, company, type:'Direct Add', status:'Active', manager: manager || 'Unassigned', date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) });
-  document.getElementById('dcName').value = '';
-  document.getElementById('dcCompany').value = '';
-  document.getElementById('dcEmail').value = '';
-  document.getElementById('dcEmployee').value = '';
-  // Update workload
-  if(manager) {
-    const wl = workload.find(w => w.name === manager);
-    if(wl) wl.count++; else workload.push({ name: manager, count: 1 });
-    renderWorkload();
-  }
-  addActivity('success', `${name} added as <span class="highlight">Direct Add</span>`, 'Just now');
-  updateKPIs();
-  renderTable(clients);
-  showToast(name + ' added successfully!', 'success');
+  const name=document.getElementById('dcName').value.trim();
+  const company=document.getElementById('dcCompany').value.trim();
+  const email=document.getElementById('dcEmail').value.trim();
+  const manager=document.getElementById('dcEmployee').value;
+  if(!name||!company||!email){showToast('Please fill in all fields','error');return;}
+  clients.unshift({id:nextId++,name,company,type:'Direct Add',status:'Active',manager:manager||'Unassigned',date:fmtDate(new Date()),email});
+  if(manager){const wl=workload.find(w=>w.name===manager);if(wl)wl.count++;else workload.push({name:manager,count:1,color:['#f1f5f9','#64748b']});}
+  addActivity('success',`<span class="highlight">${name}</span> added via Direct Add`,'Just now');
+  updateKPIs();renderTable();renderWorkload();
+  clearQuickForm();
+  showToast(name+' added!','success');
+}
+function clearQuickForm(){
+  ['dcName','dcCompany','dcEmail'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('dcEmployee').value='';
 }
 
-/* ── Modal ── */
+/* ─── MODAL ─── */
 function openAddModal() {
+  document.querySelector('#addModal .modal-title').textContent='Add New Client';
+  document.querySelector('#addModal .btn-submit').textContent='Add Client';
+  document.querySelector('#addModal .btn-submit').onclick=submitModal;
+  ['m-name','m-company','m-email'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('addModal').classList.add('open');
-  document.getElementById('m-name').focus();
+  setTimeout(()=>document.getElementById('m-name').focus(),80);
 }
 function closeModal() { document.getElementById('addModal').classList.remove('open'); }
-
 function submitModal() {
-  const name = document.getElementById('m-name').value.trim();
-  const company = document.getElementById('m-company').value.trim();
-  const email = document.getElementById('m-email').value.trim();
-  const type = document.getElementById('m-type').value;
-  const manager = document.getElementById('m-manager').value;
-  if(!name || !company || !email) { showToast('Please fill in all required fields', 'error'); return; }
-  clients.unshift({ id: nextId++, name, company, type, status:'Active', manager, date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) });
-  const wl = workload.find(w => w.name === manager);
-  if(wl) wl.count++;
+  const name=document.getElementById('m-name').value.trim();
+  const company=document.getElementById('m-company').value.trim();
+  const email=document.getElementById('m-email').value.trim();
+  const type=document.getElementById('m-type').value;
+  const manager=document.getElementById('m-manager').value;
+  if(!name||!company||!email){showToast('Please fill in required fields','error');return;}
+  clients.unshift({id:nextId++,name,company,type,status:'Active',manager,date:fmtDate(new Date()),email});
+  const wl=workload.find(w=>w.name===manager);if(wl)wl.count++;
   renderWorkload();
-  addActivity('success', `${name} added as <span class="highlight">Active</span>`, 'Just now');
-  updateKPIs();
-  renderTable(clients);
-  closeModal();
-  ['m-name','m-company','m-email'].forEach(id => document.getElementById(id).value = '');
-  showToast(name + ' added successfully!', 'success');
+  addActivity('success',`<span class="highlight">${name}</span> added as Active`,'Just now');
+  updateKPIs();renderTable();closeModal();
+  showToast(name+' added!','success');
 }
 
-/* ── Copy URL ── */
-function copyUrl(inputId, btn) {
-  const val = document.getElementById(inputId).value;
-  navigator.clipboard.writeText(val).then(() => {
+/* ─── COPY URL ─── */
+function copyUrl(inputId,btnId) {
+  const val=document.getElementById(inputId).value;
+  const btn=document.getElementById(btnId);
+  navigator.clipboard.writeText(val).then(()=>{
     btn.classList.add('copied');
-    btn.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-    showToast('URL copied to clipboard!', 'success');
-    setTimeout(() => {
+    btn.innerHTML='<svg fill="none" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5"/></svg>';
+    showToast('URL copied!','success');
+    setTimeout(()=>{
       btn.classList.remove('copied');
-      btn.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
-    }, 2000);
-  }).catch(() => {
-    showToast('URL copied!', 'success');
-  });
+      btn.innerHTML='<svg fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/></svg>';
+    },2000);
+  }).catch(()=>showToast('Copied!','success'));
 }
 
-/* ── Toast ── */
-function showToast(msg, type) {
-  const container = document.getElementById('toast');
-  const div = document.createElement('div');
-  div.className = 'toast-msg ' + type;
-  div.innerHTML = (type==='success'?'✓ ':'') + (type==='error'?'✕ ':'') + msg;
+function copyInviteLink() {
+  const link='https://app.zarklyx.io/register?ref='+Math.random().toString(36).slice(2,8);
+  navigator.clipboard.writeText(link).catch(()=>{});
+  showToast('Invite link copied to clipboard!','success');
+}
+
+/* ─── TOAST ─── */
+function showToast(msg,type) {
+  const container=document.getElementById('toast');
+  const div=document.createElement('div');
+  div.className='toast-msg '+(type||'');
+  const icon=type==='success'?'<polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5"/>'
+    :type==='error'?'<line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2.5"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2.5"/>'
+    :'<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>';
+  div.innerHTML=`<div class="toast-icon ${type||''}"><svg fill="none" viewBox="0 0 24 24">${icon}</svg></div><span>${msg}</span>`;
   container.appendChild(div);
-  setTimeout(() => { div.style.opacity='0'; div.style.transform='translateY(10px)'; div.style.transition='all .3s'; setTimeout(()=>div.remove(),300); }, 3000);
+  setTimeout(()=>{div.style.transition='all .3s';div.style.opacity='0';div.style.transform='translateY(6px)';setTimeout(()=>div.remove(),300);},3200);
 }
 
-/* ── Keyboard ── */
-document.addEventListener('keydown', e => { if(e.key==='Escape') { closeModal(); closeDropdowns(); } });
+/* ─── UTILS ─── */
+function fmtDate(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
 
-/* ── Init ── */
-renderPending();
-renderTable(clients);
+/* ─── KEYBOARD ─── */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();closeDropdowns();closeDetail();}
+});
+
+/* ─── INIT ─── */
+switchPage('dashboard');
 renderActivity();
-renderWorkload();
 </script>
 </body>
 </html>
